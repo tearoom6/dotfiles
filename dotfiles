@@ -35,6 +35,7 @@ function exec_recursively() {
       [[ "$ITEM" == *'.??*' ]] && continue
       [[ "$ITEM" == *'.git' ]] && continue
       [[ "$ITEM" == *'.DS_Store' ]] && continue
+      [[ "$ITEM" == *'dotfiles' ]] && continue
       
       # in case of directory
       if [ -d "$ITEM" ]; then
