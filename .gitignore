@@ -1,0 +1,8 @@
+## ~/.gitignore
+
+# Mac OS X meta file
+.DS_Store
+
+# ctags file
+tags
+

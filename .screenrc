@@ -1,0 +1,42 @@
+# ~/.screenrc
+
+## environment
+### login-shell
+shell -$SHELL
+### scrollback buffer
+defscrollback 2000
+### auto detach
+autodetach on
+### alternate terminal (inside screen)
+altscreen on
+### alternate terminal (screen itself)
+termcapinfo xterm* ti@:te@
+
+## customize display
+### status line
+#hardstatus on
+hardstatus alwayslastline "%-w%{= ck}%n %t%{-}%+w"
+caption always "%{=r dg}%H[%n]: %m/%d %C%a %{-}%`%-w%{=b bw}%n %t%{-}%+w"
+### visual bell
+vbell off
+### startup message
+startup_message off
+
+## customize key-bind
+### escape key
+escape ^Tt
+### about encoding
+bind ^U encoding utf8
+bind ^E encoding euc
+### about resize window
+bind e eval 'command -c resize' 'echo "Resize window"'
+bind ^e eval 'command -c resize' 'echo "Resize window"'
+bind -c resize h eval 'command -c resize' 'resize -h -1'
+bind -c resize l eval 'command -c resize' 'resize -h +1'
+bind -c resize j eval 'command -c resize' 'resize -v +1'
+bind -c resize k eval 'command -c resize' 'resize -v -1'
+bind -c resize ^h eval 'command -c resize' 'resize -h -1'
+bind -c resize ^l eval 'command -c resize' 'resize -h +1'
+bind -c resize ^j eval 'command -c resize' 'resize -v +1'
+bind -c resize ^k eval 'command -c resize' 'resize -v -1'
+

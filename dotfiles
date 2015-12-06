@@ -1,0 +1,135 @@
+#!/bin/bash
+
+# dotfiles
+# - manage dotfiles
+# (c) Tomohiro Murota
+
+VERSION='1.0.0'
+
+function usage() {
+   echo 'usage) dotfiles sub-command [options]'
+   echo '  '
+   echo '  version : show version number.'
+   echo '  help : show this message.'
+   echo '  diff : show diff dotfiles.'
+   echo '  load : load dotfiles.'
+   echo '  save : save dotfiles.'
+   echo '  '
+   echo '  -f : not dry-run'
+   echo ''
+}
+
+function exec_recursively() {
+   local FROM=$1
+   local TO=$2
+   local COMMAND=$3
+   local REVERSE=$4
+   local AVOID_EMPTY=$5
+   local FORCE=$6
+   local ITEM
+
+   # loop including dotfiles
+   for ITEM in $FROM/{.??*,??*}
+   do
+      # ignore pattern
+      [[ "$ITEM" == *'.??*' ]] && continue
+      [[ "$ITEM" == *'.git' ]] && continue
+      [[ "$ITEM" == *'.DS_Store' ]] && continue
+      
+      # in case of directory
+      if [ -d "$ITEM" ]; then
+         if [ ! -d "$TO/$ITEM" ]; then
+            echo "WARN) directory ($TO/$ITEM) not found!"
+            if [ "$AVOID_EMPTY" == '1' -o "$FORCE" != '1' ]; then
+               continue
+            fi
+            mkdir -p $TO/$ITEM
+            echo "WARN) directory ($TO/$ITEM) created!"
+         fi
+         exec_recursively $ITEM $TO $COMMAND $REVERSE $AVOID_EMPTY $FORCE
+         continue
+      fi
+
+      # in case of file
+      local FROM_FILE=$ITEM
+      local TO_FILE=$TO/$ITEM
+      if [ "$REVERSE" == '1' ]; then
+         local FROM_FILE=$TO/$ITEM
+         local TO_FILE=$ITEM
+      fi
+
+      # avoid exec if from_file not exists
+      if [ ! -f "$FROM_FILE" ]; then
+         echo "INFO) FROM_FILE ($FROM_FILE) not found."
+         continue
+      fi
+
+      if [ "$AVOID_EMPTY" == '1' -a ! -f "$TO/$ITEM" ]; then
+         # avoid exec if to_file not exists
+         echo "WARN) TO_FILE ($TO_FILE) not found!"
+         continue
+      fi
+
+      echo "INFO) $COMMAND $FROM_FILE $TO_FILE"
+      if [ "$FORCE" == '1' ]; then
+         eval $COMMAND $FROM_FILE $TO_FILE
+      fi
+   done
+}
+
+
+# check artuments
+if [[ $# -lt 1 ]]; then
+   usage
+   exit 1
+fi
+SUB_COMMAND=$1
+shift
+
+# check options
+FORCE=0
+while getopts ":fh" OPT
+do
+   case $OPT in
+   f)
+      FORCE=1
+      echo "INFO) -f option detected."
+      ;;
+   h)
+      usage
+      exit 1
+      ;;
+   *)
+      echo "$0: illegal option -- $OPT"
+      usage
+      exit 1
+      ;;
+   esac
+done
+
+# change dir temporarily
+CURRENT_DIR=$(pwd)
+cd $(dirname $0)
+
+# main flow
+case $SUB_COMMAND in
+diff)
+   exec_recursively . ~ diff 0 1 $FORCE
+   ;;
+load)
+   exec_recursively . ~ cp 0 0 $FORCE
+   ;;
+save)
+   exec_recursively . ~ cp 1 0 $FORCE
+   ;;
+version)
+   echo $VERSION
+   ;;
+help|*)
+   usage
+   ;;
+esac
+
+# revert current dir
+cd $CURRENT_DIR
+

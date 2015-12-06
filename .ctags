@@ -1,0 +1,14 @@
+--append=yes
+--recurse=yes
+
+--exclude=.DS_Store
+--exclude=*.git*
+--exclude=*.svn*
+--exclude=*.pyc
+--exclude=*.pyo
+--exclude=*.md
+--exclude=*.rsync_cache*
+
+--langmap=PHP:+.inc
+
+--langmap=ruby:+.rake

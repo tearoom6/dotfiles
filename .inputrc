@@ -1,0 +1,30 @@
+# ~/.inputrc
+
+# Include
+$include /etc/Inputrc
+
+# Basic Settings
+set editing-mode emacs
+
+# Visual Settings
+set bell-style none
+set colored-stats on
+set horizontal-scroll-mode off
+set mark-modified-lines on
+
+# About Completion
+set completion-ignore-case on
+set completion-map-case on
+set completion-prefix-display-length 20
+set completion-query-items 50
+set page-completions on
+set mark-directories on
+set mark-symlinked-directories off
+set match-hidden-files on
+set show-all-if-unmodified on
+set visible-stats on
+
+# About Meta Character
+set input-meta on
+set convert-meta off
+set output-meta on

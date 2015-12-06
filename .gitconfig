@@ -1,0 +1,29 @@
+[user]
+	name = Tomohiro Murota
+	email = tomohiro.murota@gmail.com
+[core]
+	editor = vim
+	quotepath = false
+	excludesfile = ~/.gitignore
+	attributesfile = ~/.gitattributes
+[push]
+	default = simple
+[pull]
+	default = simple
+[color]
+	ui = true
+[mergetool]
+	keepBackup = false
+[pager]
+	log = ~/.git.d/diff-highlight | less
+	show = ~/.git.d/diff-highlight | less
+	diff = ~/.git.d/diff-highlight | less
+[alias]
+	ignore = update-index --assume-unchanged
+	unignore = update-index --no-assume-unchanged
+	ignored = !git ls-files -v | grep "^[a-z]"
+	skip = update-index --skip-worktree
+	unskip = update-index --no-skip-worktree
+	skipped = !git ls-files -v | grep "^S"
+[include]
+	path = .gitconfig.alias

@@ -1,0 +1,17 @@
+[alias]
+	alias = !git config --list | grep 'alias\\.' | sed 's/alias\\.\\([^=]*\\)=\\(.*\\)/\\1\\\t => \\2/' | sort
+	b = branch -a
+	ci = commit
+	co = checkout
+	d = diff
+	dc = diff --cached
+	f = fetch --prune
+	fs = !git f && git su
+	info = remote show origin
+	l = log --graph -n 20 --pretty=format:'%C(yellow)%h%C(cyan)%d%Creset %s %C(green)- %an, %cr%Creset'
+	ll = log --stat --abbrev-commit
+	ln = log --graph -n 20 --pretty=format:'%C(yellow)%h%C(cyan)%d%Creset %s %C(green)- %an, %cr%Creset' --name-status
+	lp = log --oneline -n 20 -p
+	s = status --short --branch
+	st = status
+	su = submodule update
