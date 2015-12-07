@@ -16,6 +16,7 @@ function usage() {
    echo '  save : save dotfiles.'
    echo '  '
    echo '  -f : not dry-run'
+   echo '  -t FILE : specify target file'
    echo ''
 }
 
@@ -26,6 +27,7 @@ function exec_recursively() {
    local REVERSE=$4
    local AVOID_EMPTY=$5
    local FORCE=$6
+   local TARGET_FILE=$7
    local ITEM
 
    # loop including dotfiles
@@ -35,7 +37,6 @@ function exec_recursively() {
       [[ "$ITEM" == *'.??*' ]] && continue
       [[ "$ITEM" == *'.git' ]] && continue
       [[ "$ITEM" == *'.DS_Store' ]] && continue
-      [[ "$ITEM" == *'dotfiles' ]] && continue
       
       # in case of directory
       if [ -d "$ITEM" ]; then
@@ -47,8 +48,14 @@ function exec_recursively() {
             mkdir -p $TO/$ITEM
             echo "WARN) directory ($TO/$ITEM) created!"
          fi
-         exec_recursively $ITEM $TO $COMMAND $REVERSE $AVOID_EMPTY $FORCE
+         exec_recursively $ITEM $TO $COMMAND $REVERSE $AVOID_EMPTY $FORCE $TARGET_FILE
          continue
+      fi
+
+      # ignoore file pattern
+      [[ "$ITEM" == *'dotfiles' ]] && continue
+      if [ -n "$TARGET_FILE" ]; then
+         [[ "$ITEM" != *"$TARGET_FILE" ]] && continue
       fi
 
       # in case of file
@@ -89,12 +96,17 @@ shift
 
 # check options
 FORCE=0
-while getopts ":fh" OPT
+TARGET_FILE=
+while getopts ":ft:h" OPT
 do
    case $OPT in
    f)
       FORCE=1
       echo "INFO) -f option detected."
+      ;;
+   t)
+      TARGET_FILE=$OPTARG
+      echo "INFO) -t option detected. -- target file : $OPTARG"
       ;;
    h)
       usage
@@ -115,13 +127,13 @@ cd $(dirname $0)
 # main flow
 case $SUB_COMMAND in
 diff)
-   exec_recursively . ~ diff 0 1 $FORCE
+   exec_recursively . ~ diff 0 1 $FORCE $TARGET_FILE
    ;;
 load)
-   exec_recursively . ~ cp 0 0 $FORCE
+   exec_recursively . ~ cp 0 0 $FORCE $TARGET_FILE
    ;;
 save)
-   exec_recursively . ~ cp 1 0 $FORCE
+   exec_recursively . ~ cp 1 0 $FORCE $TARGET_FILE
    ;;
 version)
    echo $VERSION
