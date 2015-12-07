@@ -4,11 +4,11 @@
 # get os name
 function get_os_name() {
    local cname=`uname`
-   if [ "$cname" == 'Darwin' ]; then
+   if [ $(echo "$cname" | grep -e '^Darwin') ]; then
       local os='MacOSX'
-   elif [ "$cname" == 'Linux*' ]; then
+   elif [ $(echo "$cname" | grep -e '^Linux') ]; then
       local os='Linux'
-   elif [ "$cname" == 'MINGW32_NT*' ]; then
+   elif [ $(echo "$cname" | grep -e '^MINGW32_NT') ]; then
       local os='Cygwin'
    else
       local os='UNKNOWN'
