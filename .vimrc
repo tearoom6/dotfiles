@@ -69,6 +69,8 @@ inoremap <expr> ,dt   strftime('%H:%M:%S')
 nnoremap gc   `[v`]
 vnoremap gc   :<C-u>normal gc<Enter>
 onoremap gc   :<C-u>normal gc<Enter>
+" about NERDTree
+nnoremap <silent><C-f> :NERDTreeToggle<CR>
 
 "" auto command
 " persist last edited section
