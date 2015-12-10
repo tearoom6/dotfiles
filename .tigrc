@@ -1,0 +1,12 @@
+## ~/.tigrc
+
+## Settings
+# commits
+set commit-order = topo
+
+## Key Bindings
+# move
+bind generic g move-first-line
+bind generic G move-last-line
+# checkout
+bind refs n !git checkout -b %(prompt Enter branch name:) %(branch)
