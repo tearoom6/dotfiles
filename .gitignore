@@ -6,6 +6,8 @@
 # ctags file
 tags
 
-# vim temp file
+# vim files
 .vim/view/
+.vim/bundle/
+!.vim/bundle/neobundle.vim
 
