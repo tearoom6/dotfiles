@@ -6,3 +6,6 @@
 # ctags file
 tags
 
+# vim temp file
+.vim/view/
+
