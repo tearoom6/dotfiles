@@ -1,0 +1,59 @@
+## ~/.editorconfig
+## see http://editorconfig.org/
+
+# top-most EditorConfig file
+root = true
+
+# Common
+[*]
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = false
+charset = utf-8
+
+# Perl
+[*.pl]
+indent_style = space
+indent_size = 3
+
+# Ruby
+[*.rb]
+indent_style = space
+indent_size = 2
+insert_final_newline = false
+
+# Python
+[*.py]
+indent_style = space
+indent_size = 4
+
+# PHP
+[*.php]
+indent_style = space
+indent_size = 4
+
+# Scala
+[*.scala]
+indent_style = space
+indent_size = 2
+
+# Java
+[*.java]
+indent_style = space
+indent_size = 4
+
+# C#
+[*.cs]
+indent_style = space
+indent_size = 4
+
+# JavaScript
+[*.js]
+indent_style = space
+indent_size = 2
+
+# Markdown
+[*.md]
+indent_style = space
+indent_size = 3
+

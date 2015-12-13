@@ -6,6 +6,7 @@ call neobundle#begin(expand('~/.vim/bundle/'))
 NeoBundleFetch 'Shougo/neobundle.vim'
 " My Bundles here:
 NeoBundle 'Shougo/vimproc'
+NeoBundle 'editorconfig/editorconfig-vim'
 NeoBundle 'scrooloose/nerdtree'
 NeoBundle 'szw/vim-tags'
 call neobundle#end()
@@ -39,10 +40,10 @@ set ignorecase
 set smartcase
 set hlsearch
 " about tab
-set expandtab
-set shiftwidth=3
-set softtabstop=3
-set tabstop=3
+"set expandtab
+"set shiftwidth=3
+"set softtabstop=3
+"set tabstop=3
 
 "" change key binding
 " about escape key
