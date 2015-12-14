@@ -56,6 +56,7 @@ set hlsearch
 "set tabstop=3
 
 "" change key binding
+" B
 " about escape key
 imap jj <Esc>
 " about Ex command
@@ -71,9 +72,12 @@ noremap <silent> <C-n> :tabnext<CR>
 noremap <silent> <C-p> :tabprevious<CR>
 noremap <silent> <C-t><C-t> :tabnew<CR>
 noremap <silent> <C-t>x :tabclose<CR>
-" about ctags
-nnoremap <C-]> g<C-]>
-nnoremap <C-[> <C-t>
+" about tags
+nnoremap t  <Nop>
+nnoremap tt  g<C-]>
+nnoremap tj  :<C-u>tag<CR>
+nnoremap tk  :<C-u>pop<CR>
+nnoremap tl  :<C-u>tags<CR>
 " about .vimrc
 nnoremap <Space>.   :<C-u>edit $MYVIMRC<CR>
 nnoremap <Space>s.   :<C-u>source $MYVIMRC<CR>
