@@ -71,6 +71,9 @@ noremap <silent> <C-n> :tabnext<CR>
 noremap <silent> <C-p> :tabprevious<CR>
 noremap <silent> <C-t><C-t> :tabnew<CR>
 noremap <silent> <C-t>x :tabclose<CR>
+" about ctags
+nnoremap <C-]> g<C-]>
+nnoremap <C-[> <C-t>
 " about .vimrc
 nnoremap <Space>.   :<C-u>edit $MYVIMRC<CR>
 nnoremap <Space>s.   :<C-u>source $MYVIMRC<CR>
