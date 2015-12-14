@@ -4,11 +4,21 @@
 set runtimepath+=~/.vim/bundle/neobundle.vim
 call neobundle#begin(expand('~/.vim/bundle/'))
 NeoBundleFetch 'Shougo/neobundle.vim'
-" My Bundles here:
+" common
 NeoBundle 'Shougo/vimproc'
-NeoBundle 'editorconfig/editorconfig-vim'
+" utility
+NeoBundle 'Shougo/unite.vim'
+NeoBundle 'Shougo/neomru.vim'
+NeoBundle 'Shougo/neoyank.vim'
+NeoBundle 'Shougo/unite-outline'
 NeoBundle 'scrooloose/nerdtree'
+" editor
+NeoBundle 'editorconfig/editorconfig-vim'
 NeoBundle 'szw/vim-tags'
+NeoBundle 'tpope/vim-endwise'
+" Ruby
+NeoBundle 'tpope/vim-rails'
+NeoBundle 'basyura/unite-rails'
 call neobundle#end()
 NeoBundleCheck   " confirm if allows new plugin install
 
@@ -56,22 +66,44 @@ noremap j   gj
 noremap k   gk
 noremap gj   j
 noremap gk   k
+" about tab window
+noremap <silent> <C-n> :tabnext<CR>
+noremap <silent> <C-p> :tabprevious<CR>
+noremap <silent> <C-t><C-t> :tabnew<CR>
+noremap <silent> <C-t>x :tabclose<CR>
 " about .vimrc
-nnoremap <Space>.   :<C-u>edit $MYVIMRC<Enter>
-nnoremap <Space>s.   :<C-u>source $MYVIMRC<Enter>
+nnoremap <Space>.   :<C-u>edit $MYVIMRC<CR>
+nnoremap <Space>s.   :<C-u>source $MYVIMRC<CR>
 " about help
 nnoremap <C-h>   :<C-u>help<Space>
-nnoremap <C-h><C-h>   :<C-u>help<Space><C-r><C-w><Enter>
+nnoremap <C-h><C-h>   :<C-u>help<Space><C-r><C-w><CR>
 " insert timestamp
 inoremap <expr> ,df   strftime('%Y-%m-%dT%H:%M:%S')
 inoremap <expr> ,dd   strftime('%Y-%m-%d')
 inoremap <expr> ,dt   strftime('%H:%M:%S')
 " select last pasted text
 nnoremap gc   `[v`]
-vnoremap gc   :<C-u>normal gc<Enter>
-onoremap gc   :<C-u>normal gc<Enter>
+vnoremap gc   :<C-u>normal gc<CR>
+onoremap gc   :<C-u>normal gc<CR>
+" about Unite.vim
+nmap <Space> [Unite]
+nnoremap <silent> [Unite]a :<C-u>UniteWithBufferDir -buffer-name=files file<CR>
+nnoremap <silent> [Unite]f :<C-u>Unite<Space>buffer file_mru<CR>
+nnoremap <silent> [Unite]d :<C-u>Unite<Space>directory_mru<CR>
+nnoremap <silent> [Unite]b :<C-u>Unite<Space>buffer<CR>
+nnoremap <silent> [Unite]r :<C-u>Unite<Space>register<CR>
+nnoremap <silent> [Unite]t :<C-u>Unite<Space>tab<CR>
+nnoremap <silent> [Unite]h :<C-u>Unite<Space>history/yank<CR>
+nnoremap <silent> [Unite]o :<C-u>Unite<Space>outline<CR>
+nnoremap <silent> [Unite]m :<C-u>Unite<Space>rails/model<CR>
+nnoremap <silent> [Unite]v :<C-u>Unite<Space>rails/view<CR>
+nnoremap <silent> [Unite]c :<C-u>Unite<Space>rails/controller<CR>
+nnoremap <silent> [Unite]cc :<C-u>Unite<Space>rails/config<CR>
+nnoremap <silent> [Unite]db :<C-u>Unite<Space>rails/db -input=migrate<CR>
+nnoremap <silent> [Unite]<CR> :<C-u>Unite<Space>file_rec:!<CR>
+
 " about NERDTree
-nnoremap <silent><C-f> :NERDTreeToggle<CR>
+nnoremap <silent> <C-a> :NERDTreeToggle<CR>
 
 "" auto command
 " persist last edited section
