@@ -12,10 +12,15 @@ NeoBundle 'Shougo/neomru.vim'
 NeoBundle 'Shougo/neoyank.vim'
 NeoBundle 'Shougo/unite-outline'
 NeoBundle 'scrooloose/nerdtree'
+NeoBundle 'tpope/vim-fugitive'
 " editor
 NeoBundle 'editorconfig/editorconfig-vim'
 NeoBundle 'szw/vim-tags'
 NeoBundle 'tpope/vim-endwise'
+NeoBundle 'tpope/vim-surround'
+NeoBundle 'Townk/vim-autoclose'
+NeoBundle 'nathanaelkane/vim-indent-guides'
+NeoBundle 'bronson/vim-trailing-whitespace'
 " Ruby
 NeoBundle 'tpope/vim-rails'
 NeoBundle 'basyura/unite-rails'
@@ -56,7 +61,6 @@ set hlsearch
 "set tabstop=3
 
 "" change key binding
-" B
 " about escape key
 imap jj <Esc>
 " about Ex command
@@ -108,9 +112,17 @@ nnoremap <silent> [Unite]c :<C-u>Unite<Space>rails/controller<CR>
 nnoremap <silent> [Unite]cc :<C-u>Unite<Space>rails/config<CR>
 nnoremap <silent> [Unite]db :<C-u>Unite<Space>rails/db -input=migrate<CR>
 nnoremap <silent> [Unite]<CR> :<C-u>Unite<Space>file_rec:!<CR>
-
 " about NERDTree
 nnoremap <silent> <C-a> :NERDTreeToggle<CR>
+" about vim-fugitive
+nmap <Space>g [fugitive]
+nnoremap <silent> [fugitive]s :<C-u>Gstatus<CR>
+nnoremap <silent> [fugitive]l :<C-u>Glog<CR>
+nnoremap <silent> [fugitive]d :<C-u>Gvdiff<CR>
+nnoremap <silent> [fugitive]b :<C-u>Gblame<CR>
+nnoremap <silent> [fugitive]r :<C-u>Gread<CR>
+nnoremap <silent> [fugitive]a :<C-u>Gwrite<CR>
+nnoremap <silent> [fugitive]c :<C-u>Gcommit<CR>
 
 "" auto command
 " persist last edited section
@@ -151,3 +163,9 @@ syntax enable
 "" color scheme
 " default
 colorscheme darkblue
+
+"" vim-indent-guides
+let g:indent_guides_auto_colors=1
+let g:indent_guides_enable_on_vim_startup=1
+let g:indent_guides_guide_size=1
+
