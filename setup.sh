@@ -18,3 +18,10 @@ done
 # revert current dir
 cd $CURRENT_DIR
 
+# guide message
+echo 'Please complete setup to execute commands below.'
+echo '$ git submodule init'
+echo '$ git submodule update'
+echo '$ cd ./.vim/bundle/vimproc'
+echo '$ make'
+
