@@ -1,0 +1,23 @@
+#!/bin/bash
+# sshpass
+# ssh login with username & password
+PASSWORD_PROMPT='Password:'
+
+if [ $# -lt 3 ];then
+  echo 'sshpass <hostname> <username> <password>'
+  exit 1
+fi
+
+hostname=$1
+username=$2
+password=$3
+
+expect -c "
+set timeout 20
+spawn ssh -q -l $username $hostname
+
+expect $PASSWORD_PROMPT
+send \"$password\n\"
+
+interact
+"

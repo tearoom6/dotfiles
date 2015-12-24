@@ -2,6 +2,7 @@
 
 # Path Definition
 #export PATH=/opt/local/bin:/opt/local/sbin:$PATH
+export PATH=~/.bash.d/:$PATH
 
 # Basic Config
 export LANG='en_US.UTF-8'
