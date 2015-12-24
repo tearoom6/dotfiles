@@ -63,6 +63,9 @@ set hlsearch
 "" change key binding
 " about escape key
 imap jj <Esc>
+imap hh <Esc>
+imap kk <Esc>
+imap ll <Esc>
 " about Ex command
 noremap ;   :
 noremap :   ;
