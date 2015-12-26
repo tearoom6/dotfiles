@@ -16,11 +16,13 @@ NeoBundle 'tpope/vim-fugitive'
 " editor
 NeoBundle 'editorconfig/editorconfig-vim'
 NeoBundle 'szw/vim-tags'
+NeoBundle 'tomtom/tcomment_vim'
 NeoBundle 'tpope/vim-endwise'
 NeoBundle 'tpope/vim-surround'
 NeoBundle 'Townk/vim-autoclose'
 NeoBundle 'nathanaelkane/vim-indent-guides'
 NeoBundle 'bronson/vim-trailing-whitespace'
+NeoBundle 'itchyny/lightline.vim'
 " Ruby
 NeoBundle 'tpope/vim-rails'
 NeoBundle 'basyura/unite-rails'
@@ -47,9 +49,9 @@ set encoding=utf-8
 set fileformats=unix,dos,mac
 " about status line
 set laststatus=2
-set statusline=%<%f\ %m%r%h%w
-set statusline+=%{'['.(&fenc!=''?&fenc:&enc).']['.&fileformat.']'}
-set statusline+=%=%l/%L,%c%V%8P
+"set statusline=%<%f\ %m%r%h%w
+"set statusline+=%{'['.(&fenc!=''?&fenc:&enc).']['.&fileformat.']'}
+"set statusline+=%=%l/%L,%c%V%8P
 " about search
 set ignorecase
 set smartcase
@@ -62,10 +64,11 @@ set hlsearch
 
 "" change key binding
 " about escape key
-imap jj <Esc>
-imap hh <Esc>
-imap kk <Esc>
-imap ll <Esc>
+inoremap jj <Esc>
+inoremap kk <Esc>
+" about control key
+inoremap <C-v> <BS>
+inoremap <C-m> <CR>
 " about Ex command
 noremap ;   :
 noremap :   ;
@@ -74,17 +77,26 @@ noremap j   gj
 noremap k   gk
 noremap gj   j
 noremap gk   k
+inoremap <C-j> <Down>
+inoremap <C-k> <Up>
+inoremap <C-h> <Left>
+inoremap <C-l> <Right>
+nnoremap <C-a> ^
+nnoremap <C-e> $
+inoremap <C-a> <Esc>^i
+inoremap <C-e> <Esc>$i
 " about tab window
-noremap <silent> <C-n> :tabnext<CR>
-noremap <silent> <C-p> :tabprevious<CR>
-noremap <silent> <C-t><C-t> :tabnew<CR>
-noremap <silent> <C-t>x :tabclose<CR>
+nmap <C-k> [Tab]
+noremap [Tab]<C-n> :<C-u>tabnext<CR>
+noremap [Tab]<C-p> :<C-u>tabprevious<CR>
+noremap [Tab]<C-k> :<C-u>tabnew<CR>
+noremap [Tab]<C-r> :<C-u>tabclose<CR>
 " about tags
-nnoremap t  <Nop>
-nnoremap tt  g<C-]>
-nnoremap tj  :<C-u>tag<CR>
-nnoremap tk  :<C-u>pop<CR>
-nnoremap tl  :<C-u>tags<CR>
+nmap <C-j> [Tag]
+nnoremap [Tag]<C-j>  g<C-]>
+nnoremap [Tag]<C-h>  :<C-u>tag<CR>
+nnoremap [Tag]<C-k>  :<C-u>pop<CR>
+nnoremap [Tag]<c-l>  :<C-u>tags<CR>
 " about .vimrc
 nnoremap <Space>.   :<C-u>edit $MYVIMRC<CR>
 nnoremap <Space>s.   :<C-u>source $MYVIMRC<CR>
@@ -116,7 +128,7 @@ nnoremap <silent> [Unite]cc :<C-u>Unite<Space>rails/config<CR>
 nnoremap <silent> [Unite]db :<C-u>Unite<Space>rails/db -input=migrate<CR>
 nnoremap <silent> [Unite]<CR> :<C-u>Unite<Space>file_rec:!<CR>
 " about NERDTree
-nnoremap <silent> <C-a> :NERDTreeToggle<CR>
+nnoremap <silent> <C-l> :NERDTreeToggle<CR>
 " about vim-fugitive
 nmap <Space>g [fugitive]
 nnoremap <silent> [fugitive]s :<C-u>Gstatus<CR>
@@ -167,8 +179,33 @@ syntax enable
 " default
 colorscheme darkblue
 
-"" vim-indent-guides
+"" plugin configs
+" vim-indent-guides
 let g:indent_guides_auto_colors=1
 let g:indent_guides_enable_on_vim_startup=1
 let g:indent_guides_guide_size=1
+" lightline.vim
+let g:lightline = {
+\    'colorscheme': 'wombat',
+\    'active': {
+\       'left': [
+\          ['mode', 'paste'],
+\          ['fugitive', 'readonly', 'filename', 'modified']
+\       ]
+\    },
+\    'component_function': {
+\       'fugitive': 'LightLineFugitive',
+\       'readonly': 'LightLineReadonly',
+\       'modified': 'LightLineModified',
+\    },
+\ }
+function! LightLineFugitive()
+   return exists('*fugitive#head') ? fugitive#head() : ''
+endfunction
+function! LightLineReadonly()
+   return &filetype != 'help' ? '' : &readonly ? 'RO' : ''
+endfunction
+function! LightLineModified()
+   return &filetype != 'help' ? '' : &modified ? '+' : &modifiable ? '' : '-'
+endfunction
 
