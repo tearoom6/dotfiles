@@ -1,0 +1,69 @@
+-- ~/.psqlrc
+-- psql Personal Preference File @tearoom6
+-- referred to https://opensourcedbms.com/dbms/psqlrc-psql-startup-file-for-postgres/
+
+---- QUIET Section
+
+\set QUIET 1
+-- Prompt
+\set PROMPT1 '(psql)%M:%> %n@%/\n%R%#%x '
+\set PROMPT2 '%R%#  '
+-- Completion
+\set COMP_KEYWORD_CASE upper
+-- History
+\set HISTSIZE 2000
+-- Display
+\set PAGER OFF
+\set ECHO_HIDDEN ON
+\pset null 'Not Found.'
+\encoding unicode
+\timing
+\set QUIET 0
+
+---- ECHO Section
+
+\echo '\nHost Server Current Time : '`date`
+\echo '\n'
+
+-- General Commands
+\echo 'General commands:'
+\echo '\t\t\t \\h         \t-- Help with SQL commands'
+\echo '\t\t\t \\?         \t-- Help with psql commands'
+\echo '\t\t\t :menu       \t-- Help menu'
+\echo '\t\t\t :sp         \t-- Show current search path'
+\echo '\t\t\t :clear      \t-- Clear screen'
+\echo '\t\t\t :ll         \t-- List current directory items'
+\echo '\t\t\t :quit       \t-- Quit'
+\echo '\n'
+
+-- Administration Queries
+\echo 'Administrative queries:'
+\echo '\t\t\t :settings   \t-- Server settings'
+\echo '\t\t\t :conninfo   \t-- Server connections'
+\echo '\t\t\t :activity   \t-- Server activity'
+\echo '\n'
+
+-- Redshift Queries
+\echo 'Redshift queries:'
+\echo '\t\t\t :tablesize  \t-- Show all table sizes'
+\echo '\t\t\t :queries    \t-- Show current queries'
+\echo '\n'
+
+---- Shortcut Section
+
+-- General Commands
+\set menu   '\\i ~/.psqlrc'
+\set sp     'SHOW search_path;'
+\set clear  '\\! clear;'
+\set ll     '\\! ls -ltr;'
+\set quit   '\\q'
+
+-- Administration Queries
+\set settings 'SELECT name, setting, context FROM pg_settings;'
+\set conninfo 'SELECT usename, count(*) FROM pg_stat_activity GROUP BY usename;'
+\set activity 'SELECT datid, datname, procpid, usesysid, usename, current_query, query_start FROM pg_stat_activity;'
+
+-- Redshift Queries
+\set tablesize 'SELECT name, cnt FROM ( SELECT tbl, count(*) AS cnt FROM stv_blocklist WHERE tbl IN ( SELECT id FROM stv_tbl_perm) GROUP BY tbl) block_list INNER JOIN stv_tbl_perm ON block_list.tbl = stv_tbl_perm.id GROUP BY tbl, stv_tbl_perm.name, block_list.cnt ORDER BY cnt DESC;'
+\set queries   'SELECT query, pid, elapsed, substring FROM svl_qlog ORDER BY starttime DESC LIMIT 5;'
+
