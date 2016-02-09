@@ -1,3 +1,6 @@
+## ~/.gitconfig.alias
+## git Personal Preference File for aliases @tearoom6
+
 [alias]
 	alias = !git config --list | grep 'alias\\.' | sed 's/alias\\.\\([^=]*\\)=\\(.*\\)/\\1\\\t => \\2/' | sort
 	b = branch -a

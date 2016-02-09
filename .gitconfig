@@ -1,3 +1,6 @@
+## ~/.gitconfig
+## git Personal Preference File @tearoom6
+
 [user]
 	name = Tomohiro Murota
 	email = tomohiro.murota@gmail.com

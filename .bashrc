@@ -1,8 +1,5 @@
 # ~/.bashrc
-
-# Utility
-## load functions
-. ~/.bash.d/utility.sh
+# bash Personal Preference File @tearoom6
 
 # Bash Customize
 ## Completion
@@ -68,7 +65,8 @@ kterm*|xterm*)
    ;;
 esac
 ## nvm
-source ~/.nvm/nvm.sh
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
 
 # Login Message
 ## Play

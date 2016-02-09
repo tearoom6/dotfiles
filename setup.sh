@@ -1,4 +1,6 @@
 #!/bin/bash
+# ~/setup.sh
+# dotfiles setup script
 
 # change dir temporarily
 CURRENT_DIR=$(pwd)

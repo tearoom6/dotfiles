@@ -1,4 +1,9 @@
 # ~/.bash_profile
+# bash Personal Preference File @tearoom6
+
+# Utility
+## load functions
+. ~/.bash.d/utility.sh
 
 # Path Definition
 #export PATH=/opt/local/bin:/opt/local/sbin:$PATH
@@ -32,7 +37,13 @@ export PATH=$ANDROID_HOME/tools:$PATH
 export PATH=$PATH:/usr/local/mysql/bin
 ## rbenv
 export PATH="$HOME/.rbenv/bin:$PATH"
-if which rbenv > /dev/null; then eval "$(rbenv init -)"; fi
+eval "$(try_exec rbenv init -)"
+## plenv
+export PATH="$HOME/.plenv/bin:$PATH"
+eval "$(try_exec plenv init -)"
+## pyenv
+export PATH="$HOME/.pyenv/bin:$PATH"
+eval "$(try_exec pyenv init -)"
 
 # Load .bashrc
 if [ -f ~/.bashrc ]; then

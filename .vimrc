@@ -1,4 +1,5 @@
 """ ~/.vimrc
+""" vim Personal Preference File @tearoom6
 
 "" plugins (managed by NeoBundle)
 set runtimepath+=~/.vim/bundle/neobundle.vim

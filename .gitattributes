@@ -1,4 +1,5 @@
 ## ~/.gitattributes
+## git attributes Personal Preference File @tearoom6
 
 # Optimize diff
 *.c diff=cpp

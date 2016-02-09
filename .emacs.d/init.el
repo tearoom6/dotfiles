@@ -1,5 +1,6 @@
 ;; -*- Mode: Emacs-Lisp ; Coding: utf-8 -*-
 ;; ~/emacs.d/init.el
+;; emacs Personal Preference File @tearoom6
 
 ;;;;;;;;;; SetUp ;;;;;;;;;;
 

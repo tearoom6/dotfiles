@@ -1,4 +1,5 @@
 # ~/.inputrc
+# readline Personal Preference File @tearoom6
 
 # Include
 $include /etc/Inputrc
