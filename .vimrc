@@ -86,6 +86,9 @@ nnoremap <C-a> ^
 nnoremap <C-e> $
 inoremap <C-a> <Esc>^i
 inoremap <C-e> <Esc>$i
+" increment / decrement
+nnoremap + <C-a>
+nnoremap - <C-x>
 " about tab window
 nmap <C-k> [Tab]
 noremap [Tab]<C-n> :<C-u>tabnext<CR>
