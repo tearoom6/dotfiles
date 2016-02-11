@@ -12,6 +12,7 @@ export PATH=~/.bash.d/:$PATH
 # Basic Config
 export LANG='en_US.UTF-8'
 export TZ='Asia/Tokyo'
+export EDITOR='vim'
 
 # History Config
 export HISTSIZE=50000
