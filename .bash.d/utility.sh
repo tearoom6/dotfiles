@@ -1,6 +1,11 @@
 #!/bin/bash
 # utility.sh
 
+# is this file loaded
+function is_utility_loaded() {
+   echo 0
+}
+
 # get os name
 function get_os_name() {
    local cname=`uname`

@@ -1,6 +1,12 @@
 # ~/.bashrc
 # bash Personal Preference File @tearoom6
 
+# Utility
+## load functions
+if ! type is_utility_loaded >/dev/null 2>&1; then
+   . ~/.bash.d/utility.sh
+fi
+
 # Bash Customize
 ## Completion
 if [ -f ~/.bash.d/bash-completion/bash_completion ]; then
@@ -67,6 +73,8 @@ esac
 ## nvm
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+## direnv
+eval "$(try_exec direnv hook bash)"
 
 # Login Message
 ## Play
