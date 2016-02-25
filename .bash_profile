@@ -32,8 +32,8 @@ export M2=$M2_HOME/bin
 export MAVEN_OPTS='-Xms256m -Xmx512m'
 export PATH=$M2:$PATH
 ## Android
-export ANDROID_HOME=/Users/t-murota/Library/Android/sdk
-export PATH=$ANDROID_HOME/tools:$PATH
+export ANDROID_HOME=$HOME/Library/Android/sdk
+export PATH=$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools:$PATH
 ## MySQL
 export PATH=$PATH:/usr/local/mysql/bin
 ## rbenv
