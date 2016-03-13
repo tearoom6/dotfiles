@@ -1,34 +1,30 @@
 """ ~/.vimrc
 """ vim Personal Preference File @tearoom6
 
-"" plugins (managed by NeoBundle)
-set runtimepath+=~/.vim/bundle/neobundle.vim
-call neobundle#begin(expand('~/.vim/bundle/'))
-NeoBundleFetch 'Shougo/neobundle.vim'
-" common
-NeoBundle 'Shougo/vimproc'
-" utility
-NeoBundle 'Shougo/unite.vim'
-NeoBundle 'Shougo/neomru.vim'
-NeoBundle 'Shougo/neoyank.vim'
-NeoBundle 'Shougo/unite-outline'
-NeoBundle 'scrooloose/nerdtree'
-NeoBundle 'tpope/vim-fugitive'
-" editor
-NeoBundle 'editorconfig/editorconfig-vim'
-NeoBundle 'szw/vim-tags'
-NeoBundle 'tomtom/tcomment_vim'
-NeoBundle 'tpope/vim-endwise'
-NeoBundle 'tpope/vim-surround'
-NeoBundle 'Townk/vim-autoclose'
-NeoBundle 'nathanaelkane/vim-indent-guides'
-NeoBundle 'bronson/vim-trailing-whitespace'
-NeoBundle 'itchyny/lightline.vim'
-" Ruby
-NeoBundle 'tpope/vim-rails'
-NeoBundle 'basyura/unite-rails'
-call neobundle#end()
-NeoBundleCheck   " confirm if allows new plugin install
+"" plugins (managed by Dein.vim)
+let s:dein_dir = expand('~/.vim/dein')
+let s:dein_repo_dir = s:dein_dir . '/repos/github.com/Shougo/dein.vim'
+" install Dein.vim itself if it is not installed yet
+if &runtimepath !~# '/dein.vim'
+   if !isdirectory(s:dein_repo_dir)
+      execute '!git clone https://github.com/Shougo/dein.vim' s:dein_repo_dir
+   endif
+   execute 'set runtimepath^=' . fnamemodify(s:dein_repo_dir, ':p')
+endif
+" load plugins list
+call dein#begin(s:dein_dir)
+let s:toml      = '~/.vim/rc/dein.toml'
+let s:lazy_toml = '~/.vim/rc/dein_lazy.toml'
+if dein#load_cache([expand('<sfile>'), s:toml, s:lazy_toml])
+   call dein#load_toml(s:toml,      {'lazy': 0})
+   call dein#load_toml(s:lazy_toml, {'lazy': 1})
+   call dein#save_cache()
+endif
+call dein#end()
+" install if it is not installed yet
+if dein#check_install()
+   call dein#install()
+endif
 
 "" set option
 " about operation

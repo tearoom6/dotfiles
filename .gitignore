@@ -10,6 +10,5 @@ tags
 # vim files
 /.vim/.netrwhist
 /.vim/view/
-/.vim/bundle/
-!/.vim/bundle/neobundle.vim
+/.vim/dein/
 

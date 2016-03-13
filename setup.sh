@@ -23,12 +23,5 @@ cd $CURRENT_DIR
 # guide message
 echo
 echo ' Setup succeeded.'
-echo ' Please complete setup to execute commands below.'
-echo
-echo ' $ git submodule init'
-echo ' $ git submodule update'
-echo ' $ vim # open to install bundles by NeoBundle once'
-echo ' $ cd .vim/bundle/vimproc'
-echo ' $ make'
 echo
 
