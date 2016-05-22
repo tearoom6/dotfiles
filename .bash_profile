@@ -7,7 +7,7 @@
 
 # Path Definition
 #export PATH=/opt/local/bin:/opt/local/sbin:$PATH
-export PATH=~/.bash.d/:$PATH
+export PATH=~/.bash.d:$PATH
 
 # Basic Config
 export LANG='en_US.UTF-8'
@@ -48,6 +48,10 @@ eval "$(try_exec pyenv init -)"
 ## nvm
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+## Linuxbrew
+export PATH="$HOME/.linuxbrew/bin:$PATH"
+export MANPATH="$HOME/.linuxbrew/share/man:$MANPATH"
+export INFOPATH="$HOME/.linuxbrew/share/info:$INFOPATH"
 
 # Load .bashrc
 if [ -f ~/.bashrc ]; then
