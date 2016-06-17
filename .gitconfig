@@ -30,3 +30,7 @@
 	skipped = !git ls-files -v | grep "^S"
 [include]
 	path = .gitconfig.alias
+[filter "lfs"]
+	clean = git-lfs clean %f
+	smudge = git-lfs smudge %f
+	required = true
