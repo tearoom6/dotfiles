@@ -34,6 +34,8 @@ export PATH=$M2:$PATH
 ## Android
 export ANDROID_HOME=$HOME/Library/Android/sdk
 export PATH=$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools:$PATH
+export ANDROID_NDK=$HOME/Library/Android/ndk-r12b
+export PATH=$ANDROID_NDK:$PATH
 ## MySQL
 export PATH=$PATH:/usr/local/mysql/bin
 ## rbenv
