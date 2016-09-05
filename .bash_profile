@@ -50,6 +50,8 @@ eval "$(try_exec pyenv init -)"
 ## nvm
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+## OPAM
+eval "$(try_exec opam config env)"
 ## Linuxbrew
 export PATH="$HOME/.linuxbrew/bin:$PATH"
 export MANPATH="$HOME/.linuxbrew/share/man:$MANPATH"
