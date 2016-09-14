@@ -12,7 +12,10 @@ Pry.config.prompt = [
 ## Shortcuts
 # Hit Enter to repeat last command
 Pry::Commands.command /^$/, "repeat last command" do
-  _pry_.run_command Pry.history.to_a.last
+  last_command = Pry.history.to_a.last
+  if last_command != 'exit' && last_command != 'quit'
+    _pry_.run_command last_command
+  end
 end
 
 ## Plugins
