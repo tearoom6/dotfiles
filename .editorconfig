@@ -11,6 +11,8 @@ end_of_line = lf
 insert_final_newline = true
 trim_trailing_whitespace = false
 charset = utf-8
+indent_style = space
+indent_size = 2
 
 # Perl
 [*.pl]
@@ -50,6 +52,16 @@ indent_size = 4
 
 # JavaScript
 [*.js]
+indent_style = space
+indent_size = 2
+
+# HTML
+[*.{htm,html}]
+indent_style = space
+indent_size = 2
+
+# CSS
+[*.css]
 indent_style = space
 indent_size = 2
 
