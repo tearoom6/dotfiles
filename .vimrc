@@ -37,6 +37,7 @@ if v:version > 740
 endif
 " about completion
 set dictionary=~/.vim/dict/ruby.dict
+set wildmode=list,full
 " about view helper
 set showcmd
 set cursorline
