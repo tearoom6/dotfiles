@@ -52,8 +52,6 @@ alias la='ll -a'
 alias home='cd ~'
 ## grep
 alias grep='grep --color=auto'
-## screen
-alias screen='screen-4.2.1'
 ## sudo
 ## define to avoid error that __git_ps1 not found when using sudo su
 ## using the hack that options or arguments can be expanded,
