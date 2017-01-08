@@ -53,6 +53,8 @@ export NVM_DIR="$HOME/.nvm"
 ## SDKMAN
 export SDKMAN_DIR="$HOME/.sdkman"
 [ -s "$SDKMAN_DIR/bin/sdkman-init.sh" ] && . "$SDKMAN_DIR/bin/sdkman-init.sh"
+## Go
+export GOPATH=$HOME/go
 ## OPAM
 eval "$(try_exec opam config env)"
 ## Linuxbrew
