@@ -47,9 +47,9 @@ eval "$(try_exec plenv init -)"
 ## pyenv
 export PATH="$HOME/.pyenv/bin:$PATH"
 eval "$(try_exec pyenv init -)"
-## nvm
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+## nodenv
+export PATH="$HOME/.nodenv/bin:$PATH"
+eval "$(try_exec nodenv init -)"
 ## SDKMAN
 export SDKMAN_DIR="$HOME/.sdkman"
 [ -s "$SDKMAN_DIR/bin/sdkman-init.sh" ] && . "$SDKMAN_DIR/bin/sdkman-init.sh"

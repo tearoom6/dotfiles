@@ -68,9 +68,6 @@ kterm*|xterm*)
    export PROMPT_COMMAND_TERMINAL='echo -ne "\033]0;${USER}@${HOSTNAME%%.*}:${PWD##*/}\007"'
    ;;
 esac
-## nvm
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
 ## direnv
 eval "$(try_exec direnv hook bash)"
 
