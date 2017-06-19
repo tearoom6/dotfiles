@@ -38,15 +38,9 @@ export ANDROID_NDK=$HOME/Library/Android/ndk-r12b
 export PATH=$ANDROID_NDK:$PATH
 ## MySQL
 export PATH=$PATH:/usr/local/mysql/bin
-## rbenv
-export PATH="$HOME/.rbenv/bin:$PATH"
-eval "$(try_exec rbenv init -)"
-## plenv
-export PATH="$HOME/.plenv/bin:$PATH"
-eval "$(try_exec plenv init -)"
-## pyenv
-export PATH="$HOME/.pyenv/bin:$PATH"
-eval "$(try_exec pyenv init -)"
+## anyenv
+export PATH="$HOME/.anyenv/bin:$PATH"
+eval "$(try_exec anyenv init -)"
 ## nodenv
 export PATH="$HOME/.nodenv/bin:$PATH"
 eval "$(try_exec nodenv init -)"
