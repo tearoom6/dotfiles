@@ -41,9 +41,6 @@ export PATH=$PATH:/usr/local/mysql/bin
 ## anyenv
 export PATH="$HOME/.anyenv/bin:$PATH"
 eval "$(try_exec anyenv init -)"
-## nodenv
-export PATH="$HOME/.nodenv/bin:$PATH"
-eval "$(try_exec nodenv init -)"
 ## SDKMAN
 export SDKMAN_DIR="$HOME/.sdkman"
 [ -s "$SDKMAN_DIR/bin/sdkman-init.sh" ] && . "$SDKMAN_DIR/bin/sdkman-init.sh"
