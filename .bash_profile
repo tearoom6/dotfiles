@@ -23,21 +23,6 @@ export HISTIGNORE=?:??:exit
 # Application Config
 ## Less
 export LESSCHARSET='UTF-8'
-## Java
-export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.7.0_71.jdk/Contents/Home
-export PATH=$JAVA_HOME/bin:$PATH
-## Maven
-export M2_HOME=/usr/local/apache-maven/apache-maven-3.2.5
-export M2=$M2_HOME/bin
-export MAVEN_OPTS='-Xms256m -Xmx512m'
-export PATH=$M2:$PATH
-## Android
-export ANDROID_HOME=$HOME/Library/Android/sdk
-export PATH=$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools:$PATH
-export ANDROID_NDK=$HOME/Library/Android/ndk-r12b
-export PATH=$ANDROID_NDK:$PATH
-## MySQL
-export PATH=$PATH:/usr/local/mysql/bin
 ## anyenv
 export PATH="$HOME/.anyenv/bin:$PATH"
 eval "$(try_exec anyenv init -)"
@@ -53,6 +38,13 @@ eval "$(try_exec opam config env)"
 export PATH="$HOME/.linuxbrew/bin:$PATH"
 export MANPATH="$HOME/.linuxbrew/share/man:$MANPATH"
 export INFOPATH="$HOME/.linuxbrew/share/info:$INFOPATH"
+## Android
+export ANDROID_HOME=$HOME/Library/Android/sdk
+export PATH=$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools:$PATH
+export ANDROID_NDK=$HOME/Library/Android/ndk-r12b
+export PATH=$ANDROID_NDK:$PATH
+## MySQL
+export PATH=$PATH:/usr/local/mysql/bin
 
 # Load .bashrc
 if [ -f ~/.bashrc ]; then
