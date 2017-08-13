@@ -70,6 +70,8 @@ kterm*|xterm*)
 esac
 ## direnv
 eval "$(try_exec direnv hook bash)"
+## TravisCI
+[ -f ~/.travis/travis.sh ] && source ~/.travis/travis.sh
 
 # Login Message
 ## Play
