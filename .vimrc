@@ -60,6 +60,8 @@ set hlsearch
 "set shiftwidth=3
 "set softtabstop=3
 "set tabstop=3
+" about backupskip path
+set backupskip=/tmp/*,/private/tmp/*
 
 "" change key binding
 " about escape key
