@@ -12,3 +12,8 @@ tags
 /.vim/view/
 /.vim/dein/
 
+# ssh files
+/.ssh/known_hosts
+/.ssh/conf.d/
+/.ssh/.secrets/
+
