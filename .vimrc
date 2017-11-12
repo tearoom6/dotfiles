@@ -62,6 +62,9 @@ set hlsearch
 "set tabstop=3
 " about backupskip path
 set backupskip=/tmp/*,/private/tmp/*
+" about clipboard
+" Check availabiliby by running `vim --version | grep clipboard`
+set clipboard=unnamed,unnamedplus
 
 "" change key binding
 " about escape key
