@@ -4,6 +4,8 @@
 ## Settings
 # commits
 set commit-order = topo
+# status
+set status-show-untracked-files = yes
 
 ## Key Bindings
 # move
