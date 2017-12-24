@@ -40,7 +40,7 @@ set dictionary=~/.vim/dict/ruby.dict
 set wildmode=list,full
 " about view helper
 set showcmd
-set cursorline
+set nocursorline
 set number
 " about encoding
 set encoding=utf-8
@@ -158,8 +158,8 @@ autocmd ColorScheme *
    \           ctermbg=darkgray
 doautocmd ColorScheme _
 " highlight current-window's cursor line
-autocmd WinEnter * setlocal cursorline
-autocmd WinLeave * setlocal nocursorline
+"autocmd WinEnter * setlocal cursorline
+"autocmd WinLeave * setlocal nocursorline
 
 "" user-defined Ex command
 " about encoding
