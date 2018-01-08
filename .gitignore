@@ -17,3 +17,6 @@ tags
 /.ssh/conf.d/
 /.ssh/.secrets/
 
+# Atom files
+/.atom/
+

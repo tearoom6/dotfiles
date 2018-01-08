@@ -1,0 +1,3 @@
+cache = ~/.atom/.apm
+; Hide progress-bar to prevent npm from altering apm console output.
+progress = false
