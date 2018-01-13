@@ -1,4 +1,5 @@
 Sublime-Style-Column-Selection
+busy-signal
 color-picker
 command-toolbar
 docblockr
@@ -6,6 +7,10 @@ emmet
 file-icons
 git-plus
 highlight-selected
+intentions
+linter
+linter-eslint
+linter-ui-default
 markdown-preview-plus
 minimap
 minimap-cursorline
@@ -16,6 +21,7 @@ pigments
 pinned-tabs
 project-manager
 project-sidebar
+react
 symbols-tree-view
 tree-view-finder
 
