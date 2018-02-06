@@ -23,5 +23,6 @@ project-manager
 project-sidebar
 react
 symbols-tree-view
+sync-sync
 tree-view-finder
 

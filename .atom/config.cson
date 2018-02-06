@@ -13,6 +13,7 @@
     showInvisibles: true
   "exception-reporting":
     userId: "51a678c8-335d-4a2d-ab5c-15f935c36a07"
+  "linter-ui-default": {}
   "markdown-preview-plus":
     enableLatexRenderingByDefault: true
   minimap:
@@ -27,5 +28,6 @@
       "minimap-autohideDecorationsZIndex": 0
       pigments: true
       pigmentsDecorationsZIndex: 0
+  "sync-sync": {}
   welcome:
     showOnStartup: false
