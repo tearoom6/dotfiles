@@ -2,6 +2,15 @@
 #
 # $ brew tap Homebrew/bundle
 # $ brew bundle
+#
+#
+# If failed to install virtualbox,
+# check [System Preferences] > [Security & Privacy] > [General],
+# and run the command below:
+#
+# $ brew cask reinstall --force virtualbox
+#
+# See [Cannot install virtualbox on macOS High Sierra](https://github.com/caskroom/homebrew-cask/issues/39369).
 
 tap "caskroom/cask"
 tap "homebrew/bundle"
