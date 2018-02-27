@@ -13,6 +13,7 @@
 # See [Cannot install virtualbox on macOS High Sierra](https://github.com/caskroom/homebrew-cask/issues/39369).
 
 tap "caskroom/cask"
+tap "caskroom/versions"
 tap "homebrew/bundle"
 tap "homebrew/core"
 tap "homebrew/services"
@@ -50,6 +51,7 @@ cask "flux"
 cask "gimp"
 cask "google-backup-and-sync"
 cask "google-chrome"
+cask "google-chrome-canary"
 cask "google-japanese-ime"
 cask "insomnia"
 cask "intellij-idea"
