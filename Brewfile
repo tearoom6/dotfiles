@@ -39,6 +39,7 @@ brew "the_silver_searcher"
 brew "tig"
 brew "tmux"
 brew "vim"
+brew "wget", args: ["with-debug"]
 brew "yarn"
 cask "android-studio"
 cask "atom"
