@@ -44,6 +44,7 @@ brew "wget", args: ["with-debug"]
 brew "yarn"
 cask "android-studio"
 cask "atom"
+cask "charles"
 cask "cheatsheet"
 cask "clipy"
 cask "coteditor"
