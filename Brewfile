@@ -44,6 +44,7 @@ brew "tmux"
 brew "vim"
 brew "wget", args: ["with-debug"]
 brew "yarn"
+cask "android-file-transfer"
 cask "android-studio"
 cask "atom"
 cask "charles"
