@@ -12,10 +12,11 @@
     showIndentGuide: true
     showInvisibles: true
   "exception-reporting":
-    userId: "51a678c8-335d-4a2d-ab5c-15f935c36a07"
+    userId: "f3011064-0f62-417b-9852-6cbb6ffe4b30"
   "linter-ui-default": {}
   "markdown-preview-plus":
-    enableLatexRenderingByDefault: true
+    mathConfig:
+      enableLatexRenderingByDefault: true
   minimap:
     plugins:
       cursorline: true
@@ -24,10 +25,15 @@
       "find-and-replaceDecorationsZIndex": 0
       "highlight-selected": true
       "highlight-selectedDecorationsZIndex": 0
-      "minimap-autohide": true
-      "minimap-autohideDecorationsZIndex": 0
+      "minimap-autohider": true
+      "minimap-autohiderDecorationsZIndex": 0
       pigments: true
       pigmentsDecorationsZIndex: 0
+  s3uploader:
+    s3BucketCustomUrl: "http://files.tearoom6.biz"
+    s3BucketName: "files.tearoom6.biz"
   "sync-sync": {}
+  "tree-view":
+    hideIgnoredNames: true
   welcome:
     showOnStartup: false

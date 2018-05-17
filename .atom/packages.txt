@@ -13,6 +13,7 @@ linter-eslint
 linter-ui-default
 markdown-preview-plus
 minimap
+minimap-autohider
 minimap-cursorline
 minimap-find-and-replace
 minimap-highlight-selected
@@ -22,6 +23,7 @@ pinned-tabs
 project-manager
 project-sidebar
 react
+s3uploader
 symbols-tree-view
 sync-sync
 tree-view-finder
