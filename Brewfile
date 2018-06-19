@@ -78,4 +78,5 @@ cask "slack"
 cask "sublime-text"
 cask "vagrant"
 cask "virtualbox"
+cask "visual-studio-code"
 
