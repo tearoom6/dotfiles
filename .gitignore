@@ -16,6 +16,8 @@ tags
 /.ssh/known_hosts
 /.ssh/conf.d/
 /.ssh/.secrets/
+# GCP ssh files
+/.ssh/google_compute_*
 
 # Atom files
 /.atom/
