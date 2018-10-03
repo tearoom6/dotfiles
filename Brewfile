@@ -24,6 +24,7 @@ brew "cowsay"
 brew "ctags"
 brew "curl", args: ["with-nghttp2"], link: true
 brew "direnv"
+brew "exiftool"
 brew "fortune"
 brew "git"
 brew "git-lfs"
