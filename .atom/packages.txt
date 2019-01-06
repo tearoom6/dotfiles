@@ -11,6 +11,7 @@ intentions
 linter
 linter-eslint
 linter-ui-default
+markdown-pdf
 markdown-preview-plus
 minimap
 minimap-autohider

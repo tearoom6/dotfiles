@@ -17,6 +17,9 @@
   "markdown-preview-plus":
     mathConfig:
       enableLatexRenderingByDefault: true
+  "markdown-themeable-pdf":
+    customFooterPath: "markdown-themeable-pdf/custom_footer.js"
+    customHeaderPath: "markdown-themeable-pdf/custom_header.js"
   minimap:
     plugins:
       cursorline: true
