@@ -1,4 +1,5 @@
 Sublime-Style-Column-Selection
+atom-beautify
 busy-signal
 color-picker
 command-toolbar
