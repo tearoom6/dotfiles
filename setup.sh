@@ -10,11 +10,11 @@ DOTFILES_DIR=$(pwd)
 
 for ITEM in .??*
 do
-   # ignore pattern
-   [[ "$ITEM" == *'.git' ]] && continue
-   [[ "$ITEM" == *'.gitmodules' ]] && continue
-   [[ "$ITEM" == *'.DS_Store' ]] && continue
-   ln -snfv "$DOTFILES_DIR/$ITEM" "$HOME/$ITEM"
+  # ignore pattern
+  [[ "$ITEM" == *'.git' ]] && continue
+  [[ "$ITEM" == *'.gitmodules' ]] && continue
+  [[ "$ITEM" == *'.DS_Store' ]] && continue
+  ln -snfv "$DOTFILES_DIR/$ITEM" "$HOME/$ITEM"
 done
 
 # revert current dir
