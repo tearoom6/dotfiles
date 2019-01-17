@@ -22,3 +22,8 @@ $ brew bundle
 $ apm install --packages-file ~/.atom/packages.txt
 ```
 
+## Setup VSCode (macOS only)
+
+```sh
+$ ~/.vscode/setup.sh
+```

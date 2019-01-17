@@ -1,0 +1,10 @@
+{
+    "editor.minimap.showSlider": "always",
+    "editor.minimap.renderCharacters": false,
+    "editor.renderControlCharacters": true,
+    "editor.renderWhitespace": "boundary",
+    "editor.tabCompletion": true,
+    "git.autofetch": true,
+    "npm.enableScriptExplorer": true,
+    "workbench.colorTheme": "Monokai"
+}

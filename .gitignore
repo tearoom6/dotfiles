@@ -22,3 +22,6 @@ tags
 # Atom files
 /.atom/
 
+# VSCode files
+/.vscode/
+
