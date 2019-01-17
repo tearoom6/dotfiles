@@ -16,10 +16,10 @@ $ brew tap Homebrew/bundle
 $ brew bundle
 ```
 
-## Install Atom packages (macOS only)
+## Setup Atom (macOS only)
 
 ```sh
-$ apm install --packages-file ~/.atom/packages.txt
+$ ~/.atom/setup.sh
 ```
 
 ## Setup VSCode (macOS only)
