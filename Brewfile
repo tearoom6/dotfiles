@@ -20,6 +20,7 @@ tap "homebrew/services"
 brew "ansible"
 brew "awscli"
 brew "carthage"
+brew "cookiecutter"
 brew "cowsay"
 brew "ctags"
 brew "curl", args: ["with-nghttp2"], link: true
