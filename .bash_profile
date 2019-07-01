@@ -11,8 +11,8 @@ export PATH=~/.bash.d:$PATH
 
 # Basic Config
 export LANG='en_US.UTF-8'
-#export TZ='Asia/Tokyo'
-export TZ='Asia/Singapore'
+export TZ='Asia/Tokyo'
+#export TZ='Asia/Singapore'
 export EDITOR='vim'
 
 # History Config
