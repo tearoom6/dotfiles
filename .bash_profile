@@ -11,8 +11,8 @@ export PATH=~/.bash.d:$PATH
 
 # Basic Config
 export LANG='en_US.UTF-8'
-export TZ='Asia/Dubai'
-#export TZ='Asia/Tokyo'
+export TZ='Asia/Tokyo'
+#export TZ='Asia/Dubai'
 #export TZ='Asia/Singapore'
 #export TZ='Europe/London'
 export EDITOR='vim'
