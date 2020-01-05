@@ -44,8 +44,6 @@ export INFOPATH="$HOME/.linuxbrew/share/info:$INFOPATH"
 ## Android
 export ANDROID_HOME=$HOME/Library/Android/sdk
 export PATH=$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools:$PATH
-export ANDROID_NDK_HOME=$HOME/Library/Android/sdk/ndk-bundle
-export PATH=$ANDROID_NDK_HOME:$PATH
 ## MySQL
 export PATH=$PATH:/usr/local/mysql/bin
 
