@@ -15,7 +15,8 @@ export LANG='en_US.UTF-8'
 #export TZ='Asia/Dubai'
 #export TZ='Asia/Singapore'
 #export TZ='Europe/London'
-export TZ='Pacific/Noumea'
+export TZ='Pacific/Auckland'
+#export TZ='Pacific/Noumea'
 export EDITOR='vim'
 
 # History Config
