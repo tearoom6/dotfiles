@@ -72,19 +72,18 @@ setopt NO_BEEP
 # Prompt
 setopt PROMPT_SUBST
 autoload -Uz colors && colors
-autoload -Uz vcs_info
-zstyle ":vcs_info:*" enable git
-zstyle ':vcs_info:git:*' check-for-changes true
-zstyle ':vcs_info:git:*' unstagedstr "%F{red}*"
-zstyle ':vcs_info:git:*' stagedstr "%F{yellow}+"
-zstyle ':vcs_info:git:*' actionformats '%F{yellow}[%s:%r:%b|%a]%f%u%c'
-zstyle ':vcs_info:git:*' formats       '%F{yellow}[%s:%r:%b]%f%u%c'
-precmd () { vcs_info }
 PR_TIME='${fg[yellow]}%*${reset_color}'
 PR_USER='${fg[red]}%n${reset_color}'
 PR_HOST='${fg[white]}%m${reset_color}'
 PR_CWD='${fg[green]}%~${reset_color}'
-PR_VCS='${vcs_info_msg_0_}%f'
+if [ -f ~/.git.d/git-prompt.sh ]; then
+  source ~/.git.d/git-prompt.sh
+  GIT_PS1_SHOWDIRTYSTATE=true
+  GIT_PS1_SHOWSTASHSTATE=true
+  GIT_PS1_SHOWUNTRACKEDFILES=true
+  GIT_PS1_SHOWUPSTREAM=auto
+  PR_VCS='${fg[yellow]}$(__git_ps1 "[%s]")${reset_color}'
+fi
 PROMPT="${PR_TIME} ${PR_USER}@${PR_HOST}:${PR_CWD}${PR_VCS}
 %(!.#.$) "
 
