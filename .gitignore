@@ -19,6 +19,9 @@ tags
 # GCP ssh files
 /.ssh/google_compute_*
 
+# tmux files
+/.tmux/plugins/
+
 # Atom files
 /.atom/
 
