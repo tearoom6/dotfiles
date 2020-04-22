@@ -9,13 +9,15 @@ felixfbecker.php-debug
 felixfbecker.php-intellisense
 felixfbecker.php-pack
 GitHub.vscode-pull-request-github
+goessner.mdmath
 jebbs.plantuml
 mitchdenny.ecdc
+ms-azuretools.vscode-docker
+ms-dotnettools.csharp
 ms-python.python
 ms-vscode.cpptools
-ms-vscode.csharp
 ms-vscode.Go
-PeterJausovec.vscode-docker
 PKief.material-icon-theme
 rebornix.ruby
+wingrunr21.vscode-ruby
 yzhang.markdown-all-in-one
