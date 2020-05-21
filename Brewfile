@@ -77,6 +77,7 @@ cask "google-japanese-ime"
 #cask "macs-fan-control"
 #cask "mysqlworkbench"
 #cask "obs"
+#cask "obs-virtualcam"
 #cask "phpstorm"
 cask "qlcolorcode"
 cask "qlimagesize"
@@ -95,6 +96,7 @@ cask "sublime-text"
 #cask "vagrant"
 #cask "virtualbox"
 cask "visual-studio-code"
+#cask "zoomus"
 #mas "Fusion 360", id: 868968810
 mas "LINE", id: 539883307
 #mas "Memory Clean 2", id: 1114591412
