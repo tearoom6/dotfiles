@@ -91,6 +91,7 @@ cask "quicklook-json"
 #cask "sketch"
 #cask "skitch"
 cask "slack"
+#cask "soundflower"
 cask "sublime-text"
 #cask "timemachineeditor"
 #cask "vagrant"
@@ -100,5 +101,6 @@ cask "visual-studio-code"
 #mas "Fusion 360", id: 868968810
 mas "LINE", id: 539883307
 #mas "Memory Clean 2", id: 1114591412
+#mas "LadioCast", id: 411213048
 mas "Xcode", id: 497799835
 
