@@ -2,16 +2,16 @@
   "entries": {
     "tap": {
       "caskroom/cask": {
-        "revision": "22329b34530ff9eac220b984fef37ba213c70a97"
+        "revision": "857fdeb77719607c7fe2c6849f285e4a792b063c"
       },
       "caskroom/versions": {
-        "revision": "ea818b521b2b229d7498e7422a583ace2547ecac"
+        "revision": "a37f9a3c04909d89a06ec2ece373339718face72"
       },
       "homebrew/bundle": {
-        "revision": "995b689c4e0fbe3cb79674929b5ed326e647cd29"
+        "revision": "56951ad9ff15084f62bfa114d370508d28d5a096"
       },
       "homebrew/core": {
-        "revision": "dac2adb8f3a643880baeb0bc595c39b33a5e54e1"
+        "revision": "59038a2b31608a161c393d33d1ae3e65a04f6a54"
       },
       "homebrew/services": {
         "revision": "c8fee02f479d20cf286c20babe696e56d8680205"
@@ -19,22 +19,22 @@
     },
     "brew": {
       "awscli": {
-        "version": "2.0.10",
+        "version": "2.0.12",
         "bottle": {
           "cellar": "/usr/local/Cellar",
           "prefix": "/usr/local",
           "files": {
             "catalina": {
-              "url": "https://homebrew.bintray.com/bottles/awscli-2.0.10.catalina.bottle.tar.gz",
-              "sha256": "05bd63ee4669aac00204a4606273875654655efe37a40bbfe0f4c5cc3f7b069d"
+              "url": "https://homebrew.bintray.com/bottles/awscli-2.0.12.catalina.bottle.tar.gz",
+              "sha256": "7672294304f209762ea7f516cea28189f35082fcf8ecd8fab8c61adce8af314c"
             },
             "mojave": {
-              "url": "https://homebrew.bintray.com/bottles/awscli-2.0.10.mojave.bottle.tar.gz",
-              "sha256": "4ddd6d30c56eee7991cf14069d97d70896959f01c05a22782aabe861da3f7e62"
+              "url": "https://homebrew.bintray.com/bottles/awscli-2.0.12.mojave.bottle.tar.gz",
+              "sha256": "3fb4ef3a0aafd9bbbf2bb529d9839d13194fad0a3b94201aeebfdb542520c4c2"
             },
             "high_sierra": {
-              "url": "https://homebrew.bintray.com/bottles/awscli-2.0.10.high_sierra.bottle.tar.gz",
-              "sha256": "004bfcc8b0f71d49ac7ae1764191faefe9c91eaa3fe2c11d5baaec957e445889"
+              "url": "https://homebrew.bintray.com/bottles/awscli-2.0.12.high_sierra.bottle.tar.gz",
+              "sha256": "2d583ce9753e632f9546afc38cbf4c18373be521179177865251ffe1b46cdbc2"
             }
           }
         }
@@ -284,22 +284,22 @@
         }
       },
       "mysql": {
-        "version": "8.0.19",
+        "version": "8.0.19_1",
         "bottle": {
           "cellar": "/usr/local/Cellar",
           "prefix": "/usr/local",
           "files": {
             "catalina": {
-              "url": "https://homebrew.bintray.com/bottles/mysql-8.0.19.catalina.bottle.2.tar.gz",
-              "sha256": "22e86de2d5b0b2bfd7c1157c2bb3619f4a38a2cb1385fa4d1ec3aa0f2295dfbd"
+              "url": "https://homebrew.bintray.com/bottles/mysql-8.0.19_1.catalina.bottle.tar.gz",
+              "sha256": "e5a5455d254260e9ca9821cb9c5e9ba623d724315c5f20ab2e26b9d2c3891f50"
             },
             "mojave": {
-              "url": "https://homebrew.bintray.com/bottles/mysql-8.0.19.mojave.bottle.2.tar.gz",
-              "sha256": "233aa7bfef136a19a02d443b9b2d8525f84ffa04aebce0de21fda9ee42c825b1"
+              "url": "https://homebrew.bintray.com/bottles/mysql-8.0.19_1.mojave.bottle.tar.gz",
+              "sha256": "35b85e2bb6cb5c45b230e488a9d8d8f543d066db133aa52e3b94c32246ea7841"
             },
             "high_sierra": {
-              "url": "https://homebrew.bintray.com/bottles/mysql-8.0.19.high_sierra.bottle.2.tar.gz",
-              "sha256": "2fe3b8b24f829746f145e7c6b0bc8b10ca54b8fd91b3ece0d2bea34904e68631"
+              "url": "https://homebrew.bintray.com/bottles/mysql-8.0.19_1.high_sierra.bottle.tar.gz",
+              "sha256": "f75655d4d35ca527bbe94020fa09ff65991e9059d5cc4e66520b7c3692de72e1"
             }
           }
         }
@@ -571,7 +571,7 @@
     "mas": {
       "LINE": {
         "id": "539883307",
-        "version": "5.24.1"
+        "version": "6.0.2"
       },
       "Xcode": {
         "id": "497799835",
@@ -584,7 +584,7 @@
       "catalina": {
         "HOMEBREW_VERSION": "2.2.17",
         "HOMEBREW_PREFIX": "/usr/local",
-        "Homebrew/homebrew-core": "dac2adb8f3a643880baeb0bc595c39b33a5e54e1",
+        "Homebrew/homebrew-core": "59038a2b31608a161c393d33d1ae3e65a04f6a54",
         "CLT": "11.0.33.17",
         "Xcode": "11.5",
         "macOS": "10.15.4"
