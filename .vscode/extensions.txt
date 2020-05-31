@@ -1,6 +1,8 @@
+AmazonWebServices.aws-toolkit-vscode
 DavidAnson.vscode-markdownlint
 dbaeumer.vscode-eslint
 donjayamanne.githistory
+eamodio.gitlens
 EditorConfig.EditorConfig
 eg2.tslint
 eriklynd.json-tools
@@ -20,4 +22,5 @@ ms-vscode.Go
 PKief.material-icon-theme
 rebornix.ruby
 wingrunr21.vscode-ruby
+wwm.better-align
 yzhang.markdown-all-in-one
