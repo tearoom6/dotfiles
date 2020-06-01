@@ -21,6 +21,7 @@ ms-vscode.cpptools
 ms-vscode.Go
 PKief.material-icon-theme
 rebornix.ruby
+tearoom6.s3uploader-vscode
 wingrunr21.vscode-ruby
 wwm.better-align
 yzhang.markdown-all-in-one
