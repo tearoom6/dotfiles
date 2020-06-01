@@ -1,4 +1,5 @@
 {
+    "aws.profile": "profile:default",
     "editor.minimap.renderCharacters": false,
     "editor.minimap.showSlider": "always",
     "editor.renderControlCharacters": true,
@@ -11,6 +12,8 @@
     "files.trimTrailingWhitespace": true,
     "git.autofetch": true,
     "npm.enableScriptExplorer": true,
+    "s3uploader-vscode.basic.s3BucketName": "files.tearoom6.biz",
+    "s3uploader-vscode.advanced.s3BucketCustomUrl": "https://files.tearoom6.biz",
     "workbench.colorTheme": "Monokai",
     "workbench.editor.tabCloseButton": "left",
     "workbench.iconTheme": "material-icon-theme"
