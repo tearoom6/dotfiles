@@ -1,0 +1,11 @@
+#!/bin/zsh
+
+# Show AWS profile for prompt.
+function prompt_aws_profile() {
+   if [ -v AWS_PROFILE ]; then
+      echo "[☁${AWS_PROFILE}]"
+   else
+      echo ""
+   fi
+}
+

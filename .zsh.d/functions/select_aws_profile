@@ -1,0 +1,20 @@
+#!/bin/zsh
+
+# Select AWS profile.
+function select_aws_profile() {
+   # Check peco command exists.
+   if ! command -v peco &> /dev/null; then
+      echo "Install peco command to use this function."
+      return
+   fi
+
+   readonly local selected_profile=$(aws configure list-profiles | peco)
+   if [ -n "$selected_profile" ]; then
+      export AWS_PROFILE=$selected_profile
+      echo "Selected $selected_profile."
+   else
+      unset AWS_PROFILE
+      echo "Unselected."
+   fi
+}
+

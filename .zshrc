@@ -4,6 +4,8 @@
 # Custom Functions
 fpath=($HOME/.zsh.d/functions/ $fpath)
 autoload -Uz try_eval
+autoload -Uz prompt_aws_profile
+autoload -Uz select_aws_profile
 
 # Basics
 export LANG='en_US.UTF-8'
@@ -84,7 +86,8 @@ if [ -f ~/.git.d/git-prompt.sh ]; then
   GIT_PS1_SHOWUPSTREAM=auto
   PR_VCS='${fg[yellow]}$(__git_ps1 "[%s]")${reset_color}'
 fi
-PROMPT="${PR_TIME} ${PR_USER}@${PR_HOST}:${PR_CWD}${PR_VCS}
+PR_AWS='${fg[cyan]}$(prompt_aws_profile)${reset_color}'
+PROMPT="${PR_TIME} ${PR_USER}@${PR_HOST}:${PR_CWD}${PR_VCS}${PR_AWS}
 %(!.#.$) "
 
 # Aliases
