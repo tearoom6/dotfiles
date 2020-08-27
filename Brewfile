@@ -110,6 +110,7 @@ cask "sublime-text"
 #cask "vagrant"
 #cask "virtualbox"
 cask "visual-studio-code"
+#cask "vlc"
 #cask "zoomus"
 #mas "Fusion 360", id: 868968810
 mas "LINE", id: 539883307
