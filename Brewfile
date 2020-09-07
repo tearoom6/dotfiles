@@ -56,7 +56,7 @@ brew "tig"
 brew "tmux"
 brew "vim"
 brew "wget", args: ["with-debug"]
-brew "yarn"
+#brew "yarn"
 #cask "alfred"
 #cask "amazon-workspaces"
 #cask "android-file-transfer"
