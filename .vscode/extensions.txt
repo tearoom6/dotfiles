@@ -11,13 +11,13 @@ felixfbecker.php-intellisense
 felixfbecker.php-pack
 GitHub.vscode-pull-request-github
 goessner.mdmath
+golang.Go
 jebbs.plantuml
 mitchdenny.ecdc
 ms-azuretools.vscode-docker
 ms-dotnettools.csharp
 ms-python.python
 ms-vscode.cpptools
-ms-vscode.Go
 PKief.material-icon-theme
 rebornix.ruby
 tearoom6.s3uploader-vscode
