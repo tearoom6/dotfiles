@@ -2,39 +2,39 @@
   "entries": {
     "tap": {
       "caskroom/cask": {
-        "revision": "bfe2910ea9606f6fba4f567d31c2dd6871795663"
+        "revision": "b00b74ddaa1136cd55dfef2f6e5fc3a84d2c1559"
       },
       "caskroom/versions": {
-        "revision": "052e81f06fd23f0daa990cc2dc6b81cd6ba716be"
+        "revision": "10fd8cc3a33ade976b26604efb02a685b6063165"
       },
       "homebrew/bundle": {
-        "revision": "8acd27c0f466a36e749e3a7e55f26c85e43e67b5"
+        "revision": "18a9b3fb62be07865a7d60e7bdcb0404bfb9e8b0"
       },
       "homebrew/core": {
-        "revision": "d59044387c1ffbf36275292de3021430df8d6c33"
+        "revision": "20b28b21a4ca6ce4bd26040a7fce8fd439e4329f"
       },
       "homebrew/services": {
-        "revision": "cddcf1f998b34023b40203a32d8556892e29ed87"
+        "revision": "5ba553ecb4d4dad31eabd9535f262212d5098214"
       }
     },
     "brew": {
       "awscli": {
-        "version": "2.0.45",
+        "version": "2.0.48",
         "bottle": {
           "cellar": "/usr/local/Cellar",
           "prefix": "/usr/local",
           "files": {
             "catalina": {
-              "url": "https://homebrew.bintray.com/bottles/awscli-2.0.45.catalina.bottle.tar.gz",
-              "sha256": "057e8480b9575f3304e55d1d50f9710a589318a9324ec2eb1ed6634aa79d4b26"
+              "url": "https://homebrew.bintray.com/bottles/awscli-2.0.48.catalina.bottle.tar.gz",
+              "sha256": "e2568d1fd54df10a00bb3722038bd19f510c7f01bcbed889ff77b6f74d5abb7f"
             },
             "mojave": {
-              "url": "https://homebrew.bintray.com/bottles/awscli-2.0.45.mojave.bottle.tar.gz",
-              "sha256": "cedfd29a39e93178b00302d8f745f951742a0468c7a6ea75e42937325ffc2613"
+              "url": "https://homebrew.bintray.com/bottles/awscli-2.0.48.mojave.bottle.tar.gz",
+              "sha256": "f045f77e8e74167c1b27daca4bf1a3e96e8446990f70112c43b4448acc369c9d"
             },
             "high_sierra": {
-              "url": "https://homebrew.bintray.com/bottles/awscli-2.0.45.high_sierra.bottle.tar.gz",
-              "sha256": "d2a3bbb47ca287d6529a25aaed6646c0b2220240a0d89702c9dfc4a97a2dbe40"
+              "url": "https://homebrew.bintray.com/bottles/awscli-2.0.48.high_sierra.bottle.tar.gz",
+              "sha256": "907821d5d4cad35c2a1f54a5ab0ce90a8e97e9bd1831bd8ac2784f9f359afe28"
             }
           }
         }
@@ -259,18 +259,18 @@
         }
       },
       "mas": {
-        "version": "1.7.0",
+        "version": "1.7.1",
         "bottle": {
           "cellar": ":any",
           "prefix": "/usr/local",
           "files": {
             "catalina": {
-              "url": "https://homebrew.bintray.com/bottles/mas-1.7.0.catalina.bottle.tar.gz",
-              "sha256": "b985d100947063ee94961f7f1290f232786634b869d20d56bd553197cf91188b"
+              "url": "https://homebrew.bintray.com/bottles/mas-1.7.1.catalina.bottle.tar.gz",
+              "sha256": "e6de2f98ebd21885a9827664fe1b7eea5516a7fd75d5b7383e3a9b088591a27f"
             },
             "mojave": {
-              "url": "https://homebrew.bintray.com/bottles/mas-1.7.0.mojave.bottle.tar.gz",
-              "sha256": "c7005c34a3cf38d23f98e9cc238a0deae61f50ea5dfbcf51a34cc689a9db315e"
+              "url": "https://homebrew.bintray.com/bottles/mas-1.7.1.mojave.bottle.tar.gz",
+              "sha256": "8b6dc4e261ebdc8e2f93afe87da3db4d482eb3d8a0358ab19a0485d434550e77"
             }
           }
         }
@@ -390,22 +390,22 @@
         }
       },
       "vim": {
-        "version": "8.2.1600",
+        "version": "8.2.1650",
         "bottle": {
           "cellar": "/usr/local/Cellar",
           "prefix": "/usr/local",
           "files": {
             "catalina": {
-              "url": "https://homebrew.bintray.com/bottles/vim-8.2.1600.catalina.bottle.tar.gz",
-              "sha256": "73b83c2bbb643cdcd092c187e148324d26ef2db6b39757fbed578da485d4dfbe"
+              "url": "https://homebrew.bintray.com/bottles/vim-8.2.1650.catalina.bottle.tar.gz",
+              "sha256": "f85b7f96c5bc33df590258342e8e570aa3ba206213cf2be640bd03a20798f8e3"
             },
             "mojave": {
-              "url": "https://homebrew.bintray.com/bottles/vim-8.2.1600.mojave.bottle.tar.gz",
-              "sha256": "6a5ff73adb86fc6b7a3f816b960b9e084c185662a45955fd66af354bf36e3e43"
+              "url": "https://homebrew.bintray.com/bottles/vim-8.2.1650.mojave.bottle.tar.gz",
+              "sha256": "79b81efa88e8fc617d0ea007ca16cf4d79bda40adf3d2fb061021eead6f591cb"
             },
             "high_sierra": {
-              "url": "https://homebrew.bintray.com/bottles/vim-8.2.1600.high_sierra.bottle.tar.gz",
-              "sha256": "e6bc1283d3342c4916ea92bd7184213cc0326d84878c4fce248a5ca8ab66ced1"
+              "url": "https://homebrew.bintray.com/bottles/vim-8.2.1650.high_sierra.bottle.tar.gz",
+              "sha256": "7039e7bfb625dd1dbd3587e1f0edb54320bfa71d41b1fe9242186854e6359b4b"
             }
           }
         }
@@ -445,7 +445,7 @@
         }
       },
       "atom": {
-        "version": "1.23.3",
+        "version": "1.23.2",
         "options": {
           "full_name": "atom"
         }
@@ -463,7 +463,7 @@
         }
       },
       "docker": {
-        "version": "17.12.0-ce-mac47,21805",
+        "version": "17.09.1-ce-mac42,21090",
         "options": {
           "full_name": "docker"
         }
@@ -475,7 +475,7 @@
         }
       },
       "flux": {
-        "version": "39.987",
+        "version": "39.984",
         "options": {
           "full_name": "flux"
         }
@@ -493,7 +493,7 @@
         }
       },
       "qlcolorcode": {
-        "version": "3.0.0",
+        "version": "3.1.1",
         "options": {
           "full_name": "qlcolorcode"
         }
@@ -535,7 +535,7 @@
         }
       },
       "slack": {
-        "version": "3.0.5",
+        "version": "3.0.0",
         "options": {
           "full_name": "slack"
         }
@@ -547,7 +547,7 @@
         }
       },
       "visual-studio-code": {
-        "version": "1.23.1,d0182c3417d225529c6d5ad24b7572815d0de9ac",
+        "version": "1.21.1,79b44aa704ce542d8ca4a3cc44cfca566e7720f1",
         "options": {
           "full_name": "visual-studio-code"
         }
@@ -567,12 +567,12 @@
   "system": {
     "macos": {
       "catalina": {
-        "HOMEBREW_VERSION": "2.4.16",
+        "HOMEBREW_VERSION": "2.5.0",
         "HOMEBREW_PREFIX": "/usr/local",
-        "Homebrew/homebrew-core": "d59044387c1ffbf36275292de3021430df8d6c33",
-        "CLT": "11.0.33.17",
+        "Homebrew/homebrew-core": "20b28b21a4ca6ce4bd26040a7fce8fd439e4329f",
+        "CLT": "",
         "Xcode": "11.7",
-        "macOS": "10.15.5"
+        "macOS": "10.15.6"
       }
     }
   }
