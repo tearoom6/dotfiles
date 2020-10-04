@@ -13,6 +13,7 @@
 	default = simple
 [pull]
 	default = simple
+	rebase = false
 [color]
 	ui = true
 [mergetool]
