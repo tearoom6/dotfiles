@@ -59,6 +59,7 @@ brew "vim"
 brew "wget", args: ["with-debug"]
 #brew "yarn"
 #cask "alfred"
+#cask "amazon-music"
 #cask "amazon-workspaces"
 #cask "android-file-transfer"
 cask "android-studio"
