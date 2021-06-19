@@ -68,5 +68,5 @@ indent_size = 2
 # Markdown
 [*.md]
 indent_style = space
-indent_size = 3
+indent_size = 2
 
