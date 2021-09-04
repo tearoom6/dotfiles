@@ -18,6 +18,7 @@ fi
 ## Before Prompt
 export PROMPT_COMMAND='try_exec dispatch "PROMPT_COMMAND_"'
 ## Prompt
+PR_DATE=`try_exec decorate txtylw \\\\\\\D{%Y-%m-%d}`
 PR_TIME=`try_exec decorate txtylw \\\\\\\t`
 PR_USER=`try_exec decorate bldred \\\\\\\u`
 PR_HOST=`try_exec decorate bldwht \\\\\\\h`
@@ -31,9 +32,9 @@ if [ -f ~/.git.d/git-prompt.sh -a -f ~/.git.d/git-completion.bash ]; then
    GIT_PS1_SHOWSTASHSTATE=true
    GIT_PS1_SHOWUNTRACKEDFILES=true
    GIT_PS1_SHOWUPSTREAM=auto
-   export PS1="$PR_TIME $PR_USER@$PR_HOST:$PR_CWD"'$(__git_ps1 "$PR_YLW[%s]$PR_RCT")'"\n\$ "
+   export PS1="$PR_DATE $PR_TIME $PR_USER@$PR_HOST:$PR_CWD"'$(__git_ps1 "$PR_YLW[%s]$PR_RCT")'"\n\$ "
 else
-   export PS1="$PR_TIME $PR_USER@$PR_HOST:$PR_CWD\n\$ "
+   export PS1="$PR_DATE $PR_TIME $PR_USER@$PR_HOST:$PR_CWD\n\$ "
 fi
 
 # Alias Definitions
