@@ -74,7 +74,7 @@ setopt NO_BEEP
 # Prompt
 setopt PROMPT_SUBST
 autoload -Uz colors && colors
-PR_TIME='${fg[yellow]}%*${reset_color}'
+PR_TIME='${fg[yellow]}%D %*${reset_color}'
 PR_USER='${fg[red]}%n${reset_color}'
 PR_HOST='${fg[white]}%m${reset_color}'
 PR_CWD='${fg[green]}%~${reset_color}'
