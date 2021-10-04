@@ -13,3 +13,6 @@ bind generic g move-first-line
 bind generic G move-last-line
 # checkout
 bind refs n !git checkout -b %(prompt Enter branch name:) %(branch)
+# remove
+bind status D !@?rm %(file)
+
