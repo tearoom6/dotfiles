@@ -22,6 +22,10 @@ $ brew tap Homebrew/bundle
 $ brew bundle
 ```
 
+```sh
+$ anyenv install --init
+```
+
 ## Setup Atom (macOS only)
 
 ```sh
