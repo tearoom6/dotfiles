@@ -1,5 +1,11 @@
 # tearoom6 dotfiles
 
+## Update Git submodules
+
+```sh
+git submodule update --init
+```
+
 ## Create symlinks to dotfiles
 
 ```sh
