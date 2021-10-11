@@ -127,7 +127,7 @@ cask "sublime-text"
 cask "visual-studio-code"
 #cask "vlc"
 #cask "whatsapp"
-#cask "zoomus"
+#cask "zoom"
 #mas "Fusion 360", id: 868968810
 mas "LINE", id: 539883307
 #mas "Memory Clean 2", id: 1114591412
