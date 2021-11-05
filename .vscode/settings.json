@@ -11,6 +11,7 @@
     "files.trimFinalNewlines": true,
     "files.trimTrailingWhitespace": true,
     "git.autofetch": true,
+    "json.schemas": [],
     "npm.enableScriptExplorer": true,
     "s3uploader-vscode.basic.s3BucketName": "files.tearoom6.biz",
     "s3uploader-vscode.advanced.s3BucketCustomUrl": "https://files.tearoom6.biz",
