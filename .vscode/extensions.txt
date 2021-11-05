@@ -12,6 +12,7 @@ felixfbecker.php-pack
 GitHub.vscode-pull-request-github
 goessner.mdmath
 golang.Go
+streetsidesoftware.code-spell-checker
 jebbs.plantuml
 mitchdenny.ecdc
 ms-azuretools.vscode-docker
