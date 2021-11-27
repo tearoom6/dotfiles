@@ -9,6 +9,7 @@ esbenp.prettier-vscode
 felixfbecker.php-debug
 felixfbecker.php-intellisense
 felixfbecker.php-pack
+GitHub.copilot
 GitHub.vscode-pull-request-github
 goessner.mdmath
 golang.Go
