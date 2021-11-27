@@ -1,5 +1,6 @@
 {
     "aws.profile": "profile:default",
+    "editor.inlineSuggest.enabled": true,
     "editor.minimap.renderCharacters": false,
     "editor.minimap.showSlider": "always",
     "editor.renderControlCharacters": true,
