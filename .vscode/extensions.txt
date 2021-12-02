@@ -25,5 +25,6 @@ PKief.material-icon-theme
 rebornix.ruby
 tearoom6.s3uploader-vscode
 wingrunr21.vscode-ruby
+wmaurer.change-case
 wwm.better-align
 yzhang.markdown-all-in-one
