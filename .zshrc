@@ -109,6 +109,8 @@ alias grep='grep --color=auto'
 # Applications
 ## Less
 export LESSCHARSET='UTF-8'
+## GPG
+export GPG_TTY=$(tty)
 ## direnv
 eval "$(try_eval direnv hook bash)"
 ## anyenv

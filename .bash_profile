@@ -30,6 +30,8 @@ export HISTIGNORE=?:??:exit
 # Application Config
 ## Less
 export LESSCHARSET='UTF-8'
+## GPG
+export GPG_TTY=$(tty)
 ## anyenv
 export PATH="$HOME/.anyenv/bin:$PATH"
 eval "$(try_exec anyenv init -)"
