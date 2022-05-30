@@ -4,11 +4,16 @@
 [user]
 	name = Tomohiro Murota
 	email = tomohiro.murota@gmail.com
+	signingkey = 572919DA2057DF2F1BFB4C86C35C713D41EC66D7
 [core]
 	editor = vim
 	quotepath = false
 	excludesfile = ~/.gitignore
 	attributesfile = ~/.gitattributes
+[commit]
+	gpgsign = true
+[tag]
+	gpgsign = true
 [push]
 	default = simple
 [pull]
