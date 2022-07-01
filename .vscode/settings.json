@@ -5,7 +5,7 @@
     "editor.minimap.showSlider": "always",
     "editor.renderControlCharacters": true,
     "editor.renderWhitespace": "boundary",
-    "editor.tabCompletion": true,
+    "editor.tabCompletion": "onlySnippets",
     "files.autoGuessEncoding": false,
     "files.encoding": "utf8",
     "files.insertFinalNewline": true,
