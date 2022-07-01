@@ -19,6 +19,8 @@
 [pull]
 	default = simple
 	rebase = false
+[fetch]
+	prune = true
 [color]
 	ui = true
 [mergetool]
