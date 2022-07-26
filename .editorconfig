@@ -45,6 +45,16 @@ indent_size = 2
 indent_style = space
 indent_size = 4
 
+# Kotlin
+[*.kt]
+indent_style = space
+indent_size = 4
+
+# Groovy
+[*.{groovy,gradle}]
+indent_style = space
+indent_size = 4
+
 # C#
 [*.cs]
 indent_style = space
@@ -52,6 +62,11 @@ indent_size = 4
 
 # JavaScript
 [*.js]
+indent_style = space
+indent_size = 2
+
+# TypeScript
+[*.ts]
 indent_style = space
 indent_size = 2
 
@@ -64,6 +79,11 @@ indent_size = 2
 [*.css]
 indent_style = space
 indent_size = 2
+
+# XML
+[*.xml]
+indent_style = space
+indent_size = 4
 
 # Markdown
 [*.md]
