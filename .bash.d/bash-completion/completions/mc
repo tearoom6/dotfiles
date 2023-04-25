@@ -1,47 +1,31 @@
-# bash completion for mc
+# bash completion for mc                                   -*- shell-script -*-
 
-have mc &&
 _mc()
 {
-    local cur prev split=false
+    local cur prev words cword split comp_args
+    _comp_initialize -s -- "$@" || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
-
-    _split_longopt && split=true
-
+    local noargopts='!(-*|*[evlPCD]*)'
+    # shellcheck disable=SC2254
     case $prev in
-        -e|--edit|-v|--view|-l|--ftplog|-P|--printwd)
+        --edit | --view | --ftplog | --printwd | -${noargopts}[evlP])
             _filedir
-            return 0
+            return
             ;;
-        -C|--colors|-D|--debuglevel)
-            # argument required but no completions available
-            return 0
-            ;;
-        -h|--help|-V|--version)
-            # all other arguments are noop with these
-            return 0
+        --help | --help-* | --version | --colors | --debuglevel | -${noargopts}[hVCD])
+            return
             ;;
     esac
 
-    $split && return 0
+    $split && return
 
-    if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '--stickchars --nocolor --color --colors \
-            --nomouse --edit --datadir --resetsoft --ftplog --printwd --slow \
-            --termcap --nosubshell --subshell --view --version --xterm \
-            --debuglevel --help' -- "$cur" ) )
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '$(_parse_help "$1" --help-all)' -- "$cur"))
+        [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
     else
         _filedir -d
     fi
 } &&
-complete -F _mc mc
+    complete -F _mc mc
 
-# Local variables:
-# mode: shell-script
-# sh-basic-offset: 4
-# sh-indent-comment: t
-# indent-tabs-mode: nil
-# End:
-# ex: ts=4 sw=4 et filetype=sh
+# ex: filetype=sh

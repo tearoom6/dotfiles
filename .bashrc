@@ -9,6 +9,7 @@ fi
 
 # Bash Customize
 ## Completion
+## https://github.com/scop/bash-completion
 if [ -f ~/.bash.d/bash-completion/bash_completion ]; then
    BASH_COMPLETION=~/.bash.d/bash-completion/bash_completion
    BASH_COMPLETION_DIR=~/.bash.d/bash-completion/completions

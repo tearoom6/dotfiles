@@ -1,0 +1,42 @@
+# hunspell(1) completion                                   -*- shell-script -*-
+
+_hunspell()
+{
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
+
+    case $prev in
+        --help | --version | -vv | -[hPv])
+            return
+            ;;
+        -d)
+            local -a dicts
+            _comp_expand_glob dicts '/usr/share/hunspell/*.dic /usr/local/share/hunspell/*.dic'
+            if ((${#dicts[@]})); then
+                dicts=("${dicts[@]##*/}")
+                dicts=("${dicts[@]%.dic}")
+                local IFS=$'\n'
+                COMPREPLY=($(compgen -W '"${dicts[@]}"' -- "$cur"))
+            fi
+            return
+            ;;
+        -i)
+            _comp_xfunc iconv charsets
+            return
+            ;;
+        -p)
+            _filedir
+            return
+            ;;
+    esac
+
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '$(_parse_help "$1")' -- "$cur"))
+        return
+    fi
+
+    _filedir
+} &&
+    complete -F _hunspell hunspell
+
+# ex: filetype=sh

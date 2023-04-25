@@ -1,49 +1,48 @@
-# lzop(1) completion
+# lzop(1) completion                                       -*- shell-script -*-
 
-have lzop &&
-_lzop()
+_comp_cmd_lzop()
 {
-    local cur prev xspec
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
-
-    if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '-1 -2 -3 -4 -5 -6 -7 -8 -9 -P \
-            --fast --best --decompress --extract --test --list --ls --info \
-            --sysinfo --license --help --version --stdout --output --path \
-            --force --no-checksum --no-name --name --no-mode --no-time \
-            --suffix --keep --delete --crc32 --no-warn --ignore-warn --quiet \
-            --verbose --no-stdin --filter --checksum --no-color --mono \
-            --color' -- "$cur" ) )
-        return 0
-    fi
-
+    local noargopts='!(-*|*[oS]*)'
+    # shellcheck disable=SC2254
     case $prev in
-        -o|--output)
+        --output | -${noargopts}o)
             _filedir
-            return 0
+            return
             ;;
         --path)
             _filedir -d
-            return 0
+            return
             ;;
-        -S|--suffix)
-            return 0
+        --suffix | -${noargopts}S)
+            return
             ;;
     esac
 
-    xspec="*.?(t)lzo"
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '-1 -2 -3 -4 -5 -6 -7 -8 -9 -P
+            --fast --best --decompress --extract --test --list --ls --info
+            --sysinfo --license --help --version --stdout --output --path
+            --force --no-checksum --no-name --name --no-mode --no-time --suffix
+            --keep --delete --crc32 --no-warn --ignore-warn --quiet --verbose
+            --no-stdin --filter --checksum --no-color --mono --color' \
+            -- "$cur"))
+        return
+    fi
+
+    local xspec="*.?(t)lzo"
     case $prev in
-        --decompress|--uncompress|--extract|--list|--ls|--info|--test)
+        --decompress | --uncompress | --extract | --list | --ls | --info | --test)
             xspec="!"$xspec
             ;;
         --force)
             xspec=
             ;;
-        --*)
-            ;;
-        -*f*|'<'|'>')
+        --*) ;;
+
+        -*f*)
             xspec=
             ;;
         -*[dltx]*)
@@ -51,19 +50,12 @@ _lzop()
             ;;
     esac
 
-    _expand || return 0
+    _tilde "$cur" || return
 
     local IFS=$'\n'
-    _compopt_o_filenames
-    COMPREPLY=( $( compgen -f -X "$xspec" -- "$cur" ) \
-            $( compgen -d -- "$cur" ) )
+    compopt -o filenames
+    COMPREPLY=($(compgen -f -X "$xspec" -- "$cur") $(compgen -d -- "$cur"))
 } &&
-complete -F _lzop lzop
+    complete -F _comp_cmd_lzop lzop
 
-# Local variables:
-# mode: shell-script
-# sh-basic-offset: 4
-# sh-indent-comment: t
-# indent-tabs-mode: nil
-# End:
-# ex: ts=4 sw=4 et filetype=sh
+# ex: filetype=sh

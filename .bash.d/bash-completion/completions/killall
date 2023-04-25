@@ -1,0 +1,38 @@
+# killall(1) completion                                    -*- shell-script -*-
+
+[[ $OSTYPE == *@(linux|freebsd|darwin)* ]] || return 1
+
+_comp_cmd_killall()
+{
+    local cur prev words cword split comp_args
+    _comp_initialize -s -- "$@" || return
+
+    local noargopts='!(-*|*[Zoysu]*)'
+    # shellcheck disable=SC2254
+    case $prev in
+        --context | --older-than | --younger-than | --version | -${noargopts}@([Zoy]|V*))
+            return
+            ;;
+        --signal | -${noargopts}s)
+            _signals
+            return
+            ;;
+        --user | -${noargopts}u)
+            _allowed_users
+            return
+            ;;
+    esac
+
+    $split && return
+
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '$(_parse_help "$1")' -- "$cur"))
+        ((cword == 1)) && _signals -
+        return
+    fi
+
+    _pnames
+} &&
+    complete -F _comp_cmd_killall killall
+
+# ex: filetype=sh

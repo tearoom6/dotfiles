@@ -1,64 +1,55 @@
-# lrzip(1) completion
+# lrzip(1) completion                                      -*- shell-script -*-
 
-have lrzip &&
-_lrzip()
+_comp_cmd_lrzip()
 {
-    COMPREPLY=()
-    local cur prev
-    _get_comp_words_by_ref cur prev
-
-    if [[ "$cur" == -* && $prev != -N ]]; then
-        COMPREPLY=( $( compgen -W '-w -d -o -O -S -f -D -q -L -n -l -b -g -M \
-            -T -N -v -vv -V -h' -- "$cur" ) )
-        return 0
-    fi
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
 
     local xspec="*.lrz"
 
+    local noargopts='!(-*|*[SmwdoOLNp]*)'
+    # shellcheck disable=SC2254
     case $prev in
-        -w|-S|-V|-h)
-            return 0
+        --help | --version | --suffix | --maxram | --window | \
+            -${noargopts}@([Smw]|[h?V]*))
+            return
             ;;
-        -d)
+        --decompress | -${noargopts}d)
             xspec="!"$xspec
             ;;
-        -o)
+        --outfile | -${noargopts}o)
             _filedir
-            return 0
+            return
             ;;
-        -O)
+        --outdir | -${noargopts}O)
             _filedir -d
-            return 0
+            return
             ;;
-        -L)
-            COMPREPLY=( $( compgen -W '1 2 3 4 5 6 7 8 9' -- "$cur" ) )
-            return 0
+        --level | -${noargopts}L)
+            COMPREPLY=($(compgen -W '{1..9}' -- "$cur"))
+            return
             ;;
-        -T)
-            COMPREPLY=( $( compgen -W '1 2 3 4 5 6 7 8 9 10' -- "$cur" ) )
-            return 0
+        --nice-level | -${noargopts}N)
+            COMPREPLY=($(compgen -W '{-20..19}' -- "$cur"))
+            return
             ;;
-        -N)
-            COMPREPLY=( $( compgen -W '-20 -19 -18 -17 -16 -15 -14 -13 -12 \
-                -11 -10 -9 -8 -7 -6 -5 -4 -3 -2 -1 0 1 2 3 4 5 6 7 8 9 10 11 \
-                12 13 14 15 16 17 18 19' -- "$cur" ) )
-            return 0
+        --threads | -${noargopts}p)
+            COMPREPLY=($(compgen -W "{1..$(_ncpus)}" -- "$cur"))
+            return
             ;;
     esac
 
-    _expand || return 0
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '$(_parse_help "$1")' -- "$cur"))
+        return
+    fi
+
+    _tilde "$cur" || return
 
     local IFS=$'\n'
-    _compopt_o_filenames
-    COMPREPLY=( $( compgen -f -X "$xspec" -- "$cur" ) \
-        $( compgen -d -- "$cur" ) )
+    compopt -o filenames
+    COMPREPLY=($(compgen -f -X "$xspec" -- "$cur") $(compgen -d -- "$cur"))
 } &&
-complete -F _lrzip lrzip
+    complete -F _comp_cmd_lrzip lrzip
 
-# Local variables:
-# mode: shell-script
-# sh-basic-offset: 4
-# sh-indent-comment: t
-# indent-tabs-mode: nil
-# End:
-# ex: ts=4 sw=4 et filetype=sh
+# ex: filetype=sh

@@ -1,57 +1,59 @@
-# bash completion for rdesktop
+# bash completion for rdesktop                             -*- shell-script -*-
 
-have rdesktop &&
 _rdesktop()
 {
-    local cur prev
-
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
+    local cur prev words cword comp_args
+    _comp_initialize -n : -- "$@" || return
 
     case $prev in
-        -k)
-            COMPREPLY=( $( command ls \
-                /usr/share/rdesktop/keymaps 2>/dev/null | \
-                command grep -E -v '(common|modifiers)' ) )
-            COMPREPLY=( ${COMPREPLY[@]:-} $( command ls \
-                $HOME/.rdesktop/keymaps 2>/dev/null ) )
-            COMPREPLY=( ${COMPREPLY[@]:-} $( command ls \
-                ./keymaps 2>/dev/null ) )
-            COMPREPLY=( $( compgen -W '${COMPREPLY[@]}' -- "$cur" ) )
-            return 0
+        -*k)
+            COMPREPLY=($(command ls \
+                /usr/share/rdesktop/keymaps 2>/dev/null |
+                command grep -E -v '(common|modifiers)'))
+            COMPREPLY+=($(command ls "$HOME/.rdesktop/keymaps" 2>/dev/null))
+            COMPREPLY+=($(command ls ./keymaps 2>/dev/null))
+            ((${#COMPREPLY[@]})) &&
+                COMPREPLY=($(compgen -W '"${COMPREPLY[@]}"' -- "$cur"))
+            return
             ;;
-        -a)
-            COMPREPLY=( $( compgen -W '8 15 16 24' -- "$cur" ) )
-            return 0
+        -*a)
+            COMPREPLY=($(compgen -W '8 15 16 24' -- "$cur"))
+            return
             ;;
-        -x)
-            COMPREPLY=( $( compgen -W 'b broadband m modem l lan' \
-                -- $cur ) )
-            return 0
+        -*x)
+            COMPREPLY=($(compgen -W 'broadband modem lan' -- "$cur"))
+            return
             ;;
-        -r)
-            # FIXME: should do -o nospace for the colon options
-            COMPREPLY=( $( compgen -W 'comport: disk: lptport: \
-                printer: sound: lspci scard' -- "$cur" ) )
-            return 0
+        -*r)
+            case $cur in
+                sound:*)
+                    COMPREPLY=($(compgen -W 'local off remote' \
+                        -- "${cur#sound:}"))
+                    ;;
+                *:*) ;;
+
+                *)
+                    COMPREPLY=($(compgen -W 'comport: disk: lptport:
+                        printer: sound: lspci scard' -- "$cur"))
+                    [[ ${COMPREPLY-} == *: ]] && compopt -o nospace
+                    ;;
+            esac
+            return
+            ;;
+        -*[udscpngSTX])
+            return
             ;;
     esac
 
-    if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '-u -d -s -c -p -n -k -g -f -b -L \
-            -A -B -e -E -m -C -D -K -S -T -N -X -a -z -x -P -r \
-            -0 -4 -5' -- "$cur" ) )
+    if [[ $cur == -* ]]; then
+        local opts=($(_parse_help "$1"))
+        ((${#opts[@]})) &&
+            COMPREPLY=($(compgen -W '"${opts[@]%:}"}' -- "$cur"))
     else
-        _known_hosts_real "$cur"
+        _known_hosts_real -- "$cur"
     fi
 
 } &&
-complete -F _rdesktop rdesktop
+    complete -F _rdesktop rdesktop
 
-# Local variables:
-# mode: shell-script
-# sh-basic-offset: 4
-# sh-indent-comment: t
-# indent-tabs-mode: nil
-# End:
-# ex: ts=4 sw=4 et filetype=sh
+# ex: filetype=sh

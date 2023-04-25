@@ -1,0 +1,36 @@
+# mailman list_members completion                          -*- shell-script -*-
+
+_comp_cmd_list_members()
+{
+    local cur prev words cword split comp_args
+    _comp_initialize -s -- "$@" || return
+
+    case $prev in
+        -o | --output)
+            _filedir
+            return
+            ;;
+        -d | --digest)
+            COMPREPLY=($(compgen -W 'mime plain' -- "$cur"))
+            return
+            ;;
+        -n | --nomail)
+            COMPREPLY=($(compgen -W 'byadmin byuser bybounce unknown' \
+                -- "$cur"))
+            return
+            ;;
+    esac
+
+    $split && return
+
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '--output --regular --digest --nomail
+            --fullnames --preserve --help' -- "$cur"))
+    else
+        _comp_xfunc list_lists mailman_lists
+    fi
+
+} &&
+    complete -F _comp_cmd_list_members list_members
+
+# ex: filetype=sh

@@ -1,37 +1,37 @@
-# bash completion for ntpdate
+# bash completion for ntpdate                              -*- shell-script -*-
 
-have ntpdate &&
 _ntpdate()
 {
-    local cur prev
-
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
 
     case $prev in
-        -k)
+        -*k)
             _filedir
-            return 0
+            return
             ;;
-        -U)
-            COMPREPLY=( $( compgen -u "$cur"  ) )
-            return 0
+        -*U)
+            COMPREPLY=($(compgen -u -- "$cur"))
+            return
+            ;;
+        -*p)
+            COMPREPLY=($(compgen -W '{1..8}' -- "$cur"))
+            return
+            ;;
+
+        -*[aeot])
+            return
             ;;
     esac
 
-    if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '-4 -6 -b -B -d -Q -q -s -u -v -a\
-            -e -k -p -o -r -t' -- "$cur" ) )
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(
+            compgen -W '$(_parse_help "$1" -h || _parse_usage "$1")' -- "$cur"
+        ))
     else
-        _known_hosts_real "$cur"
+        _known_hosts_real -- "$cur"
     fi
 } &&
-complete -F _ntpdate ntpdate
+    complete -F _ntpdate ntpdate
 
-# Local variables:
-# mode: shell-script
-# sh-basic-offset: 4
-# sh-indent-comment: t
-# indent-tabs-mode: nil
-# End:
-# ex: ts=4 sw=4 et filetype=sh
+# ex: filetype=sh

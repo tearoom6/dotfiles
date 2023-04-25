@@ -1,47 +1,45 @@
-# wol(1) completion
+# wol(1) completion                                        -*- shell-script -*-
 
-have wol &&
 _wol()
 {
-    local cur prev split=false
-    COMPREPLY=()
-    _get_comp_words_by_ref -n : cur prev
-    _split_longopt && split=true
+    local cur prev words cword split comp_args
+    _comp_initialize -s -n : -- "$@" || return
 
+    local noargopts='!(-*|*[pwhif]*)'
+    # shellcheck disable=SC2254
     case $prev in
-        -V|--version|--help|-p|--port|--passwd|-w|--wait)
-            return 0
+        --version | --help | --port | --passwd | --wait | -${noargopts}[Vpw])
+            return
             ;;
-        -h|--host|-i|--ipaddr)
+        --host | --ipaddr | -${noargopts}[hi])
             # Broadcast addresses
-            COMPREPLY=( $( PATH=$PATH:/sbin ifconfig -a 2>/dev/null | \
-                sed -ne 's/.*[[:space:]]\{1,\}Bcast:\([^[:space:]]*\).*/\1/p' \
-                    -e 's/.*[[:space:]]\{1,\}broadcast[[:space:]]\{1,\}\([^[:space:]]*\).*/\1/p' ) )
-            _known_hosts_real "$cur"
-            return 0
+            local PATH=$PATH:/sbin
+            COMPREPLY=($({
+                ip -c=never addr show || ip addr show || ifconfig -a
+            } 2>/dev/null |
+                command sed \
+                    -ne 's/.*[[:space:]]Bcast:\([^[:space:]]*\).*/\1/p' \
+                    -ne 's/.*inet.*[[:space:]]brd[[:space:]]\([^[:space:]]*\).*/\1/p' \
+                    -ne 's/.*[[:space:]]broadcast[[:space:]]\{1,\}\([^[:space:]]*\).*/\1/p'))
+            _known_hosts_real -- "$cur"
+            return
             ;;
-        -f|--file)
+        --file | -${noargopts}f)
             _filedir
-            return 0
+            return
             ;;
     esac
 
-    $split && return 0
+    $split && return
 
-    if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '--help --version --verbose --wait --host
-            --port --file --passwd' -- "$cur" ) )
-        return 0
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '$(_parse_help "$1")' -- "$cur"))
+        [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
+        return
     fi
 
     _mac_addresses
 } &&
-complete -F _wol wol
+    complete -F _wol wol
 
-# Local variables:
-# mode: shell-script
-# sh-basic-offset: 4
-# sh-indent-comment: t
-# indent-tabs-mode: nil
-# End:
-# ex: ts=4 sw=4 et filetype=sh
+# ex: filetype=sh

@@ -1,39 +1,34 @@
-# bash completion for xmlwf(1)
+# bash completion for xmlwf(1)                             -*- shell-script -*-
 
-have xmlwf &&
 _xmlwf()
 {
-    local cur prev
-
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
 
     case $prev in
-        -d)
+        -*d)
             _filedir -d
-            return 0
+            return
             ;;
-        -e)
-            COMPREPLY=( $( compgen -W 'US-ASCII UTF-8 UTF-16 \
-                ISO-8859-1' -- "$cur" ) )
-            return 0
+        -*e)
+            COMPREPLY=($(compgen -W 'US-ASCII UTF-8 UTF-16 ISO-8859-1' \
+                -- "$cur"))
+            return
+            ;;
+        -*[abv])
+            return
             ;;
     esac
 
-    if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '-c -d -e -m -n -p -r -s -t -v -w \
-            -x' -- "$cur" ) )
-        return 0
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(
+            compgen -W '$(_parse_help "$1" || _parse_usage "$1")' -- "$cur"
+        ))
+        return
     fi
 
-    _filedir '@(*ml|htm|svg|xs[dl]|rng|wsdl|jnlp)'
+    _filedir '@(*ml|htm|svg|xs[dl]|rng|wsdl|jnlp|tld|dbk|docbook|page)'
 } &&
-complete -F _xmlwf xmlwf
+    complete -F _xmlwf xmlwf
 
-# Local variables:
-# mode: shell-script
-# sh-basic-offset: 4
-# sh-indent-comment: t
-# indent-tabs-mode: nil
-# End:
-# ex: ts=4 sw=4 et filetype=sh
+# ex: filetype=sh

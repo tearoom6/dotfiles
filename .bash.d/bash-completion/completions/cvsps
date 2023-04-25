@@ -1,69 +1,58 @@
-# bash completion for cvsps
+# bash completion for cvsps                                -*- shell-script -*-
 
-have cvsps &&
 _cvsps()
 {
-    COMPREPLY=()
-    local cur prev
-    _get_comp_words_by_ref -n : cur prev
+    local cur prev words cword comp_args
+    _comp_initialize -n : -- "$@" || return
 
     case $prev in
-        -h|-z|-f|-d|-l|--diff-opts|--debuglvl)
-            return 0
+        -h | -z | -f | -d | -l | --diff-opts | --debuglvl)
+            return
             ;;
         -s)
-            COMPREPLY=( $( compgen -W "$( cvsps 2>/dev/null |
-                awk '/^PatchSet:?[ \t]/ { print $2 }' )" -- "$cur" ) )
-            return 0
+            COMPREPLY=($(compgen -W "$("$1" 2>/dev/null |
+                awk '/^PatchSet:?[ \t]/ { print $2 }')" -- "$cur"))
+            return
             ;;
         -a)
-            COMPREPLY=( $( compgen -W "$( cvsps 2>/dev/null |
-                awk '/^Author:[ \t]/ { print $2 }' )" -- "$cur" ) )
-            return 0
+            COMPREPLY=($(compgen -W "$("$1" 2>/dev/null |
+                awk '/^Author:[ \t]/ { print $2 }')" -- "$cur"))
+            return
             ;;
         -b)
-            COMPREPLY=( $( compgen -W "$( cvsps 2>/dev/null |
-                awk '/^Branch:[ \t]/ { print $2 }' )" -- "$cur" ) )
-            return 0
+            COMPREPLY=($(compgen -W "$("$1" 2>/dev/null |
+                awk '/^Branch:[ \t]/ { print $2 }')" -- "$cur"))
+            return
             ;;
         -r)
-            COMPREPLY=( $( compgen -W "$( cvsps 2>/dev/null |
-                awk '/^Tag:[ \t]+[^(]/ { print $2 }' )" -- "$cur" ) )
-            return 0
+            COMPREPLY=($(compgen -W "$("$1" 2>/dev/null |
+                awk '/^Tag:[ \t]+[^(]/ { print $2 }')" -- "$cur"))
+            return
             ;;
         -p)
             _filedir -d
-            return 0
+            return
             ;;
         --test-log)
             _filedir
-            return 0
+            return
             ;;
         -Z)
-            COMPREPLY=( $( compgen -W '1 2 3 4 5 6 7 8 9' -- "$cur" ) )
-            return 0
+            COMPREPLY=($(compgen -W '{1..9}' -- "$cur"))
+            return
             ;;
         --root)
-            type _cvs_roots &>/dev/null && _cvs_roots
-            return 0
+            _comp_xfunc cvs roots
+            return
             ;;
     esac
 
-    if [[ "$cur" == -* ]] ; then
-        COMPREPLY=( $( compgen -W '-h -x -u -z -g -s -a -f -d -b -l -r -p -v \
-            -t --norc --summary-first --test-log --diff-opts --bkcvs --no-rlog \
-            --cvs-direct --no-cvs-direct --debuglvl -Z --root -q -A' \
-            -- "$cur" ) )
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '$(_parse_help "$1" -h)' -- "$cur"))
     else
-        type _cvs_roots &>/dev/null && _cvs_roots
+        _comp_xfunc cvs roots
     fi
 } &&
-complete -F _cvsps cvsps
+    complete -F _cvsps cvsps
 
-# Local variables:
-# mode: shell-script
-# sh-basic-offset: 4
-# sh-indent-comment: t
-# indent-tabs-mode: nil
-# End:
-# ex: ts=4 sw=4 et filetype=sh
+# ex: filetype=sh

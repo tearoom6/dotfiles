@@ -1,4 +1,5 @@
 #compdef git-flow
+#description Git Flow branching model
 # ------------------------------------------------------------------------------
 # Copyright (c) 2010-2015 Justin Hileman
 #
@@ -23,7 +24,7 @@
 # Description
 # -----------
 #
-#  Completion script for git-flow (http://github.com/nvie/gitflow).
+#  Completion script for git-flow (https://github.com/nvie/gitflow).
 #
 #  Source: https://github.com/bobthecow/git-flow-completion
 #
@@ -137,7 +138,7 @@ __git-flow-release ()
 						-s'[Sign the release tag cryptographically]'\
 						-u'[Use the given GPG-key for the digital signature (implies -s)]'\
 						-m'[Use the given tag message]'\
-						-n'[Dont tag this release ]'\
+						-n'[Don'\''t tag this release]'\
 						-p'[Push to $ORIGIN after performing finish]'\
 						-k'[Keep branch after performing finish]'\
 						':version:__git_flow_version_list'

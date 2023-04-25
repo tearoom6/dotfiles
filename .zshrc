@@ -33,6 +33,9 @@ setopt MARK_DIRS
 setopt NULL_GLOB
 
 # Completion
+# https://github.com/zsh-users/zsh-completions
+# https://raw.githubusercontent.com/docker/cli/master/contrib/completion/zsh/_docker
+# https://raw.githubusercontent.com/docker/compose/master/contrib/completion/zsh/_docker-compose
 fpath=($HOME/.zsh.d/completions/ $fpath)
 #setopt AUTO_LIST
 setopt AUTO_MENU

@@ -7,7 +7,7 @@
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
-#    http://www.apache.org/licenses/LICENSE-2.0
+#    https://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
@@ -460,7 +460,7 @@ __space() {
   _arguments \
     '1:space name:__cf_spaces' \
     '--guid[Retrieve and display the given space guid. All other output for the space is suppressed]' \
-    '--security-group-rules[Retrive the rules for all the security groups associated with the space]'
+    '--security-group-rules[Retrieve the rules for all the security groups associated with the space]'
 }
 
 __create-space() {

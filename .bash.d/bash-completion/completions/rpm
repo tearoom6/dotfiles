@@ -1,309 +1,311 @@
-# bash completion for rpm
+# bash completion for rpm                                  -*- shell-script -*-
 
-have rpm && {
 # helper functions
 
-_rpm_installed_packages()
+_comp_xfunc_rpm_installed_packages()
 {
-    local nodig="$1" nosig="$2"
-
-    if [[ -r /var/log/rpmpkgs && \
+    if [[ -r /var/log/rpmpkgs &&
         /var/log/rpmpkgs -nt /var/lib/rpm/Packages ]]; then
         # using RHL 7.2 or later - this is quicker than querying the DB
-        COMPREPLY=( $( compgen -W "$( sed -ne \
+        COMPREPLY=($(compgen -W "$(command sed -ne \
             's|^\([^[:space:]]\{1,\}\)-[^[:space:]-]\{1,\}-[^[:space:]-]\{1,\}\.rpm$|\1|p' \
-            /var/log/rpmpkgs )" -- "$cur" ) )
-    elif type rpmqpack &>/dev/null ; then
+            /var/log/rpmpkgs)" -- "$cur"))
+    elif type rpmqpack &>/dev/null; then
         # SUSE's rpmqpack is faster than rpm -qa
-        COMPREPLY=( $( compgen -W '$( rpmqpack )' -- "$cur" ) )
+        COMPREPLY=($(compgen -W '$(rpmqpack)' -- "$cur"))
     else
-        _rpm_nodigsig
-        COMPREPLY=( $( rpm -qa $nodig $nosig --qf='%{NAME} ' "$cur*" ) )
+        COMPREPLY=($("${1:-rpm}" -qa --nodigest --nosignature \
+            --queryformat='%{NAME} ' "$cur*" 2>/dev/null))
     fi
 }
+
+_comp_deprecate_func _rpm_installed_packages _comp_xfunc_rpm_installed_packages
 
 _rpm_groups()
 {
     local IFS=$'\n'
-    COMPREPLY=( $( compgen -W "$( rpm -qa $nodig $nosig --queryformat \
-        '%{group}\n' )" -- "$cur" ) )
+    COMPREPLY=($(compgen -W "$("${1:-rpm}" -qa --nodigest --nosignature \
+        --queryformat='%{GROUP}\n' 2>/dev/null)" -- "$cur"))
 }
 
-_rpm_nodigsig()
+_rpm_macros()
 {
-    if [[ -z "$nodig" && -z "$nosig" ]]; then
-        local rpmver
+    # get a list of macros
+    COMPREPLY=($(compgen -W "$("${1:-rpm}" --showrc | command sed -ne \
+        's/^-\{0,1\}[0-9]\{1,\}[:=][[:space:]]\{1,\}\([^[:space:](]\{3,\}\).*/%\1/p')" \
+        -- "$cur"))
+}
 
-        rpmver=$(rpm --version)
-        rpmver=${rpmver##* }
-
-        if [[ "$rpmver" > "4.0.4" ]]; then
-            nodig="--nodigest"
-        fi
-        if [[ "$rpmver" > "4.0.99" ]]; then
-            nosig="--nosignature"
-        fi
-    fi
+_rpm_buildarchs()
+{
+    COMPREPLY=($(compgen -W "$("${1:-rpm}" --showrc | command sed -ne \
+        's/^\s*compatible\s\s*build\s\s*archs\s*:\s*\(.*\)/\1/ p')" \
+        -- "$cur"))
 }
 
 # rpm(8) completion
 #
 _rpm()
 {
-    local cur prev opts nodig nosig
+    local cur prev words cword split comp_args
+    _comp_initialize -s -- "$@" || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
-    nodig=""
-    nosig=""
-    _rpm_nodigsig
-
-    if [ $COMP_CWORD -eq 1 ]; then
+    if ((cword == 1)); then
         # first parameter on line
         case $cur in
-            -b*)
-                COMPREPLY=( $( compgen -W '-ba -bb -bc -bi -bl -bp -bs' \
-                    -- "$cur" ) )
-                ;;
-            -t*)
-                COMPREPLY=( $( compgen -W '-ta -tb -tc -ti -tl -tp -ts' \
-                    -- "$cur" ) )
-                ;;
             --*)
-                COMPREPLY=( $( compgen -W '--help --version --initdb \
-                    --checksig --recompile --rebuild --resign --addsign \
-                    --rebuilddb --showrc --setperms --setugids --tarbuild \
-                    --eval --install --upgrade --query --freshen --erase \
-                    --verify --querytags --rmsource --rmspec --clean \
-                    --import' -- "$cur" ) )
+                COMPREPLY=($(compgen -W '--help --version --initdb
+                    --checksig --addsign --delsign --rebuilddb --showrc
+                    --setperms --setugids --eval --install --upgrade --query
+                    --freshen --erase --verify --querytags --import' \
+                    -- "$cur"))
                 ;;
             *)
-                COMPREPLY=( $( compgen -W '-b -e -E -F -i -q -t -U -V' \
-                    -- "$cur" ) )
+                COMPREPLY=($(compgen -W '-e -E -F -i -q -t -U -V' -- "$cur"))
                 ;;
         esac
-
-    return 0
+        return
     fi
 
+    local noargopts='!(-*|*[rED]*)'
+    # shellcheck disable=SC2254
     case $prev in
-        --dbpath|--excludepath|--prefix|--relocate|--root)
+        --dbpath | --excludepath | --prefix | --relocate | --root | -${noargopts}r)
             _filedir -d
-            return 0
+            return
             ;;
-        --eval|-E)
-            # get a list of macros
-            COMPREPLY=( $( compgen -W "$( rpm --showrc | sed -ne \
-                's/^-\{0,1\}[0-9]\{1,\}[:=][[:space:]]\{1,\}\([^[:space:](]\{3,\}\).*/%\1/p' )" \
-                -- "$cur" ) )
-            return 0
+        --eval | -${noargopts}E)
+            _rpm_macros "$1"
+            return
             ;;
         --pipe)
-            _compopt_o_filenames
-            COMPREPLY=( $( compgen -c -- "$cur" ) )
-            return 0
+            compopt -o filenames
+            COMPREPLY=($(compgen -c -- "$cur"))
+            return
             ;;
         --rcfile)
             _filedir
-            return 0
+            return
             ;;
         --specfile)
             # complete on .spec files
             _filedir spec
-            return 0
+            return
             ;;
-        --whatprovides)
-            if [[ "$cur" == */* ]]; then
+        --whatenhances | --whatprovides | --whatrecommends | --whatrequires | \
+            --whatsuggests | --whatsupplements)
+            if _comp_looks_like_path "$cur"; then
                 _filedir
             else
                 # complete on capabilities
-                local IFS=$'\n'
-                COMPREPLY=( $( compgen -W "$( rpm -qa $nodig $nosig \
-                    --queryformat='%{providename}\n' )" -- "$cur" ) )
+                local IFS=$'\n' fmt
+                case $prev in
+                    *enhances) fmt="%{ENHANCENAME}" ;;
+                    *provides) fmt="%{PROVIDENAME}" ;;
+                    *recommends) fmt="%{RECOMMENDNAME}" ;;
+                    *requires) fmt="%{REQUIRENAME}" ;;
+                    *suggests) fmt="%{SUGGESTNAME}" ;;
+                    *supplements) fmt="%{SUPPLEMENTNAME}" ;;
+                esac
+                COMPREPLY=($(compgen -W "$("$1" -qa --nodigest --nosignature \
+                    --queryformat=\"$fmt\\n\" 2>/dev/null |
+                    command grep -vF '(none)')" -- "$cur"))
             fi
-            return 0
+            return
             ;;
-        --whatrequires)
-            if [[ "$cur" == */* ]]; then
-                _filedir
-            else
-                # complete on capabilities
-                local IFS=$'\n'
-                COMPREPLY=( $( compgen -W "$( rpm -qa $nodig $nosig \
-                        --queryformat='%{requirename}\n' )" -- "$cur" ) )
-            fi
-            return 0
-            ;;
-        --target)
-            COMPREPLY=( $( compgen -W "$( command rpm --showrc | sed -ne \
-                's/^\s*compatible\s\s*build\s\s*archs\s*:\s*\(.*\)/\1/ p' )" \
-                -- "$cur" ) )
-            return 0
-            ;;
-        --define|-D|--fileid|--hdrid|--pkgid)
+        --define | --fileid | --hdrid | --pkgid | -${noargopts}D)
             # argument required but no completions available
-            return 0
+            return
             ;;
     esac
 
-    # options common to all modes
-    opts="--define --eval --macros --nodigest --nosignature --rcfile \
-        --quiet --pipe --verbose"
+    $split && return
 
-    case ${COMP_WORDS[1]} in
-        -[iFU]*|--install|--freshen|--upgrade)
-            if [[ "$cur" == -* ]]; then
-                COMPREPLY=( $( compgen -W "$opts --percent --force \
-                --test --replacepkgs --replacefiles --root \
-                --excludedocs --includedocs --noscripts --ignorearch \
-                --dbpath --prefix --ignoreos --nodeps --allfiles \
-                --ftpproxy --ftpport --justdb --httpproxy --httpport \
-                --noorder --relocate --badreloc --notriggers \
-                --excludepath --ignoresize --oldpackage \
-                --queryformat --repackage --nosuggests" -- "$cur" ) )
+    # options common to all modes
+    local -a opts=(
+        --define= --eval= --macros= --nodigest --nosignature --rcfile= --quiet
+        --pipe --verbose
+    )
+
+    case ${words[1]} in
+        -[iFU]* | --install | --freshen | --upgrade)
+            if [[ $cur == -* ]]; then
+                COMPREPLY=($(compgen -W '"${opts[@]}" --percent --force --test
+                --replacepkgs --replacefiles --root --excludedocs --includedocs
+                --noscripts --ignorearch --dbpath --prefix= --ignoreos --nodeps
+                --allfiles --ftpproxy --ftpport --justdb --httpproxy --httpport
+                --noorder --relocate= --badreloc --notriggers --excludepath=
+                --ignoresize --oldpackage --queryformat --repackage
+                --nosuggests' -- "$cur"))
             else
                 _filedir '[rs]pm'
             fi
             ;;
-        -e|--erase)
-            if [[ "$cur" == -* ]]; then
-                COMPREPLY=( $( compgen -W "$opts --allmatches \
-                --noscripts --notriggers --nodeps --test --repackage" \
-                -- "$cur" ) )
+        -e | --erase)
+            if [[ $cur == -* ]]; then
+                COMPREPLY=($(compgen -W '"${opts[@]}" --allmatches --noscripts
+                    --notriggers --nodeps --test --repackage' -- "$cur"))
             else
-                _rpm_installed_packages "$nodig" "$nosig"
+                _comp_xfunc_rpm_installed_packages "$1"
             fi
             ;;
-        -q*|--query)
+        -q* | --query)
             # options common to all query types
-            opts="$opts --changelog --configfiles --conflicts --docfiles
-                --dump --enhances --filesbypkg --filecaps --fileclass
-                --filecolor --fileprovide --filerequire --filesbypkg --info
-                --list --obsoletes --pipe --provides --queryformat --rcfile
-                --requires --scripts --suggests --triggers --xml"
+            opts+=(
+                --changelog --configfiles --conflicts --docfiles --dump
+                --enhances --filesbypkg --filecaps --fileclass --filecolor
+                --fileprovide --filerequire --filesbypkg --info --list
+                --obsoletes --pipe --provides --queryformat= --requires
+                --scripts --suggests --triggers --xml --recommends
+                --supplements --filetriggers --licensefiles
+            )
 
-            if [[ $COMP_LINE == *\ -@(*([^ -])f|-file )* ]]; then
+            if [[ ${words[*]} == *\ -@(*([^ -])f|-file )* ]]; then
                 # -qf completion
-                if [[ "$cur" == -* ]]; then
-                    COMPREPLY=( $( compgen -W "$opts --dbpath --fscontext \
-                        --last --root --state" -- "$cur" ) )
+                if [[ $cur == -* ]]; then
+                    COMPREPLY=($(compgen -W '"${opts[@]}" --dbpath --fscontext
+                        --last --root --state' -- "$cur"))
                 else
                     _filedir
                 fi
-            elif [[ $COMP_LINE == *\ -@(*([^ -])g|-group )* ]]; then
+            elif [[ ${words[*]} == *\ -@(*([^ -])g|-group )* ]]; then
                 # -qg completion
-                _rpm_groups
-            elif [[ $COMP_LINE == *\ -@(*([^ -])p|-package )* ]]; then
+                _rpm_groups "$1"
+            elif [[ ${words[*]} == *\ -@(*([^ -])p|-package )* ]]; then
                 # -qp; uninstalled package completion
-                if [[ "$cur" == -* ]]; then
-                    COMPREPLY=( $( compgen -W "$opts --ftpport --ftpproxy \
-                        --httpport --httpproxy --nomanifest" -- "$cur" ) )
+                if [[ $cur == -* ]]; then
+                    COMPREPLY=($(compgen -W '"${opts[@]}" --ftpport --ftpproxy
+                        --httpport --httpproxy --nomanifest' -- "$cur"))
                 else
                     _filedir '[rs]pm'
                 fi
             else
                 # -q; installed package completion
-                if [[ "$cur" == -* ]]; then
-                    COMPREPLY=( $( compgen -W "$opts --all --file --fileid
+                if [[ $cur == -* ]]; then
+                    COMPREPLY=($(compgen -W '"${opts[@]}" --all --file --fileid
                         --dbpath --fscontext --ftswalk --group --hdrid --last
-                        --package --pkgid --root --specfile --state 
-                        --triggeredby --whatprovides --whatrequires" \
-                            -- "$cur" ) )
-                elif [[ $COMP_LINE != *\ -@(*([^ -])a|-all )* ]]; then
-                    _rpm_installed_packages "$nodig" "$nosig"
+                        --package --pkgid --root= --specfile --state
+                        --triggeredby --whatenhances --whatprovides
+                        --whatrecommends --whatrequires --whatsuggests
+                        --whatsupplements' -- "$cur"))
+                elif [[ ${words[*]} != *\ -@(*([^ -])a|-all )* ]]; then
+                    _comp_xfunc_rpm_installed_packages "$1"
                 fi
             fi
             ;;
-        -K*|--checksig)
-            if [[ "$cur" == -* ]]; then
-                COMPREPLY=( $( compgen -W "$opts --nopgp --nogpg --nomd5" \
-                    -- "$cur" ) )
+        -K* | --checksig)
+            if [[ $cur == -* ]]; then
+                COMPREPLY=($(compgen -W '"${opts[@]}" --nopgp --nogpg --nomd5' \
+                    -- "$cur"))
             else
                 _filedir '[rs]pm'
             fi
             ;;
-        -[Vy]*|--verify)
-            if [[ "$cur" == -* ]]; then
-                COMPREPLY=( $( compgen -W "$opts --root --dbpath --nodeps \
-                    --nogroup --nolinkto --nomode --nomtime --nordev --nouser \
-                    --nofiles --noscripts --nomd5 --querytags --specfile \
-                    --whatrequires --whatprovides" -- "$cur" ) )
+        -[Vy]* | --verify)
+            if [[ $cur == -* ]]; then
+                COMPREPLY=($(compgen -W '"${opts[@]}" --root= --dbpath --nodeps
+                    --nogroup --nolinkto --nomode --nomtime --nordev --nouser
+                    --nofiles --noscripts --nomd5 --querytags --specfile
+                    --whatenhances --whatprovides --whatrecommends
+                    --whatrequires --whatsuggests --whatsupplements' \
+                    -- "$cur"))
             # check whether we're doing file completion
-            elif [[ $COMP_LINE == *\ -@(*([^ -])f|-file )* ]]; then
+            elif [[ ${words[*]} == *\ -@(*([^ -])f|-file )* ]]; then
                 _filedir
-            elif [[ $COMP_LINE == *\ -@(*([^ -])g|-group )* ]]; then
-                _rpm_groups
-            elif [[ $COMP_LINE == *\ -@(*([^ -])p|-package )* ]]; then
+            elif [[ ${words[*]} == *\ -@(*([^ -])g|-group )* ]]; then
+                _rpm_groups "$1"
+            elif [[ ${words[*]} == *\ -@(*([^ -])p|-package )* ]]; then
                 _filedir '[rs]pm'
             else
-                _rpm_installed_packages "$nodig" "$nosig"
+                _comp_xfunc_rpm_installed_packages "$1"
             fi
             ;;
-        -[bt]*)
-            if [[ "$cur" == -* ]]; then
-                COMPREPLY=( $( compgen -W "$opts --short-circuit --timecheck \
-                    --clean --rmsource --rmspec --test --sign --buildroot \
-                    --target --nobuild --nodeps --nodirtokens" -- "$cur" ) )
-            elif [[ ${COMP_WORDS[1]} == -b* ]]; then
-                _filedir spec
-            else
-                _filedir '@(t?(ar.)@([gx]z|bz?(2))|tar?(.@(lzma|Z)))'
-            fi
-            ;;
-        --rebuild|--recompile)
-            if [[ "$cur" == -* ]]; then
-                COMPREPLY=( $( compgen -W "$opts --nodeps --rmsource \
-                  --rmspec --sign --nodirtokens --target" -- "$cur" ) )
-            else
-                _filedir '@(?(no)src.r|s)pm'
-            fi
-            ;;
-        --tarbuild)
-            _filedir '@(t?(ar.)@([gx]z|bz?(2))|tar?(.@(lzma|Z)))'
-            ;;
-        --resign|--addsign)
+        --resign | --addsign | --delsign)
             _filedir '[rs]pm'
             ;;
-        --setperms|--setgids)
-            _rpm_installed_packages "$nodig" "$nosig"
+        --setperms | --setgids)
+            _comp_xfunc_rpm_installed_packages "$1"
             ;;
-        --clean|--rmsource|--rmspec)
-            if [[ "$cur" == -* ]]; then
-                COMPREPLY=( $( compgen -W '--clean --rmsource --rmspec' \
-                    -- "$cur" ) )
-            else
-                _filedir spec
-            fi
-            ;;
-        --import|--dbpath|--root)
-            if [[ "$cur" == -* ]]; then
-                COMPREPLY=( $( compgen -W '--import --dbpath --root' \
-                    -- "$cur" ) )
+        --import | --dbpath | --root)
+            if [[ $cur == -* ]]; then
+                COMPREPLY=($(compgen -W '--import --dbpath --root=' \
+                    -- "$cur"))
             else
                 _filedir
             fi
             ;;
     esac
-
-    return 0
-}
-complete -F _rpm rpm rpmbuild
-}
-
-have gendiff &&
-_gendiff()
-{
-    COMPREPLY=()
-    local cur cword
-    _get_comp_words_by_ref cur cword
-    [[ $cword != 1 ]] || _filedir -d
+    [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
 } &&
-complete -F _gendiff gendiff
+    complete -F _rpm rpm
 
-# Local variables:
-# mode: shell-script
-# sh-basic-offset: 4
-# sh-indent-comment: t
-# indent-tabs-mode: nil
-# End:
-# ex: ts=4 sw=4 et filetype=sh
+_rpmbuild()
+{
+    local cur prev words cword split comp_args
+    _comp_initialize -s -- "$@" || return
+
+    local rpm="${1%build*}"
+    [[ $rpm == "$1" ]] || ! type "$rpm" &>/dev/null && rpm=
+
+    local noargopts='!(-*|*[rED]*)'
+    # shellcheck disable=SC2254
+    case $prev in
+        --buildroot | --root | --dbpath | -${noargopts}r)
+            _filedir -d
+            return
+            ;;
+        --target)
+            _rpm_buildarchs "$rpm"
+            return
+            ;;
+        --eval | -${noargopts}E)
+            _rpm_macros "$rpm"
+            return
+            ;;
+        --macros | --rcfile)
+            _filedir
+            return
+            ;;
+        --buildpolicy)
+            local cfgdir=$("$rpm" --eval '%{_rpmconfigdir}' 2>/dev/null)
+            if [[ $cfgdir ]]; then
+                COMPREPLY=($(compgen -W "$(command ls "$cfgdir" 2>/dev/null |
+                    command sed -ne 's/^brp-//p')" -- "$cur"))
+            fi
+            ;;
+        --define | --with | --without | -${noargopts}D)
+            return
+            ;;
+    esac
+
+    $split && return
+
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W "$(_parse_help "$1")" -- "$cur"))
+        [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
+        return
+    fi
+
+    # Figure out file extensions to complete
+    local word ext
+    for word in "${words[@]}"; do
+        case $word in
+            -b? | --clean | --nobuild)
+                ext=spec
+                break
+                ;;
+            -t? | --tarbuild)
+                ext='@(t?(ar.)@([gx]z|bz?(2))|tar?(.@(lzma|Z)))'
+                break
+                ;;
+            --rebuild | --recompile)
+                ext='@(?(no)src.r|s)pm'
+                break
+                ;;
+        esac
+    done
+    [[ $ext ]] && _filedir "$ext"
+} &&
+    complete -F _rpmbuild rpmbuild rpmbuild-md5
+
+# ex: filetype=sh

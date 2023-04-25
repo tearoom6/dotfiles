@@ -1,0 +1,34 @@
+# pv(1) completion                                         -*- shell-script -*-
+
+_pv()
+{
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
+
+    local noargopts='!(-*|*[VAFDiwHNLBRPd]*)'
+    # shellcheck disable=SC2254
+    case $prev in
+        --help | --version | --last-written | --format | --delay-start | \
+            --interval | --width | --height | --name | --rate-limit | \
+            --buffer-size | -${noargopts}[hVAFDiwHNLB])
+            return
+            ;;
+        --remote | -${noargopts}R)
+            _pids
+            return
+            ;;
+        --pidfile | --watchfd | -${noargopts}[Pd])
+            _filedir pid
+            return
+            ;;
+    esac
+
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '$(_parse_help "$1")' -- "$cur"))
+    else
+        _filedir
+    fi
+} &&
+    complete -F _pv pv
+
+# ex: filetype=sh

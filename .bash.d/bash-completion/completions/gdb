@@ -1,44 +1,47 @@
-# bash completion for gdb
+# bash completion for gdb                                  -*- shell-script -*-
 
-have gdb &&
-_gdb()
+_comp_cmd_gdb()
 {
-    local cur prev
+    local cur prev words cword comp_args i
+    _comp_initialize -- "$@" || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
+    # gdb [options] --args executable-file [inferior-arguments ...]
+    for ((i = 1; i < cword; i++)); do
+        if [[ ${words[i]} == --args ]]; then
+            _comp_command_offset $((i + 1))
+            return $?
+        fi
+    done
 
-    if [ $COMP_CWORD -eq 1 ]; then
+    # gdb [options] [executable-file [core-file or process-id]]
+    if ((cword == 1)); then
         local IFS
-        _compopt_o_filenames
-        if [[ "$cur" == */* ]]; then
+        compopt -o filenames
+        if _comp_looks_like_path "$cur"; then
             # compgen -c works as expected if $cur contains any slashes.
             IFS=$'\n'
-            COMPREPLY=( $( PATH="$PATH:." compgen -d -c -- "$cur" ) )
+            COMPREPLY=($(PATH="$PATH:." compgen -d -c -- "$cur"))
         else
             # otherwise compgen -c contains Bash's built-in commands,
             # functions and aliases. Thus we need to retrieve the program
             # names manually.
             IFS=":"
-            local path_array=( $( \
-                sed -e 's/:\{2,\}/:/g' -e 's/^://' -e 's/:$//' <<<"$PATH" ) )
+            local path_array=($(
+                command sed -e 's/:\{2,\}/:/g' -e 's/^://' -e 's/:$//' <<<"$PATH"
+            ))
             IFS=$'\n'
-            COMPREPLY=( $( compgen -d -W '$(find "${path_array[@]}" . \
+            COMPREPLY=($(compgen -d -W '$(find ${path_array[@]+"${path_array[@]}"} . \
                 -mindepth 1 -maxdepth 1 -not -type d -executable \
-                -printf "%f\\n" 2>/dev/null)' -- "$cur" ) )
+                -printf "%f\\n" 2>/dev/null)' -- "$cur"))
         fi
-    elif [ $COMP_CWORD -eq 2 ]; then
-        prev=${prev##*/}
-        COMPREPLY=( $( compgen -fW "$( command ps axo comm,pid | \
-            awk '{if ($1 ~ /^'"$prev"'/) print $2}' )" -- "$cur" ) )
+    elif ((cword == 2)); then
+        COMPREPLY=($(compgen -W "$(command ps axo comm,pid |
+            awk '{if ($1 ~ /^'"${prev##*/}"'/) print $2}')" -- "$cur"))
+        compopt -o filenames
+        COMPREPLY+=($(compgen -f -X '!?(*/)core?(.?*)' -o plusdirs \
+            -- "$cur"))
     fi
 } &&
-complete -F _gdb -o default gdb
+    complete -F _comp_cmd_gdb gdb
 
-# Local variables:
-# mode: shell-script
-# sh-basic-offset: 4
-# sh-indent-comment: t
-# indent-tabs-mode: nil
-# End:
-# ex: ts=4 sw=4 et filetype=sh
+# ex: filetype=sh

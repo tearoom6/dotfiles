@@ -1,0 +1,45 @@
+# chsh(1) completion                                       -*- shell-script -*-
+
+# Use of this file is deprecated on Linux systems whose chsh is from
+# util-linux. Upstream completion is in util-linux >= 2.23, use that instead.
+
+_comp_cmd_chsh()
+{
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
+
+    local word chroot="" has_chroot=""
+    for word in "${words[@]}"; do
+        if [[ $has_chroot ]]; then
+            chroot=$word
+            break
+        fi
+        [[ $word != -@(R|-root) ]] || has_chroot=set
+    done
+
+    case $prev in
+        --list-shells | --help | -v | --version)
+            return
+            ;;
+        -R | --root)
+            _filedir -d
+            return
+            ;;
+        -s | --shell)
+            _shells "${chroot-}"
+            return
+            ;;
+    esac
+
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(
+            compgen -W '$(_parse_help "$1" || _parse_usage "$1")' -- "$cur"
+        ))
+    else
+        _allowed_users
+    fi
+
+} &&
+    complete -F _comp_cmd_chsh chsh
+
+# ex: filetype=sh

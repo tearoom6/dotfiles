@@ -1,38 +1,29 @@
-# cksfv completion by Chris <xris@forevermore.net>
+# cksfv completion by Chris <xris@forevermore.net>         -*- shell-script -*-
 
-have cksfv &&
 _cksfv()
 {
-    local cur prev
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
-
-    if [ $COMP_CWORD -eq 1 ]; then
-        COMPREPLY=( $( compgen -W '-C -f -i -q -v' -- "$cur" ) )
-        return 0
+    if ((cword == 1)); then
+        COMPREPLY=($(compgen -W '$(_parse_help "$1")' -- "$cur"))
+        return
     fi
 
     case "$prev" in
-        -C)
+        -*C | -*g)
             _filedir -d
-            return 0
+            return
             ;;
-        -f)
+        -*f)
             _filedir 'sfv'
-            return 0
+            return
             ;;
     esac
 
     _filedir
-    return 0
-} &&
-complete -F _cksfv cksfv
 
-# Local variables:
-# mode: shell-script
-# sh-basic-offset: 4
-# sh-indent-comment: t
-# indent-tabs-mode: nil
-# End:
-# ex: ts=4 sw=4 et filetype=sh
+} &&
+    complete -F _cksfv cksfv
+
+# ex: filetype=sh

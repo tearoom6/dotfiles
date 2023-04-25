@@ -1,39 +1,38 @@
-# sqlite3(1) completion
+# sqlite3(1) completion                                    -*- shell-script -*-
 
-have sqlite3 &&
 _sqlite3()
 {
-    COMPREPLY=()
-    local cur prev
-    _get_comp_words_by_ref cur prev
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
 
     local dbexts='@(sqlite?(3)|?(s?(3))db)'
 
     case $prev in
-        -help|-version|-separator|-nullvalue|*.$dbexts)
-            return 0
+        -help | -version | -lookaside | -maxsize | -mmap | -newline | \
+            -nullvalue | -pagecache | -scratch | -separator | -vfs | *.$dbexts)
+            return
             ;;
         -init)
             _filedir
-            return 0
+            return
+            ;;
+        -cmd)
+            compopt -o filenames
+            COMPREPLY=($(compgen -c -- "$cur"))
+            return
             ;;
     esac
 
-    if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '-help -init -echo -header -noheader -bail
-            -interactive -batch -column -csv -html -line -list -separator
-            -nullvalue -version' -- "$cur" ) )
-        return 0
+    [[ $cword -gt 2 && ${words[cword - 2]} == -@(lookaside|pagecache|scratch) ]] &&
+        return
+
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '$(_parse_help "$1" -help)' -- "$cur"))
+        return
     fi
 
-    _filedir $dbexts
+    _filedir "$dbexts"
 } &&
-complete -F _sqlite3 sqlite3
+    complete -F _sqlite3 sqlite3
 
-# Local variables:
-# mode: shell-script
-# sh-basic-offset: 4
-# sh-indent-comment: t
-# indent-tabs-mode: nil
-# End:
-# ex: ts=4 sw=4 et filetype=sh
+# ex: filetype=sh

@@ -44,15 +44,15 @@
 # -----
 #
 # udisksctl actually provide built-in support for completion: It accepts an
-# special command 'complete' that returns completeions. That is what drives the
-# upstream bash completion. In the future one might condsider rewriting using
+# special command 'complete' that returns completions. That is what drives the
+# upstream bash completion. In the future one might consider rewriting using
 # that. (but not sure how straight forward it would be to provide descriptions?)
 #
 
 _paths() {
     local -a _path_list
 
-    for _path in $(_call_program paths "udisksctl complete \"udisksctl $words\" $CURSOR"); do
+    for _path in $(_call_program paths "udisksctl complete \"udisksctl $words\" $CURSOR" | sed 's/:/\\:/g'); do
         _path_list+=$_path
     done
 
@@ -145,7 +145,7 @@ _udisksctl() {
                 power-off)
                     _arguments \
                         {-p,--object-path}'[object path for ATA device]:object path:_paths' \
-                        {-b,--block-device}'[device file for ATA devic]:block device:_paths' \
+                        {-b,--block-device}'[device file for ATA device]:block device:_paths' \
                         "(--no-user-interaction)--no-user-interaction[don't authenticate the user if needed]" && ret=0
                 ;;
                 smart-simulate)

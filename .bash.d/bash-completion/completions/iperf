@@ -1,0 +1,91 @@
+# iperf(1) completion                                      -*- shell-script -*-
+
+_iperf()
+{
+    local cur prev words cword split comp_args
+    _comp_initialize -s -n : -- "$@" || return
+
+    local noargopts='!(-*|*[ilpwMXbntLPTZCkOSAfIoFBcxy]*)'
+    # shellcheck disable=SC2254
+    case $prev in
+        --help | --version | --interval | --len | --port | --window | --mss | --bandwidth | \
+            --num | --time | --listenport | --parallel | --ttl | --linux-congestion | --omit | \
+            --congestion | --bytes | --blockcount | --cport | --set-mss | --flowlabel | \
+            --title | --tos | --affinity | --rcv-timeout | --server-bitrate-limit | \
+            --idle-timeout | --time-skew-threshold | --xbind | --nstreams | --connect-timeout | \
+            --bitrate | --pacing-timer | --fq-rate | --length | --dscp | --extra-data | \
+            --username | -${noargopts}[hvilpwMXbntLPTZCkOSA])
+            return
+            ;;
+        --format | -${noargopts}f)
+            local formats=$(
+                "$1" --help 2>&1 |
+                    command sed -ne 's/^.*--format .*\[\([a-zA-Z]\{1,\}\)\].*/\1/p' |
+                    command sed -e 's/./& /g'
+            )
+            COMPREPLY=($(compgen -W '$formats' -- "$cur"))
+            return
+            ;;
+        --pidfile | -${noargopts}I)
+            _filedir pid
+            return
+            ;;
+        --output | --fileinput | --authorized-users-path | -${noargopts}[oF])
+            _filedir
+            return
+            ;;
+        --bind | -${noargopts}B)
+            _available_interfaces -a
+            _ip_addresses -a
+            __ltrim_colon_completions "$cur"
+            return
+            ;;
+        --bind-dev)
+            _available_interfaces -a
+            return
+            ;;
+        --client | -${noargopts}c)
+            _known_hosts_real -- "$cur"
+            return
+            ;;
+        --reportexclude | -${noargopts}x)
+            COMPREPLY=($(compgen -W 'C D M S V' -- "$cur"))
+            return
+            ;;
+        --reportstyle | -${noargopts}y)
+            COMPREPLY=($(compgen -W 'C' -- "$cur"))
+            return
+            ;;
+        --logfile)
+            _filedir log
+            return
+            ;;
+        --rsa-private-key-path | --rsa-public-key-path)
+            _filedir pem
+            return
+            ;;
+    esac
+
+    $split && return
+
+    # Filter mode specific options
+    local i filter=cat
+    for i in "${words[@]}"; do
+        case $i in
+            -s | --server)
+                filter='command sed -e /^Client.specific/,/^\(Server.specific.*\)\?$/d'
+                ;;
+            -c | --client)
+                filter='command sed -e /^Server.specific/,/^\(Client.specific.*\)\?$/d'
+                ;;
+        esac
+    done
+    [[ $filter != cat ]] && filter+=' -e /--client/d -e /--server/d'
+
+    COMPREPLY=($(compgen -W \
+        '$("$1" --help 2>&1 | $filter | _parse_help -)' -- "$cur"))
+    [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
+} &&
+    complete -F _iperf iperf iperf3
+
+# ex: filetype=sh

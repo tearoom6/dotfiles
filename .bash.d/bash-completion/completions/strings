@@ -1,0 +1,60 @@
+# strings(1) completion                                    -*- shell-script -*-
+
+_strings()
+{
+    local cur prev words cword split comp_args
+    _comp_initialize -s -- "$@" || return
+
+    local noargopts='!(-*|*[nstTe]*)'
+    # shellcheck disable=SC2254
+    case $prev in
+        --help | --version | --bytes | --output-separator | -arch | \
+            -${noargopts}[hvVns])
+            return
+            ;;
+        --radix | -${noargopts}t)
+            COMPREPLY=($(compgen -W 'o d x' -- "$cur"))
+            return
+            ;;
+        --target | -${noargopts}T)
+            COMPREPLY=($(compgen -W '$(LC_ALL=C "$1" --help 2>/dev/null | \
+                command sed -ne "s/: supported targets: \(.*\)/\1/p")' \
+                -- "$cur"))
+            return
+            ;;
+        --encoding | -${noargopts}e)
+            COMPREPLY=($(
+                IFS=, compgen -W \
+                    '$(LC_ALL=C "$1" --help 2>/dev/null | \
+                         command sed -ne "s/.*--encoding={\([^}]*\)}.*/\1/p")' \
+                    -- "$cur"
+            ))
+            return
+            ;;
+    esac
+
+    $split && return
+
+    if [[ $cur == -* ]]; then
+        # macOS: ... [-t format] [-number] [-n number] ...
+        COMPREPLY=($(
+            compgen -W \
+                '$(_parse_help "$1" ||
+                   "$1" --help 2>&1 | \
+                       command sed -e "s/\[-number\]//" | _parse_usage -)' \
+                -- "$cur"
+        ))
+        [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
+        return
+    elif [[ $cur == @* ]]; then
+        cur=${cur:1}
+        _filedir
+        COMPREPLY=("${COMPREPLY[@]/#/@}")
+        return
+    fi
+
+    _filedir
+} &&
+    complete -F _strings strings
+
+# ex: filetype=sh

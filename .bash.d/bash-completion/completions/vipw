@@ -1,0 +1,26 @@
+# vipw(8) and vigr completion                              -*- shell-script -*-
+
+_vipw()
+{
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
+
+    local noargopts='!(-*|*[R]*)'
+    # shellcheck disable=SC2254
+    case $prev in
+        --help | -${noargopts}h)
+            return
+            ;;
+        --root | -${noargopts}R | -d)
+            _filedir -d
+            return
+            ;;
+    esac
+
+    COMPREPLY=($(
+        compgen -W '$(_parse_help "$1" || _parse_usage "$1")' -- "$cur"
+    ))
+} &&
+    complete -F _vipw vipw vigr
+
+# ex: filetype=sh

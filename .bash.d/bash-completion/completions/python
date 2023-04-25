@@ -1,55 +1,83 @@
-# bash completion for python
+# bash completion for python                               -*- shell-script -*-
 
-have python &&
+_comp_xfunc_python_modules()
+{
+    COMPREPLY+=($(compgen -W \
+        "$("${1:-python}" "${BASH_SOURCE[0]%/*}/../helpers/python" "$cur" \
+            2>/dev/null)" -- "$cur"))
+}
+
+_comp_xfunc_python_warning_actions()
+{
+    COMPREPLY+=($(compgen -W "ignore default all module once error" \
+        ${prefix:+-P "$prefix"} -- "$cur"))
+}
+
+_comp_deprecate_func _python_modules _comp_xfunc_python_modules
+_comp_deprecate_func _python_warning_actions _comp_xfunc_python_warning_actions
+
 _python()
 {
-    local prev cur i
+    local cur prev words cword comp_args prefix
+    _comp_initialize -- "$@" || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
-
-    case $prev in
-        -'?'|-h|--help|-V|--version|-c|-m)
-            return 0
-            ;;
-        -Q)
-            COMPREPLY=( $( compgen -W "old new warn warnall" -- "$cur" ) )
-            return 0
-            ;;
-        -W)
-            COMPREPLY=( $( compgen -W "ignore default all module once error" \
-                -- "$cur" ) )
-            return 0
-            ;;
-        !(?(*/)python*([0-9.])|-?))
-            [[ $COMP_CWORD -lt 2 || ${COMP_WORDS[COMP_CWORD-2]} != -@(Q|W) ]] \
-                && _filedir
+    case $cur in
+        -[QWX]?*)
+            prefix=${cur:0:2}
+            prev=$prefix
+            cur=${cur:2}
             ;;
     esac
 
+    local noargopts='!(-*|*[cmQWX]*)'
+    # shellcheck disable=SC2254
+    case $prev in
+        --help | --version | -${noargopts}[?hVc])
+            return
+            ;;
+        -${noargopts}m)
+            _comp_xfunc_python_modules "$1"
+            return
+            ;;
+        -${noargopts}Q)
+            COMPREPLY=($(compgen -W "old new warn warnall" -P "$prefix" \
+                -- "$cur"))
+            return
+            ;;
+        -${noargopts}W)
+            _comp_xfunc_python_warning_actions
+            return
+            ;;
+        -${noargopts}X)
+            COMPREPLY=($(compgen -W "$("$1" -h 2>&1 |
+                awk '$1 == "-X" && $2 ~ /:$/ {
+                    sub(":$","",$2); sub("=.*","=",$2); print $2
+                }')" -- "$cur"))
+            [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
+            return
+            ;;
+        --jit)
+            # TODO: quite a few others, parse from "--jit help" output?
+            COMPREPLY=($(compgen -W "help off" -- "$cur"))
+            return
+            ;;
+        !(?(*/)python*([0-9.])|?(*/)pypy*([0-9.])|-?))
+            [[ $cword -lt 2 || ${words[cword - 2]} != -[QWX] ]] && _filedir
+            ;;
+    esac
 
-    # if '-c' is already given, complete all kind of files.
-    for (( i=0; i < ${#COMP_WORDS[@]}-1; i++ )); do
-        if [[ ${COMP_WORDS[i]} == -c ]]; then
-            _filedir
-        fi
-    done
-
-
-    if [[ "$cur" != -* ]]; then
-        _filedir 'py?([co])'
+    # if -c or -m is already given, complete all kind of files.
+    if [[ ${words[*]::cword} == *\ -[cm]\ * ]]; then
+        _filedir
+    elif [[ $cur != -* ]]; then
+        _filedir '@(py?([cowz])|zip)'
     else
-        COMPREPLY=( $( compgen -W "$( _parse_help $1 -h )" -- "$cur" ) )
+        COMPREPLY=($(compgen -W \
+            '$("$1" -h | awk "{ sub(\"\\\(-bb:\",\"\n-bb \"); print }" |
+                         _parse_help -)' -- "$cur"))
     fi
-
-    return 0
 } &&
-complete -F _python python python2 python3
+    complete -F _python python python2 python2.7 python3 python3.{3..12} \
+        pypy pypy3 pyston pyston3 micropython
 
-# Local variables:
-# mode: shell-script
-# sh-basic-offset: 4
-# sh-indent-comment: t
-# indent-tabs-mode: nil
-# End:
-# ex: ts=4 sw=4 et filetype=sh
+# ex: filetype=sh

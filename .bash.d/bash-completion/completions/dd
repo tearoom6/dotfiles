@@ -1,39 +1,42 @@
-# bash completion for dd
+# bash completion for dd                                   -*- shell-script -*-
 
-have dd &&
-_dd()
+_comp_cmd_dd()
 {
-    local cur
-
-    COMPREPLY=()
-    _get_comp_words_by_ref -n = cur
+    local cur prev words cword comp_args
+    _comp_initialize -n = -- "$@" || return
 
     case $cur in
-        if=*|of=*)
+        if=* | of=*)
             cur=${cur#*=}
             _filedir
-            return 0
+            return
             ;;
         conv=*)
             cur=${cur#*=}
-            COMPREPLY=( $( compgen -W 'ascii ebcdic ibm block unblock lcase
-                notrunc ucase swab noerror sync' -- "$cur" ) )
-            return 0
+            COMPREPLY=($(compgen -W 'ascii ebcdic ibm block unblock lcase
+                ucase sparse swab sync excl nocreat notrunc noerror fdatasync
+                fsync' -- "$cur"))
+            return
+            ;;
+        iflag=* | oflag=*)
+            cur=${cur#*=}
+            COMPREPLY=($(compgen -W 'append direct directory dsync sync
+                fullblock nonblock noatime nocache noctty nofollow count_bytes
+                skip_bytes seek_bytes' -- "$cur"))
+            return
+            ;;
+        status=*)
+            cur=${cur#*=}
+            COMPREPLY=($(compgen -W 'none noxfer progress' -- "$cur"))
+            return
             ;;
     esac
 
-    _expand || return 0
-
-    COMPREPLY=( $( compgen -W '--help --version' -- "$cur" ) \
-                $( compgen -W 'bs cbs conv count ibs if obs of seek skip' \
-                           -S '=' -- "$cur" ) )
+    COMPREPLY=($(compgen -W '$(_parse_help "$1")' -- "$cur")
+    $(compgen -W 'bs cbs conv count ibs if iflag obs of oflag
+                              seek skip status' -S '=' -- "$cur"))
+    [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
 } &&
-complete -F _dd -o nospace dd
+    complete -F _comp_cmd_dd dd
 
-# Local variables:
-# mode: shell-script
-# sh-basic-offset: 4
-# sh-indent-comment: t
-# indent-tabs-mode: nil
-# End:
-# ex: ts=4 sw=4 et filetype=sh
+# ex: filetype=sh

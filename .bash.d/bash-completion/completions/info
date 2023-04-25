@@ -1,58 +1,72 @@
-# bash completion for info
+# bash completion for info                                 -*- shell-script -*-
 
-have info &&
 _info()
 {
-    local cur i infopath
+    local cur prev words cword split comp_args
+    _comp_initialize -s -- "$@" || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur
-
-    _expand || return 0
-
-    # default completion if parameter contains /
-    if [[ "$cur" == */* ]]; then
+    # default completion if parameter looks like a path
+    if [[ $cur == @(*/|[.~])* ]]; then
         _filedir
-        return 0
+        return
     fi
 
-    infopath='/usr/share/info'
+    local noargopts='!(-*|*[kndfor]*)'
+    # shellcheck disable=SC2254
+    case $prev in
+        --apropos | --index-search | --node | --help | --version | -${noargopts}[knhv])
+            return
+            ;;
+        -${noargopts}d)
+            if [[ ${1##*/} == info ]]; then
+                _filedir -d
+                return
+            fi
+            ;;
+        --directory)
+            _filedir -d
+            return
+            ;;
+        --dribble | --file | --output | --restore | --raw-filename | --rcfile | -${noargopts}[for])
+            _filedir
+            return
+            ;;
+    esac
 
-    if [ "${INFOPATH: -1:1}" == ':' ]; then
+    $split && return
+
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '$(_parse_help "$1")' -- "$cur"))
+        [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
+        return
+    fi
+
+    local i infopath=/usr/share/info
+
+    if [[ ${INFOPATH-} == *: ]]; then
         infopath=${INFOPATH}${infopath}
-    elif [ ${INFOPATH:+set} ]; then
+    elif [[ ${INFOPATH:+set} ]]; then
         infopath=$INFOPATH
     fi
 
-    infopath=$infopath:
-    if [ -n "$cur" ]; then
-        infopath="${infopath//://$cur* }"
-    else
-        infopath="${infopath//:// }"
+    _comp_split -F : infopath "$infopath"
+    if ((${#infopath[@]})); then
+        infopath=("${infopath[@]/%//$cur*}")
+        local IFS=
+        _comp_expand_glob COMPREPLY '${infopath[@]}'
+        _comp_unlocal IFS
+
+        if ((${#COMPREPLY[@]})); then
+            # weed out directory path names and paths to info pages (empty
+            # elements will be removed by the later `compgen -X ''`)
+            COMPREPLY=("${COMPREPLY[@]##*/?(:)}")
+            # strip suffix from info pages
+            COMPREPLY=("${COMPREPLY[@]%.@(gz|bz2|xz|lzma)}")
+            # weed out info dir file with -X 'dir'
+            _comp_split -l COMPREPLY "$(compgen -W '"${COMPREPLY[@]%.*}"' -X '@(|dir)' -- "${cur//\\\\/}")"
+        fi
     fi
-
-    # redirect stderr for when path doesn't exist
-    COMPREPLY=( $( eval command ls "$infopath" 2>/dev/null ) )
-    # weed out directory path names and paths to info pages
-    COMPREPLY=( ${COMPREPLY[@]##*/?(:)} )
-    # weed out info dir file
-    for (( i=0 ; i < ${#COMPREPLY[@]} ; ++i )); do
-        if [ "${COMPREPLY[$i]}" == 'dir' ]; then
-            unset COMPREPLY[$i];
-        fi;
-    done
-    # strip suffix from info pages
-    COMPREPLY=( ${COMPREPLY[@]%.@(gz|bz2|xz|lzma)} )
-    COMPREPLY=( $( compgen -W '${COMPREPLY[@]%.*}' -- "${cur//\\\\/}" ) )
-
-    return 0
 } &&
-complete -F _info info
+    complete -F _info info pinfo
 
-# Local variables:
-# mode: shell-script
-# sh-basic-offset: 4
-# sh-indent-comment: t
-# indent-tabs-mode: nil
-# End:
-# ex: ts=4 sw=4 et filetype=sh
+# ex: filetype=sh

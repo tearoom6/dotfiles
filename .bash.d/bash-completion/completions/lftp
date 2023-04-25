@@ -1,52 +1,30 @@
-# bash completion for lftp
+# lftp(1) completion                                       -*- shell-script -*-
 
-have lftp &&
-_lftp()
+_comp_cmd_lftp()
 {
-    local cur prev
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
-
+    local noargopts='!(-*|*[fceups]*)'
+    # shellcheck disable=SC2254
     case $prev in
-        -f)
+        -${noargopts}f)
             _filedir
-            return 0
+            return
             ;;
-        -c|-h|--help|-v|--version|-e|-u|-p)
-            return 0
+        --help | --version | -${noargopts}[chveups])
+            return
             ;;
     esac
 
-    if [[ "$cur" == -* ]] ; then
-        COMPREPLY=( $( compgen -W '-f -c --help --version -e -u -p' \
-            -- "$cur" ) )
-        return 0
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '$(_parse_help "$1")' -- "$cur"))
+        return
     fi
 
-    COMPREPLY=( $( compgen -W \
-        '$( cut -f 1 -s ~/.lftp/bookmarks 2>/dev/null )' -- "$cur" ) )
-    _known_hosts_real "$cur"
+    COMPREPLY=($(compgen -W '$("$1" -c "bookmark list" 2>/dev/null)' -- "$cur"))
+    _known_hosts_real -- "$cur"
 } &&
-complete -F _lftp lftp
+    complete -F _comp_cmd_lftp lftp
 
-have lftpget &&
-_lftpget()
-{
-    COMPREPLY=()
-    local cur
-    _get_comp_words_by_ref cur
-
-    if [[ "$cur" == -* ]] ; then
-        COMPREPLY=( $( compgen -W '-c -d -v' -- "$cur" ) )
-    fi
-} &&
-complete -F _lftpget lftpget
-
-# Local variables:
-# mode: shell-script
-# sh-basic-offset: 4
-# sh-indent-comment: t
-# indent-tabs-mode: nil
-# End:
-# ex: ts=4 sw=4 et filetype=sh
+# ex: filetype=sh

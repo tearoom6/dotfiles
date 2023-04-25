@@ -1,0 +1,50 @@
+# bash complete completion                                 -*- shell-script -*-
+
+_complete()
+{
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
+
+    case $prev in
+        -*o)
+            COMPREPLY=($(compgen -W 'bashdefault default dirnames filenames
+                nospace plusdirs' -- "$cur"))
+            return
+            ;;
+
+        -*A)
+            COMPREPLY=($(compgen -W 'alias arrayvar binding builtin command
+                directory disabled enabled export file function group helptopic
+                hostname job keyword running service setopt shopt signal
+                stopped user variable' -- "$cur"))
+            return
+            ;;
+
+        -*C)
+            COMPREPLY=($(compgen -A command -- "$cur"))
+            return
+            ;;
+        -*F)
+            COMPREPLY=($(compgen -A function -- "$cur"))
+            return
+            ;;
+        -*p | -*r)
+            COMPREPLY=($(complete -p | command sed -e 's|.* ||'))
+            ((${#COMPREPLY[@]})) &&
+                COMPREPLY=($(compgen -W '"${COMPREPLY[@]}"' -- "$cur"))
+            return
+            ;;
+    esac
+
+    if [[ $cur == -* ]]; then
+        local -a opts=($(compgen -W '$(_parse_usage help "-s $1")' -- "$cur"))
+        # -F, -C do not work the expected way with compgen
+        [[ $1 != *compgen ]] || opts=("${opts[@]//-[FC]/}")
+        COMPREPLY=($(compgen -W '"${opts[@]}"' -- "$cur"))
+    else
+        COMPREPLY=($(compgen -A command -- "$cur"))
+    fi
+} &&
+    complete -F _complete compgen complete
+
+# ex: filetype=sh

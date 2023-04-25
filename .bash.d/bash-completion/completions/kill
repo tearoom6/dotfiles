@@ -1,0 +1,30 @@
+# kill(1) completion                                       -*- shell-script -*-
+
+_comp_cmd_kill()
+{
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
+
+    case $prev in
+        -s)
+            _signals
+            return
+            ;;
+        -l | -n)
+            return
+            ;;
+    esac
+
+    if [[ $cword -eq 1 && $cur == -* ]]; then
+        # return list of available signals
+        _signals -
+        COMPREPLY+=($(compgen -W '$(_parse_help help "$1")' -- "$cur"))
+    else
+        # return list of available PIDs and jobs
+        _pids
+        COMPREPLY+=($(compgen -j -P % -- "${cur#%}"))
+    fi
+} &&
+    complete -F _comp_cmd_kill kill
+
+# ex: filetype=sh

@@ -1,32 +1,23 @@
-# unrar(1) completion
+# unrar(1) completion                                      -*- shell-script -*-
 
-have unrar &&
 _unrar()
 {
-    local cur
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur
-
-    if [[ "$cur" == -* ]] ; then
-        COMPREPLY=( $( compgen -W '-ad -ap -av- -c- -cfg- -cl -cu \
-            -dh -ep -f -idp -ierr -inul -kb -o+ -o- -ow -p -p- -r -ta \
-            -tb -tn -to -u -v -ver -vp -x -x@ -y' -- "$cur" ) )
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '-ad -ap -av- -c- -cfg- -cl -cu -dh -ep -f
+            -idp -ierr -inul -kb -o+ -o- -ow -p -p- -r -ta -tb -tn -to -u -v
+            -ver -vp -x -x@ -y' -- "$cur"))
     else
-        if [ $COMP_CWORD -eq 1 ]; then
-            COMPREPLY=( $( compgen -W 'e l lb lt p t v vb vt x' -- "$cur" ) )
+        if ((cword == 1)); then
+            COMPREPLY=($(compgen -W 'e l lb lt p t v vb vt x' -- "$cur"))
         else
-            _filedir rar
+            _filedir '@(rar|exe|cbr)'
         fi
     fi
 
 } &&
-complete -F _unrar unrar
+    complete -F _unrar unrar
 
-# Local variables:
-# mode: shell-script
-# sh-basic-offset: 4
-# sh-indent-comment: t
-# indent-tabs-mode: nil
-# End:
-# ex: ts=4 sw=4 et filetype=sh
+# ex: filetype=sh

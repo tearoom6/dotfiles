@@ -1,0 +1,41 @@
+# a2x(1) completion                                        -*- shell-script -*-
+
+_a2x()
+{
+    local cur prev words cword split comp_args
+    _comp_initialize -s -- "$@" || return
+
+    local noargopts='!(-*|*[aDd]*)'
+    # shellcheck disable=SC2254
+    case $prev in
+        --attribute | --asciidoc-opts | --dblatex-opts | --fop-opts | --help | \
+            --version | --xsltproc-opts | -${noargopts}[ah])
+            return
+            ;;
+        --destination-dir | --icons-dir | -${noargopts}D)
+            _filedir -d
+            return
+            ;;
+        --doctype | -${noargopts}d)
+            _comp_xfunc asciidoc doctype
+            return
+            ;;
+        --stylesheet)
+            _filedir css
+            return
+            ;;
+    esac
+
+    $split && return
+
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '$(_parse_help "$1" --help)' -- "$cur"))
+        [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
+        return
+    fi
+
+    _filedir
+} &&
+    complete -F _a2x a2x
+
+# ex: filetype=sh

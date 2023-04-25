@@ -1,64 +1,56 @@
-# lsof(8) completion
+# lsof(8) completion                                       -*- shell-script -*-
 
-have lsof &&
-_lsof()
+_comp_cmd_lsof()
 {
-    COMPREPLY=()
-    local cur prev
-    _get_comp_words_by_ref cur prev
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
 
     case $prev in
-        -'?'|-h|+c|-c|-d|-F|-i|+r|-r|-s|-S|-T)
-            return 0
+        -'?' | -h | +c | -c | -d | -F | -i | +r | -r | -s | -S | -T)
+            return
             ;;
-        -A|-k|-m|+m|-o)
+        -A | -k | -m | +m | -o)
             _filedir
-            return 0
+            return
             ;;
-        +d|+D)
+        +d | +D)
             _filedir -d
-            return 0
+            return
             ;;
         -D)
-            COMPREPLY=( $( compgen -W '? b i r u' -- "$cur" ) )
-            return 0
+            COMPREPLY=($(compgen -W '? b i r u' -- "$cur"))
+            return
             ;;
         -f)
-            COMPREPLY=( $( compgen -W 'c f g G n' -- "$cur" ) )
-            return 0
+            COMPREPLY=($(compgen -W 'c f g G n' -- "$cur"))
+            return
             ;;
         -g)
             # TODO: handle ^foo exclusions, comma separated lists
             _pgids
-            return 0
+            return
             ;;
         -p)
             # TODO: handle ^foo exclusions, comma separated lists
             _pids
-            return 0
+            return
             ;;
         -u)
             # TODO: handle ^foo exclusions, comma separated lists
-            COMPREPLY=( $( compgen -u -- "$cur" ) )
-            return 0
+            COMPREPLY=($(compgen -u -- "$cur"))
+            return
             ;;
     esac
 
-    if [[ "$cur" == [-+]* ]]; then
-        COMPREPLY=( $( compgen -W '-h -a -A -b -c +c -C +d -d +D -D +f -f -F -g
+    if [[ $cur == [-+]* ]]; then
+        COMPREPLY=($(compgen -W '-h -a -A -b -c +c -C +d -d +D -D +f -f -F -g
             -i -k -l +L -L +m -m +M -M -n -N -o -O -p -P +r -r -R -s -S -T -t
-            -u -U -v -V +w -w -x -X -z -Z' -- "$cur" ) )
-        return 0
+            -u -U -v -V +w -w -x -X -z -Z' -- "$cur"))
+        return
     fi
 
     _filedir
 } &&
-complete -F _lsof lsof
+    complete -F _comp_cmd_lsof lsof
 
-# Local variables:
-# mode: shell-script
-# sh-basic-offset: 4
-# sh-indent-comment: t
-# indent-tabs-mode: nil
-# End:
-# ex: ts=4 sw=4 et filetype=sh
+# ex: filetype=sh

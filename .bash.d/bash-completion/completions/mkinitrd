@@ -1,40 +1,37 @@
-# bash completion for mkinitrd
+# bash completion for mkinitrd                             -*- shell-script -*-
 
-have mkinitrd &&
 _mkinitrd()
 {
-    local cur prev args split=false
-
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
-
-    _split_longopt && split=true
+    local cur prev words cword split comp_args
+    _comp_initialize -s -- "$@" || return
 
     case $prev in
-        --preload|--with|--builtin)
+        --preload | --with | --builtin)
             _modules
-            return 0
+            return
             ;;
-        --fstab|--dsdt)
+        --fstab | --dsdt)
             _filedir
-            return 0
+            return
             ;;
         --net-dev)
             _available_interfaces
-            return 0
+            return
             ;;
     esac
 
-    $split && return 0
+    $split && return
 
-    if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '--version --help -v -f --preload \
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '--version --help -v -f --preload \
             --force-scsi-probe --omit-scsi-modules \
             --omit-ide-modules --image-version --force-raid-probe \
-            --omit-raid-modules --with --force-lvm-probe \
+            --omit-raid-modules --with= --force-lvm-probe \
             --omit-lvm-modules --builtin --omit-dmraid --net-dev \
-            --fstab --nocompress --dsdt --bootchart' -- "$cur" ) )
+            --fstab --nocompress --dsdt --bootchart' -- "$cur"))
+        [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
     else
+        local args
         _count_args
 
         case $args in
@@ -48,12 +45,6 @@ _mkinitrd()
     fi
 
 } &&
-complete -F _mkinitrd mkinitrd
+    complete -F _mkinitrd mkinitrd
 
-# Local variables:
-# mode: shell-script
-# sh-basic-offset: 4
-# sh-indent-comment: t
-# indent-tabs-mode: nil
-# End:
-# ex: ts=4 sw=4 et filetype=sh
+# ex: filetype=sh

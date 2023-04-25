@@ -1,36 +1,27 @@
-# jar(1) completion
+# jar(1) completion                                        -*- shell-script -*-
 
-have jar &&
 _jar()
 {
-    local cur
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur
-
-    if [ $COMP_CWORD = 1 ]; then
-        COMPREPLY=( $( compgen -W 'c t x u' -- "$cur" ) )
-        return 0
+    if ((cword == 1)); then
+        COMPREPLY=($(compgen -W 'c t x u' -- "$cur"))
+        return
     fi
 
-    case ${COMP_WORDS[1]} in
+    case ${words[1]} in
         *c*f)
             _filedir
             ;;
         *f)
-            _filedir '@([ejw]ar|zip|apk)'
+            _filedir_xspec unzip "${@:2}"
             ;;
         *)
             _filedir
             ;;
     esac
 } &&
-complete -F _jar jar
+    complete -F _jar jar
 
-# Local variables:
-# mode: shell-script
-# sh-basic-offset: 4
-# sh-indent-comment: t
-# indent-tabs-mode: nil
-# End:
-# ex: ts=4 sw=4 et filetype=sh
+# ex: filetype=sh

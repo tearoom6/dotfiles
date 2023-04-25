@@ -1,0 +1,56 @@
+# asciidoc(1) completion                                   -*- shell-script -*-
+
+_comp_xfunc_asciidoc_doctype()
+{
+    COMPREPLY+=($(compgen -W 'article book manpage' -- "$cur"))
+}
+
+_comp_deprecate_func _asciidoc_doctype _comp_xfunc_asciidoc_doctype
+
+_asciidoc()
+{
+    local cur prev words cword split comp_args
+    _comp_initialize -s -- "$@" || return
+
+    local noargopts='!(-*|*[abfdo]*)'
+    # shellcheck disable=SC2254
+    case $prev in
+        --attribute | -${noargopts}a)
+            return
+            ;;
+        --backend | -${noargopts}b)
+            COMPREPLY=($(compgen -W 'docbook html4 xhtml11' -- "$cur"))
+            return
+            ;;
+        --conf-file | -${noargopts}f)
+            _filedir conf
+            return
+            ;;
+        --doctype | -${noargopts}d)
+            _comp_xfunc_asciidoc_doctype
+            return
+            ;;
+        --help | -${noargopts}h)
+            COMPREPLY=($(compgen -W 'manpage syntax topics' -- "$cur"))
+            return
+            ;;
+        --out-file | -${noargopts}o)
+            _filedir
+            return
+            ;;
+    esac
+
+    $split && return
+
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '$(_parse_help "$1" "--help manpage")' \
+            -- "$cur"))
+        [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
+        return
+    fi
+
+    _filedir
+} &&
+    complete -F _asciidoc asciidoc asciidoc.py
+
+# ex: filetype=sh

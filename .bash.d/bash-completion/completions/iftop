@@ -1,35 +1,26 @@
-# iftop(8) completion
+# iftop(8) completion                                      -*- shell-script -*-
 
-have iftop &&
 _iftop()
 {
-    COMPREPLY=()
-    local cur prev
-    _get_comp_words_by_ref cur prev
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
 
     case $prev in
-        -h|-f|-F|-m)
-            return 0
+        -h | -f | -F | -m)
+            return
             ;;
         -i)
             _available_interfaces -a
-            return 0
+            return
             ;;
         -c)
             _filedir
-            return 0
+            return
             ;;
     esac
 
-    COMPREPLY=( $( compgen -W '-h -n -N -p -P -b -B -i -f -F -c -m' \
-        -- "$cur" ) )
+    COMPREPLY=($(compgen -W '$(_parse_help "$1" -h)' -- "$cur"))
 } &&
-complete -F _iftop iftop
+    complete -F _iftop iftop
 
-# Local variables:
-# mode: shell-script
-# sh-basic-offset: 4
-# sh-indent-comment: t
-# indent-tabs-mode: nil
-# End:
-# ex: ts=4 sw=4 et filetype=sh
+# ex: filetype=sh

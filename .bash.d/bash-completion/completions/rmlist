@@ -1,0 +1,17 @@
+# mailman rmlist completion                                -*- shell-script -*-
+
+_rmlist()
+{
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
+
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '--archives --help' -- "$cur"))
+    else
+        _comp_xfunc list_lists mailman_lists
+    fi
+
+} &&
+    complete -F _rmlist rmlist
+
+# ex: filetype=sh

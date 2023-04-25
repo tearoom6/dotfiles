@@ -1,0 +1,60 @@
+# mypy completion                                          -*- shell-script -*-
+
+_mypy()
+{
+    local cur prev words cword split comp_args
+    _comp_initialize -s -- "$@" || return
+
+    [[ $cword -gt 2 && ${words[cword - 2]} == --shadow-file ]] &&
+        prev=--shadow-file # hack; takes two args
+
+    local noargopts='!(-*|*[pcm]*)'
+    # shellcheck disable=SC2254
+    case $prev in
+        --help | --version | --python-version | --platform | --always-true | \
+            --always-false | --@(dis|en)able-error-code | --find-occurrences | \
+            --exclude | --package | --command | -${noargopts}[hVpc])
+            return
+            ;;
+        --config-file)
+            _filedir
+            return
+            ;;
+        --follow-imports)
+            COMPREPLY=($(compgen -W 'normal silent skip error' -- "$cur"))
+            return
+            ;;
+        --python-executable)
+            COMPREPLY=($(compgen -c -- "${cur:-py}"))
+            return
+            ;;
+        --*-dir | --*-report)
+            _filedir -d
+            return
+            ;;
+        --custom-typing-module | --module | -${noargopts}m)
+            _comp_xfunc python modules
+            return
+            ;;
+        --shadow-file)
+            _filedir '@(py|pyi)'
+            return
+            ;;
+        --junit-xml)
+            _filedir xml
+            return
+            ;;
+    esac
+
+    $split && return
+
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '$(_parse_help "$1")' -- "$cur"))
+        return
+    fi
+
+    _filedir '@(py|pyi)'
+} &&
+    complete -F _mypy mypy
+
+# ex: filetype=sh

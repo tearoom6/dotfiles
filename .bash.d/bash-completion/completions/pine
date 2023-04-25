@@ -1,22 +1,33 @@
-# PINE address-book completion
+# pine/alpine completion                                   -*- shell-script -*-
 
-have pine || have alpine &&
-_pineaddr()
+_pine()
 {
-    local cur
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur
+    case $prev in
+        -help | -d | -f | -c | -I | -n | -url | -copy_pinerc | -copy_abook)
+            return
+            ;;
+        -attach | -attachlist | -attach_and_delete | -p | -P | -pinerc | \
+            -passfile | -x)
+            _filedir
+            return
+            ;;
+        -sort)
+            COMPREPLY=($(compgen -W 'arrival subject threaded orderedsubject
+                date from size score to cc' -- "$cur"))
+            return
+            ;;
+    esac
 
-    COMPREPLY=( $( compgen -W '$( awk "{print \$1}" ~/.addressbook \
-        2>/dev/null)' -- "$cur" ) )
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '$(_parse_help "$1" -h)' -- "$cur"))
+    else
+        COMPREPLY=($(compgen -W '$(awk "{print \$1}" ~/.addressbook \
+            2>/dev/null)' -- "$cur"))
+    fi
 } &&
-complete -F _pineaddr -o default pine alpine
+    complete -F _pine pine alpine
 
-# Local variables:
-# mode: shell-script
-# sh-basic-offset: 4
-# sh-indent-comment: t
-# indent-tabs-mode: nil
-# End:
-# ex: ts=4 sw=4 et filetype=sh
+# ex: filetype=sh

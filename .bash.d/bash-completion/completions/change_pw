@@ -1,0 +1,25 @@
+# mailman change_pw completion                             -*- shell-script -*-
+
+_change_pw()
+{
+    local cur prev words cword split comp_args
+    _comp_initialize -s -- "$@" || return
+
+    case $prev in
+        -l | --listname)
+            _comp_xfunc list_lists mailman_lists
+            return
+            ;;
+    esac
+
+    $split && return
+
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '--all --domain --listname --password --quiet
+            --help' -- "$cur"))
+    fi
+
+} &&
+    complete -F _change_pw change_pw
+
+# ex: filetype=sh

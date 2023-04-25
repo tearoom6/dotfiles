@@ -1,0 +1,27 @@
+# hostname(1) completion                                   -*- shell-script -*-
+
+_hostname()
+{
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
+
+    local noargopts='!(-*|*[F]*)'
+    # shellcheck disable=SC2254
+    case $prev in
+        --help | --version | -${noargopts}[hV])
+            return
+            ;;
+        --file | -${noargopts}F)
+            _filedir
+            return
+            ;;
+    esac
+
+    [[ $cur == -* ]] &&
+        COMPREPLY=($(
+            compgen -W '$(_parse_help "$1" || _parse_usage "$1")' -- "$cur"
+        ))
+} &&
+    complete -F _hostname hostname
+
+# ex: filetype=sh

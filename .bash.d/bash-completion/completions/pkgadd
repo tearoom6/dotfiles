@@ -1,0 +1,63 @@
+# pkgadd completion                                        -*- shell-script -*-
+#
+# Copyright 2006 Yann Rouillard <yann@opencsw.org>
+
+_pkgadd()
+{
+    local cur prev words cword comp_args
+    _comp_initialize -n : -- "$@" || return
+
+    # if a device directory was given
+    # we must complete with the package
+    # available in this directory
+    local device=/var/spool/pkg
+    local i=$cword
+    while ((i-- > 0)); do
+        case "${words[i]}" in
+            -d)
+                device="${words[i + 1]}"
+                break
+                ;;
+        esac
+    done
+
+    case $prev in
+        -d)
+            _filedir pkg
+            _filedir -d
+            ;;
+        -a | -r | -V)
+            _filedir
+            ;;
+        -k | -s | -R)
+            _filedir -d
+            ;;
+        -P | -x) ;;
+
+        *)
+            if [[ ${cur} == -* ]]; then
+                local -a opts=(-a -A -d -k -n -M -P -r -R -s -v -V -x)
+                COMPREPLY=($(compgen -W '"${opts[@]}"' -- "${cur}"))
+            else
+                local -a pkginst_list
+                if [[ -d $device ]]; then
+                    _comp_expand_glob pkginst_list '"$device"/*/pkginfo'
+                    if ((${#pkginst_list[@]})); then
+                        pkginst_list=("${pkginst_list[@]#"$device/"}")
+                        pkginst_list=("${pkginst_list[@]%/pkginfo}")
+                    fi
+                else
+                    local ret
+                    _comp_dequote "$device"
+                    _comp_split -l pkginst_list "$(strings "${ret-}" |
+                        command sed -n 's/^PKG=//p' | sort -u)"
+                fi
+                ((${#pkginst_list[@]})) &&
+                    COMPREPLY=($(compgen -W '"${pkginst_list[@]}"' -- "${cur}"))
+            fi
+            ;;
+    esac
+} &&
+    complete -F _pkgadd pkgadd
+
+# ex: filetype=sh

@@ -1,1094 +1,907 @@
-# bash completion for lvm
+# bash completion for lvm                                  -*- shell-script -*-
 
-have lvm && {
-_volumegroups()
+_comp_cmd_lvm__filedir()
 {
-    COMPREPLY=( $(compgen -W "$( vgscan 2>/dev/null | \
-        sed -n -e 's|.*Found.*"\(.*\)".*$|\1|p' )" -- "$cur" ) )
+    : "${cur:=/dev/}"
+    _filedir
 }
 
-_physicalvolumes()
+_comp_cmd_lvm__volumegroups()
 {
-    COMPREPLY=( $(compgen -W "$( pvscan 2>/dev/null | \
-        sed -n -e 's|^.*PV \(.*\) VG.*$|\1|p' )" -- "$cur" ) )
+    COMPREPLY=($(compgen -W "$(vgscan 2>/dev/null |
+        command sed -n -e 's|.*Found.*"\(.*\)".*$|\1|p')" -- "$cur"))
 }
 
-_logicalvolumes()
+_comp_cmd_lvm__physicalvolumes_all()
 {
-    COMPREPLY=( $(compgen -W "$( lvscan 2>/dev/null | \
-        sed -n -e "s|^.*'\(.*\)'.*$|\1|p" )" -- "$cur" ) )
+    COMPREPLY=($(compgen -W "$(pvscan 2>/dev/null |
+        command sed -n -e 's|^.*PV \([^ ]*\) .*|\1|p')" -- "$cur"))
 }
 
-_units()
+_comp_cmd_lvm__physicalvolumes()
 {
-    COMPREPLY=( $( compgen -W 'h s b k m g t H K M G T' -- "$cur" ) )
+    COMPREPLY=($(compgen -W "$(pvscan 2>/dev/null |
+        command sed -n -e 's|^.*PV \(.*\) VG.*$|\1|p')" -- "$cur"))
 }
 
-_sizes()
+_comp_cmd_lvm__logicalvolumes()
 {
-    COMPREPLY=( $( compgen -W 'k K m M g G t T' -- "$cur" ) )
-}
-
-_args()
-{
-    args=0
-    if [[ "${COMP_WORDS[0]}" == lvm ]]; then
-        offset=2
-    else
-        offset=1
+    COMPREPLY=($(compgen -W "$(lvscan 2>/dev/null |
+        command sed -n -e "s|^.*'\(.*\)'.*$|\1|p")" -- "$cur"))
+    if [[ $cur == /dev/mapper/* ]]; then
+        _filedir
+        local i
+        for i in "${!COMPREPLY[@]}"; do
+            [[ ${COMPREPLY[i]} == */control ]] && unset -v 'COMPREPLY[i]'
+        done
     fi
-    for (( i=$offset; i < COMP_CWORD; i++ )); do
-        if [[ "${COMP_WORDS[i]}" != -* ]]; then
-            args=$(($args + 1))
+}
+
+_comp_cmd_lvm__units()
+{
+    COMPREPLY=($(compgen -W 'h s b k m g t H K M G T' -- "$cur"))
+}
+
+_comp_cmd_lvm__sizes()
+{
+    COMPREPLY=($(compgen -W 'k K m M g G t T' -- "$cur"))
+}
+
+# @param $1 glob matching args known to take an argument
+_comp_cmd_lvm__count_args()
+{
+    ret=0
+    local offset=1
+    if [[ ${words[0]} == lvm ]]; then
+        offset=2
+    fi
+    local i prev=${words[offset - 1]}
+    for ((i = offset; i < cword; i++)); do
+        # shellcheck disable=SC2053
+        if [[ ${words[i]} != -* && $prev != $1 ]]; then
+            ((ret++))
         fi
+        prev=${words[i]}
     done
 }
 
-_lvmdiskscan()
+_comp_cmd_lvmdiskscan()
 {
-    local cur
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur
-
-    if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '--debug --help \
-            --lvmpartition --verbose --version' -- "$cur" ) )
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '$(_parse_usage "$1" --help)' -- "$cur"))
     fi
-}
-complete -F _lvmdiskscan lvmdiskscan
+} &&
+    complete -F _comp_cmd_lvmdiskscan lvmdiskscan
 
-_pvscan()
+_comp_cmd_pvscan()
 {
-    local cur
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur
-
-    if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '--debug --exported --novolumegroup \
-            --help --ignorelockingfailure --partial --short --uuid \
-            --verbose --version' -- "$cur" ) )
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '$(_parse_usage "$1" --help)' -- "$cur"))
     fi
-}
-complete -F _pvscan pvscan
+} &&
+    complete -F _comp_cmd_pvscan pvscan
 
-_pvs()
+_comp_cmd_pvs()
 {
-    local cur prev
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
-
+    local noargopts='!(-*|*[oO]*)'
+    # shellcheck disable=SC2254
     case $prev in
-        -o|-O|--options|--sort)
-            COMPREPLY=( $( compgen -W 'pv_fmt pv_uuid \
-                pv_size pv_free pv_used pv_name \
-                pv_attr pv_pe_count \
-                pv_pe_alloc_count' -- "$cur" ) )
-            return 0
+        --options | --sort | -${noargopts}[oO])
+            COMPREPLY=($(compgen -W 'pv_fmt pv_uuid pv_size pv_free pv_used
+                pv_name pv_attr pv_pe_count pv_pe_alloc_count' -- "$cur"))
+            return
             ;;
         --units)
-            _units
-            return 0
+            _comp_cmd_lvm__units
+            return
             ;;
     esac
 
-    if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '--aligned --all --debug \
-            --help --ignorelockingfailure --noheadings \
-            --nosuffix --options --sort --separator --unbuffered --units \
-            --verbose --version' -- "$cur" ) )
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '$(_parse_usage "$1" --help)' -- "$cur"))
     else
-        _physicalvolumes
+        _comp_cmd_lvm__physicalvolumes_all
     fi
-}
-complete -F _pvs pvs
+} &&
+    complete -F _comp_cmd_pvs pvs
 
-_pvdisplay()
+_comp_cmd_pvdisplay()
 {
-    local cur prev
-
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
 
     case $prev in
         --units)
-            _units
-            return 0
+            _comp_cmd_lvm__units
+            return
             ;;
     esac
 
-    if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '--colon --columns --units \
-            --verbose --debug --help --version' -- "$cur" ) )
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '$(_parse_usage "$1" --help)' -- "$cur"))
     else
-        _physicalvolumes
+        _comp_cmd_lvm__physicalvolumes_all
     fi
-}
-complete -F _pvdisplay pvdisplay
+} &&
+    complete -F _comp_cmd_pvdisplay pvdisplay
 
-_pvchange()
+_comp_cmd_pvchange()
 {
-    local cur prev
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
-
+    local noargopts='!(-*|*[Ax]*)'
+    # shellcheck disable=SC2254
     case $prev in
-        -A|-x|--autobackup|--allocatable)
-            COMPREPLY=( $( compgen -W 'y n' -- "$cur" ) )
-            return 0
+        --autobackup | --allocatable | -${noargopts}[Ax])
+            COMPREPLY=($(compgen -W 'y n' -- "$cur"))
+            return
             ;;
     esac
 
-    if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '--all --autobackup \
-            --debug --help --test --uuid \
-            --allocatable --verbose --addtag --deltag \
-            --version' -- "$cur" ) )
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '$(_parse_usage "$1" --help)' -- "$cur"))
     else
-        _physicalvolumes
+        _comp_cmd_lvm__physicalvolumes_all
     fi
-}
-complete -F _pvchange pvchange
+} &&
+    complete -F _comp_cmd_pvchange pvchange
 
-_pvcreate()
+_comp_cmd_pvcreate()
 {
-    local cur prev
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
-
+    local noargopts='!(-*|*[M]*)'
+    # shellcheck disable=SC2254
     case $prev in
         --restorefile)
             _filedir
-            return 0
+            return
             ;;
-        -M|--metadatatype)
-            COMPREPLY=( $( compgen -W '1 2' -- "$cur" ) )
-            return 0
+        --metadatatype | -${noargopts}M)
+            COMPREPLY=($(compgen -W '1 2' -- "$cur"))
+            return
             ;;
         --metadatacopies)
-            COMPREPLY=( $( compgen -W '0 1 2' -- "$cur" ) )
-            return 0
+            COMPREPLY=($(compgen -W '0 1 2' -- "$cur"))
+            return
             ;;
-        --metadatasize|--setphysicalvolumesize)
-            _sizes
-            return 0
+        --metadatasize | --setphysicalvolumesize)
+            _comp_cmd_lvm__sizes
+            return
             ;;
     esac
 
-    if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '--restorefile --debug \
-            --force --help --labelsector --metadatatype \
-            --metadatacopies --metadatasize \
-            --setphysicalvolumesize --test --uuid \
-            --verbose --yes --version' -- "$cur" ) )
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '$(_parse_usage "$1" --help)' -- "$cur"))
     else
-        _physicalvolumes
+        _comp_cmd_lvm__filedir
     fi
-}
-complete -F _pvcreate pvcreate
+} &&
+    complete -F _comp_cmd_pvcreate pvcreate
 
-_pvmove()
+_comp_cmd_pvmove()
 {
-    local cur prev
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
-
+    local noargopts='!(-*|*[An]*)'
+    # shellcheck disable=SC2254
     case $prev in
-        -A|--autobackup)
-            COMPREPLY=( $( compgen -W 'y n' -- "$cur" ) )
-            return 0
+        --autobackup | -${noargopts}A)
+            COMPREPLY=($(compgen -W 'y n' -- "$cur"))
+            return
             ;;
-        -n|--name)
-            _logicalvolumes
-            return 0
+        --name | -${noargopts}n)
+            _comp_cmd_lvm__logicalvolumes
+            return
+            ;;
     esac
 
-    if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '--abort --autobackup \
-            --background --debug --force --help --interval --test --verbose \
-            --version --name' -- "$cur" ) )
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '$(_parse_usage "$1" --help)' -- "$cur"))
     else
-        _physicalvolumes
+        _comp_cmd_lvm__physicalvolumes
     fi
-}
-complete -F _pvmove pvmove
+} &&
+    complete -F _comp_cmd_pvmove pvmove
 
-_pvremove()
+_comp_cmd_pvremove()
 {
-    local cur
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur
-
-    if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '--debug --force \
-            --help --yes --test --verbose --version' -- "$cur" ) )
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '$(_parse_usage "$1" --help)' -- "$cur"))
     else
-        _physicalvolumes
+        _comp_cmd_lvm__physicalvolumes_all
     fi
-}
-complete -F _pvremove pvremove
+} &&
+    complete -F _comp_cmd_pvremove pvremove
 
-_vgscan()
+_comp_cmd_vgscan()
 {
-    local cur
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur
-
-    if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '--debug --help \
-            --ignorelockingfailure --mknodes \
-            --partial --verbose --version' -- "$cur" ) )
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '$(_parse_usage "$1" --help)' -- "$cur"))
     fi
-}
-complete -F _vgscan vgscan
+} &&
+    complete -F _comp_cmd_vgscan vgscan
 
-_vgs()
+_comp_cmd_vgs()
 {
-    local cur prev
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
-
+    local noargopts='!(-*|*[oO]*)'
+    # shellcheck disable=SC2254
     case $prev in
-        -o|-O|--options|--sort)
-            COMPREPLY=( $( compgen -W 'vg_fmt vg_uuid vg_name \
-                vg_attr vg_size vg_free vg_sysid \
-                vg_extent_size vg_extent_count vg_free_count \
-                max_lv max_pv pv_count lv_count snap_count \
-                vg_seqno' -- "$cur" ) )
-            return 0
+        --options | --sort | -${noargopts}[oO])
+            COMPREPLY=($(compgen -W 'vg_fmt vg_uuid vg_name vg_attr vg_size
+                vg_free vg_sysid vg_extent_size vg_extent_count vg_free_count
+                max_lv max_pv pv_count lv_count snap_count vg_seqno' \
+                -- "$cur"))
+            return
             ;;
         --units)
-            _units
-            return 0
+            _comp_cmd_lvm__units
+            return
             ;;
     esac
 
-    if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '--aligned --debug \
-            --help --ignorelockingfailure --noheadings \
-            --nosuffix --options --sort --partial \
-            --separator --unbuffered --units \
-            --verbose --version' -- "$cur" ) )
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '$(_parse_usage "$1" --help)' -- "$cur"))
     else
-        _volumegroups
+        _comp_cmd_lvm__volumegroups
     fi
-}
-complete -F _vgs vgs
+} &&
+    complete -F _comp_cmd_vgs vgs
 
-_vgdisplay()
+_comp_cmd_vgdisplay()
 {
-    local cur prev
-
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
 
     case $prev in
         --units)
-            _units
-            return 0
+            _comp_cmd_lvm__units
+            return
             ;;
     esac
 
-    if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '--colon --columns --units \
-            --partial --activevolumegroups --verbose \
-            --debug --help --version' -- "$cur" ) )
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '$(_parse_usage "$1" --help)' -- "$cur"))
     else
-        _volumegroups
+        _comp_cmd_lvm__volumegroups
     fi
-}
-complete -F _vgdisplay vgdisplay
+} &&
+    complete -F _comp_cmd_vgdisplay vgdisplay
 
-_vgchange()
+_comp_cmd_vgchange()
 {
-    local cur prev
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
-
+    local noargopts='!(-*|*[aAx]*)'
+    # shellcheck disable=SC2254
     case $prev in
-        -a|-A|-x|--available|--autobackup|--resizeable)
-            COMPREPLY=( $( compgen -W 'y n' -- "$cur" ) )
-            return 0
+        --available | --autobackup | --resizeable | -${noargopts}[aAx])
+            COMPREPLY=($(compgen -W 'y n' -- "$cur"))
+            return
             ;;
     esac
 
-    if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '--autobackup --alloc \
-            --partial --debug --help --ignorelockingfailure \
-            --test --uuid --verbose --version \
-            --available --resizeable --logicalvolume \
-            --addtag --deltag' -- "$cur" ) )
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '$(_parse_usage "$1" --help)' -- "$cur"))
     else
-        _volumegroups
+        _comp_cmd_lvm__volumegroups
     fi
-}
-complete -F _vgchange vgchange
+} &&
+    complete -F _comp_cmd_vgchange vgchange
 
-_vgcreate()
+_comp_cmd_vgcreate()
 {
-    local cur prev
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
-
+    local noargopts='!(-*|*[AMs]*)'
+    # shellcheck disable=SC2254
     case $prev in
-        -A|--autobackup)
-            COMPREPLY=( $( compgen -W 'y n' -- "$cur" ) )
-            return 0
+        --autobackup | -${noargopts}A)
+            COMPREPLY=($(compgen -W 'y n' -- "$cur"))
+            return
             ;;
-        -M|--metadatatype)
-            COMPREPLY=( $( compgen -W '1 2' -- "$cur" ) )
-            return 0
+        --metadatatype | -${noargopts}M)
+            COMPREPLY=($(compgen -W '1 2' -- "$cur"))
+            return
             ;;
-        -s|--physicalextentsize)
-            _sizes
-            return 0
+        --physicalextentsize | -${noargopts}s)
+            _comp_cmd_lvm__sizes
+            return
             ;;
     esac
 
-    if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '--autobackup --addtag --alloc \
-            --debug --help --maxlogicalvolumes --metadatatype \
-            --maxphysicalvolumes --physicalextentsize --test \
-            --verbose --version' -- "$cur" ) )
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '$(_parse_usage "$1" --help)' -- "$cur"))
     else
-        _args
-        if [ $args -eq 0 ]; then
-            _volumegroups
+        local ret
+        _comp_cmd_lvm__count_args '@(-A|--autobackup|-M|--metadatatype|-s|--physicalextentsize)'
+        if ((ret == 0)); then
+            _comp_cmd_lvm__volumegroups
         else
-            _physicalvolumes
+            _comp_cmd_lvm__physicalvolumes_all
         fi
     fi
-}
-complete -F _vgcreate vgcreate
+} &&
+    complete -F _comp_cmd_vgcreate vgcreate
 
-_vgremove()
+_comp_cmd_vgremove()
 {
-    local cur
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur
-
-    if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '--debug --help --test \
-            --verbose --version' -- "$cur" ) )
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '$(_parse_usage "$1" --help)' -- "$cur"))
     else
-        _volumegroups
+        _comp_cmd_lvm__volumegroups
     fi
-}
-complete -F _vgremove vgremove
+} &&
+    complete -F _comp_cmd_vgremove vgremove
 
-_vgrename()
+_comp_cmd_vgrename()
 {
-    local cur prev
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
-
+    local noargopts='!(-*|*[A]*)'
+    # shellcheck disable=SC2254
     case $prev in
-        -A|--autobackup)
-            COMPREPLY=( $( compgen -W 'y n' -- "$cur" ) )
-            return 0
+        --autobackup | -${noargopts}A)
+            COMPREPLY=($(compgen -W 'y n' -- "$cur"))
+            return
             ;;
     esac
 
-    if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '--autobackup --debug \
-            --help --test --verbose --version' -- "$cur" ) )
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '$(_parse_usage "$1" --help)' -- "$cur"))
     else
-        _volumegroups
+        _comp_cmd_lvm__volumegroups
     fi
-}
-complete -F _vgrename vgrename
+} &&
+    complete -F _comp_cmd_vgrename vgrename
 
-_vgreduce()
+_comp_cmd_vgreduce()
 {
-    local cur prev
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
-
+    local noargopts='!(-*|*[A]*)'
+    # shellcheck disable=SC2254
     case $prev in
-        -A|--autobackup)
-            COMPREPLY=( $( compgen -W 'y n' -- "$cur" ) )
-            return 0
+        --autobackup | -${noargopts}A)
+            COMPREPLY=($(compgen -W 'y n' -- "$cur"))
+            return
             ;;
     esac
 
-    if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '--all --autobackup \
-            --debug --help --removemissing --test \
-            --verbose --version' -- "$cur" ) )
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '$(_parse_usage "$1" --help)' -- "$cur"))
 
     else
-        _args
-        if [ $args -eq 0 ]; then
-            _volumegroups
+        local ret
+        _comp_cmd_lvm__count_args '@(-A|--autobackup)'
+        if ((ret == 0)); then
+            _comp_cmd_lvm__volumegroups
         else
-            _physicalvolumes
+            _comp_cmd_lvm__physicalvolumes
         fi
     fi
-}
-complete -F _vgreduce vgreduce
+} &&
+    complete -F _comp_cmd_vgreduce vgreduce
 
-_vgextend()
+_comp_cmd_vgextend()
 {
-    local cur prev
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
-
+    local noargopts='!(-*|*[AL]*)'
+    # shellcheck disable=SC2254
     case $prev in
-        -A|--autobackup)
-            COMPREPLY=( $( compgen -W 'y n' -- "$cur" ) )
-            return 0
+        --autobackup | -${noargopts}A)
+            COMPREPLY=($(compgen -W 'y n' -- "$cur"))
+            return
             ;;
-        -L|--size)
-            _sizes
-            return 0
+        --size | -${noargopts}L)
+            _comp_cmd_lvm__sizes
+            return
             ;;
     esac
 
-    if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '--autobackup --debug \
-            --help --test --verbose --version' -- "$cur" ) )
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '$(_parse_usage "$1" --help)' -- "$cur"))
     else
-        _args
-        if [ $args -eq 0 ]; then
-            _volumegroups
+        local ret
+        _comp_cmd_lvm__count_args '@(-A|--autobackup|-L|--size)'
+        if ((ret == 0)); then
+            _comp_cmd_lvm__volumegroups
         else
-            _physicalvolumes
+            _comp_cmd_lvm__physicalvolumes_all
         fi
     fi
-}
-complete -F _vgextend vgextend
+} &&
+    complete -F _comp_cmd_vgextend vgextend
 
-_vgport()
+_comp_cmd_vgport()
 {
-    local cur prev
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur
-
-    if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '--all --debug \
-            --help --verbose --version' -- "$cur" ) )
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '$(_parse_usage "$1" --help)' -- "$cur"))
     else
-        _volumegroups
+        _comp_cmd_lvm__volumegroups
     fi
-}
-complete -F _vgport vgimport vgexport
+} &&
+    complete -F _comp_cmd_vgport vgimport vgexport
 
-_vgck()
+_comp_cmd_vgck()
 {
-    local cur
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur
-
-    if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '--debug \
-            --help --verbose --version' -- "$cur" ) )
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '$(_parse_usage "$1" --help)' -- "$cur"))
     else
-        _volumegroups
+        _comp_cmd_lvm__volumegroups
     fi
-}
-complete -F _vgck vgck
+} &&
+    complete -F _comp_cmd_vgck vgck
 
-_vgconvert()
+_comp_cmd_vgconvert()
 {
-    local cur prev
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
-
+    local noargopts='!(-*|*[M]*)'
+    # shellcheck disable=SC2254
     case $prev in
-        -M|--metadatatype)
-            COMPREPLY=( $( compgen -W '1 2' -- "$cur" ) )
-            return 0
+        --metadatatype | -${noargopts}M)
+            COMPREPLY=($(compgen -W '1 2' -- "$cur"))
+            return
             ;;
         --metadatacopies)
-            COMPREPLY=( $( compgen -W '0 1 2' -- "$cur" ) )
-            return 0
+            COMPREPLY=($(compgen -W '0 1 2' -- "$cur"))
+            return
             ;;
         --metadatasize)
-            _sizes
-            return 0
+            _comp_cmd_lvm__sizes
+            return
             ;;
     esac
 
-    if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '--debug --help --labelsector \
-            --metadatatype --metadatacopies --metadatasize \
-            --test --verbose --version' -- "$cur" ) )
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '$(_parse_usage "$1" --help)' -- "$cur"))
     else
-        _volumegroups
+        _comp_cmd_lvm__volumegroups
     fi
-}
-complete -F _vgconvert vgconvert
+} &&
+    complete -F _comp_cmd_vgconvert vgconvert
 
-_vgcfgbackup()
+_comp_cmd_vgcfgbackup()
 {
-    local cur prev
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
-
+    local noargopts='!(-*|*[f]*)'
+    # shellcheck disable=SC2254
     case $prev in
-        -f|--file)
+        --file | -${noargopts}f)
             _filedir
-            return 0
+            return
             ;;
     esac
 
-    if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '--debug --file --help \
-            --ignorelockingfailure --partial --verbose \
-            --version' -- "$cur" ) )
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '$(_parse_usage "$1" --help)' -- "$cur"))
     else
-        _volumegroups
+        _comp_cmd_lvm__volumegroups
     fi
-}
-complete -F _vgcfgbackup vgcfgbackup
+} &&
+    complete -F _comp_cmd_vgcfgbackup vgcfgbackup
 
-_vgcfgrestore()
+_comp_cmd_vgcfgrestore()
 {
-    local cur prev
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
-
+    local noargopts='!(-*|*[fMn]*)'
+    # shellcheck disable=SC2254
     case $prev in
-        -f|--file)
+        --file | -${noargopts}f)
             _filedir
-            return 0
+            return
             ;;
-        -M|--metadatatype)
-            COMPREPLY=( $( compgen -W '1 2' -- "$cur" ) )
-            return 0
+        --metadatatype | -${noargopts}M)
+            COMPREPLY=($(compgen -W '1 2' -- "$cur"))
+            return
             ;;
-        -n|--name)
-            _volumegroups
-            return 0
+        --name | -${noargopts}n)
+            _comp_cmd_lvm__volumegroups
+            return
             ;;
     esac
 
-    if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '--debug --file --list \
-            --help --metadatatype --name --test \
-            --verbose --version' -- "$cur" ) )
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '$(_parse_usage "$1" --help)' -- "$cur"))
     else
-        _volumegroups
+        _comp_cmd_lvm__volumegroups
     fi
-}
-complete -F _vgcfgrestore vgcfgrestore
+} &&
+    complete -F _comp_cmd_vgcfgrestore vgcfgrestore
 
-_vgmerge()
+_comp_cmd_vgmerge()
 {
-    local cur prev
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
-
+    local noargopts='!(-*|*[A]*)'
+    # shellcheck disable=SC2254
     case $prev in
-        -A|--autobackup)
-            COMPREPLY=( $( compgen -W 'y n' -- "$cur" ) )
-            return 0
+        --autobackup | -${noargopts}A)
+            COMPREPLY=($(compgen -W 'y n' -- "$cur"))
+            return
             ;;
     esac
 
-    if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '--autobackup --debug --help \
-            --list --test --verbose --version' -- "$cur" ) )
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '$(_parse_usage "$1" --help)' -- "$cur"))
     else
-        _volumegroups
+        _comp_cmd_lvm__volumegroups
     fi
-}
-complete -F _vgmerge vgmerge
+} &&
+    complete -F _comp_cmd_vgmerge vgmerge
 
-_vgsplit()
+_comp_cmd_vgsplit()
 {
-    local cur prev
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
-
+    local noargopts='!(-*|*[AM]*)'
+    # shellcheck disable=SC2254
     case $prev in
-        -A|--autobackup)
-            COMPREPLY=( $( compgen -W 'y n' -- "$cur" ) )
-            return 0
+        --autobackup | -${noargopts}A)
+            COMPREPLY=($(compgen -W 'y n' -- "$cur"))
+            return
             ;;
-        -M|--metadatatype)
-            COMPREPLY=( $( compgen -W '1 2' -- "$cur" ) )
-            return 0
+        --metadatatype | -${noargopts}M)
+            COMPREPLY=($(compgen -W '1 2' -- "$cur"))
+            return
             ;;
     esac
 
-    if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '--autobackup --debug \
-            --help --list --metadatatype --test \
-            --verbose --version' -- "$cur" ) )
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '$(_parse_usage "$1" --help)' -- "$cur"))
     else
-        _args
-        if [[ $args -eq 0 || $args -eq 1 ]]; then
-            _volumegroups
+        local ret
+        _comp_cmd_lvm__count_args '@(-A|--autobackup|-M|--metadatatype)'
+        if ((ret < 2)); then
+            _comp_cmd_lvm__volumegroups
         else
-            _physicalvolumes
+            _comp_cmd_lvm__physicalvolumes
         fi
     fi
-}
-complete -F _vgsplit vgsplit
+} &&
+    complete -F _comp_cmd_vgsplit vgsplit
 
-_vgmknodes()
+_comp_cmd_vgmknodes()
 {
-    local cur
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur
-
-    if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '--debug --help --verbose \
-            --version' -- "$cur" ) )
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '$(_parse_usage "$1" --help)' -- "$cur"))
     else
-        _volumegroups
+        _comp_cmd_lvm__volumegroups
     fi
-}
-complete -F _vgmknodes vgmknodes
+} &&
+    complete -F _comp_cmd_vgmknodes vgmknodes
 
-_lvscan()
+_comp_cmd_lvscan()
 {
-    local cur
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur
-
-    if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '--blockdevice --debug \
-            --help --ignorelockingfailure \
-            --partial --verbose --version' -- "$cur" ) )
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '$(_parse_usage "$1" --help)' -- "$cur"))
     fi
-}
-complete -F _lvscan lvscan
+} &&
+    complete -F _comp_cmd_lvscan lvscan
 
-_lvs()
+_comp_cmd_lvs()
 {
-    local cur prev
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
-
+    local noargopts='!(-*|*[oO]*)'
+    # shellcheck disable=SC2254
     case $prev in
-        -o|-O|--options|--sort)
-            COMPREPLY=( $( compgen -W 'lv_uuid lv_name lv_attr lv_minor \
-                lv_size seg_count origin snap_percent segtype stripes \
-                stripesize chunksize seg_start seg_size' -- "$cur" ) )
-            return 0
+        --options | --sort | -${noargopts}[oO])
+            COMPREPLY=($(compgen -W 'lv_uuid lv_name lv_attr lv_minor lv_size
+                seg_count origin snap_percent segtype stripes stripesize
+                chunksize seg_start seg_size' -- "$cur"))
+            return
             ;;
         --units)
-            _units
-            return 0
+            _comp_cmd_lvm__units
+            return
             ;;
     esac
 
-    if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '--aligned --debug --help \
-            --ignorelockingfailure --noheadings --nosuffix --options \
-            --sort --partial --segments --separator --unbuffered --units \
-            --verbose --version' -- "$cur" ) )
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '$(_parse_usage "$1" --help)' -- "$cur"))
     else
-        _logicalvolumes
+        _comp_cmd_lvm__logicalvolumes
     fi
-}
-complete -F _lvs lvs
+} &&
+    complete -F _comp_cmd_lvs lvs
 
-_lvdisplay()
+_comp_cmd_lvdisplay()
 {
-    local cur prev
-
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
 
     case $prev in
         --units)
-            _units
-            return 0
+            _comp_cmd_lvm__units
+            return
             ;;
     esac
 
-    if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '--colon --columns --units \
-            --partial --maps --verbose --debug --help --version' -- "$cur" ) )
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '$(_parse_usage "$1" --help)' -- "$cur"))
     else
-        _logicalvolumes
+        _comp_cmd_lvm__logicalvolumes
     fi
-}
-complete -F _lvdisplay lvdisplay
+} &&
+    complete -F _comp_cmd_lvdisplay lvdisplay
 
-_lvchange()
+_comp_cmd_lvchange()
 {
-    local cur prev
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
-
+    local noargopts='!(-*|*[aACMp]*)'
+    # shellcheck disable=SC2254
     case $prev in
-        -a|-A|-C|-M|--available|--autobackup|--continguous|--persistent)
-            COMPREPLY=( $( compgen -W 'y n' -- "$cur" ) )
-            return 0
+        --available | --autobackup | --contiguous | --persistent | -${noargopts}[aACM])
+            COMPREPLY=($(compgen -W 'y n' -- "$cur"))
+            return
             ;;
-        -p|--permission)
-            COMPREPLY=( $( compgen -W 'r rw' -- "$cur" ) )
-            return 0
+        --permission | -${noargopts}p)
+            COMPREPLY=($(compgen -W 'r rw' -- "$cur"))
+            return
             ;;
     esac
 
-    if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '--autobackup --available \
-            --addtag --alloc --contiguous --debug --deltag \
-            --force --help --ignorelockingfailure \
-            --persistent --major --minor --partial \
-            --permission --readahead --refresh --test \
-            --verbose --version' -- "$cur" ) )
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '$(_parse_usage "$1" --help)' -- "$cur"))
     else
-        _logicalvolumes
+        _comp_cmd_lvm__logicalvolumes
     fi
-}
-complete -F _lvchange lvchange
+} &&
+    complete -F _comp_cmd_lvchange lvchange
 
-_lvcreate()
+_comp_cmd_lvcreate()
 {
-    local cur prev
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
-
+    local noargopts='!(-*|*[ACMZLpn]*)'
+    # shellcheck disable=SC2254
     case $prev in
-        -A|-C|-M|-Z|--autobackup|--continguous|--persistent|--zero)
-            COMPREPLY=( $( compgen -W 'y n' -- "$cur" ) )
-            return 0
+        --autobackup | --contiguous | --persistent | --zero | -${noargopts}[ACMZ])
+            COMPREPLY=($(compgen -W 'y n' -- "$cur"))
+            return
             ;;
-        -L|--size)
-            _sizes
-            return 0
+        --size | -${noargopts}L)
+            _comp_cmd_lvm__sizes
+            return
             ;;
-        -p|--permission)
-            COMPREPLY=( $( compgen -W 'r rw' -- "$cur" ) )
-            return 0
+        --permission | -${noargopts}p)
+            COMPREPLY=($(compgen -W 'r rw' -- "$cur"))
+            return
             ;;
-        -n|--name)
-            _logicalvolumes
-            return 0
+        --name | -${noargopts}n)
+            _comp_cmd_lvm__logicalvolumes
+            return
             ;;
     esac
 
-    if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '--autobackup --addtag --alloc \
-            --contiguous --debug --help --stripes \
-            --stripesize --extents --size --persistent \
-            --major --minor --name --permission \
-            --readahead --test --type --verbose --zero \
-            --version' -- "$cur" ) )
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '$(_parse_usage "$1" --help)' -- "$cur"))
     else
-        _args
-        if [ $args -eq 0 ]; then
-            _volumegroups
+        local ret
+        _comp_cmd_lvm__count_args '@(-A|-C|-M|-Z|--autobackup|--contiguous|--persistent|--zero|-L|--size|-p|--permission|-n|--name)'
+        if ((ret == 0)); then
+            _comp_cmd_lvm__volumegroups
         else
-            _physicalvolumes
+            _comp_cmd_lvm__physicalvolumes
         fi
     fi
-}
-complete -F _lvcreate lvcreate
+} &&
+    complete -F _comp_cmd_lvcreate lvcreate
 
-_lvremove()
+_comp_cmd_lvremove()
 {
-    local cur prev
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
-
+    local noargopts='!(-*|*[A]*)'
+    # shellcheck disable=SC2254
     case $prev in
-        -A|--autobackup)
-            COMPREPLY=( $( compgen -W 'y n' -- "$cur" ) )
-            return 0
+        --autobackup | -${noargopts}A)
+            COMPREPLY=($(compgen -W 'y n' -- "$cur"))
+            return
             ;;
     esac
 
-    if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '--autobackup --debug \
-            --force --help --test --verbose --version' -- "$cur" ) )
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '$(_parse_usage "$1" --help)' -- "$cur"))
     else
-        _logicalvolumes
+        _comp_cmd_lvm__logicalvolumes
     fi
-}
-complete -F _lvremove lvremove
+} &&
+    complete -F _comp_cmd_lvremove lvremove
 
-_lvrename()
+_comp_cmd_lvrename()
 {
-    local cur prev
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
-
+    local noargopts='!(-*|*[A]*)'
+    # shellcheck disable=SC2254
     case $prev in
-        -A|--autobackup)
-            COMPREPLY=( $( compgen -W 'y n' -- "$cur" ) )
-            return 0
+        --autobackup | -${noargopts}A)
+            COMPREPLY=($(compgen -W 'y n' -- "$cur"))
+            return
             ;;
     esac
 
-    if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '--autobackup --debug \
-            --help --test --verbose --version' -- "$cur" ) )
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '$(_parse_usage "$1" --help)' -- "$cur"))
     else
-        _logicalvolumes
+        _comp_cmd_lvm__logicalvolumes
     fi
-}
-complete -F _lvrename lvrename
+} &&
+    complete -F _comp_cmd_lvrename lvrename
 
-_lvreduce()
+_comp_cmd_lvreduce()
 {
-    local cur prev
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
-
+    local noargopts='!(-*|*[AL]*)'
+    # shellcheck disable=SC2254
     case $prev in
-        -A|--autobackup)
-            COMPREPLY=( $( compgen -W 'y n' -- "$cur" ) )
-            return 0
+        --autobackup | -${noargopts}A)
+            COMPREPLY=($(compgen -W 'y n' -- "$cur"))
+            return
             ;;
-        -L|--size)
-            _sizes
-            return 0
+        --size | -${noargopts}L)
+            _comp_cmd_lvm__sizes
+            return
             ;;
     esac
 
-    if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '--autobackup \
-            --debug --force --help --extents \
-            --size --nofsck --resizefs --test --verbose --version' -- "$cur" ) )
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '$(_parse_usage "$1" --help)' -- "$cur"))
     else
-        _logicalvolumes
+        _comp_cmd_lvm__logicalvolumes
     fi
-}
-complete -F _lvreduce lvreduce
+} &&
+    complete -F _comp_cmd_lvreduce lvreduce
 
-_lvresize()
+_comp_cmd_lvresize()
 {
-    local cur prev
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
-
+    local noargopts='!(-*|*[AL]*)'
+    # shellcheck disable=SC2254
     case $prev in
-        -A|--autobackup)
-            COMPREPLY=( $( compgen -W 'y n' -- "$cur" ) )
-            return 0
+        --autobackup | -${noargopts}A)
+            COMPREPLY=($(compgen -W 'y n' -- "$cur"))
+            return
             ;;
-        -L|--size)
-            _sizes
-            return 0
+        --size | -${noargopts}L)
+            _comp_cmd_lvm__sizes
+            return
             ;;
     esac
 
-    if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '--autobackup --alloc \
-            --debug --help --stripes --stripesize \
-            --extents --size --nofsck --resizefs \
-            --test --type --verbose --version' -- "$cur" ) )
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '$(_parse_usage "$1" --help)' -- "$cur"))
     else
-        _args
-        if [ $args -eq 0 ]; then
-            _logicalvolumes
+        local ret
+        _comp_cmd_lvm__count_args '@(-A|--autobackup|-L|--size)'
+        if ((ret == 0)); then
+            _comp_cmd_lvm__logicalvolumes
         else
-            _physicalvolumes
+            _comp_cmd_lvm__physicalvolumes
         fi
     fi
-}
-complete -F _lvresize lvresize
+} &&
+    complete -F _comp_cmd_lvresize lvresize
 
-_lvextend()
+_comp_cmd_lvextend()
 {
-    local cur prev
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
-
+    local noargopts='!(-*|*[AL]*)'
+    # shellcheck disable=SC2254
     case $prev in
-        -A|--autobackup)
-            COMPREPLY=( $( compgen -W 'y n' -- "$cur" ) )
-            return 0
+        --autobackup | -${noargopts}A)
+            COMPREPLY=($(compgen -W 'y n' -- "$cur"))
+            return
             ;;
-        -L|--size)
-            _sizes
-            return 0
+        --size | -${noargopts}L)
+            _comp_cmd_lvm__sizes
+            return
             ;;
     esac
 
-    if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '--autobackup --alloc \
-            --debug --help --stripes --stripesize \
-            --extents --size --nofsck --resizefs \
-            --test --type --verbose --version' -- "$cur" ) )
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '$(_parse_usage "$1" --help)' -- "$cur"))
     else
-        _args
-        if [ $args -eq 0 ]; then
-            _logicalvolumes
+        local ret
+        _comp_cmd_lvm__count_args '@(-A|--autobackup|-L|--size)'
+        if ((ret == 0)); then
+            _comp_cmd_lvm__logicalvolumes
         else
-            _physicalvolumes
+            _comp_cmd_lvm__physicalvolumes
         fi
     fi
-}
-complete -F _lvextend lvextend
+} &&
+    complete -F _comp_cmd_lvextend lvextend
 
-_lvm()
+_comp_cmd_lvm()
 {
-    local cur
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur
-
-    if [ $COMP_CWORD -eq 1 ]; then
-        COMPREPLY=( $( compgen -W 'dumpconfig help lvchange \
-            lvcreate lvdisplay lvextend lvmchange \
-            lvmdiskscan lvmsadc lvmsar lvreduce \
-            lvremove lvrename lvresize lvs lvscan \
-            pvchange pvcreate pvdata pvdisplay pvmove \
-            pvremove pvresize pvs pvscan vgcfgbackup \
-            vgcfgrestore vgchange vgck vgconvert \
-            vgcreate vgdisplay vgexport vgextend \
-            vgimport vgmerge vgmknodes vgreduce \
-            vgremove vgrename vgs vgscan vgsplit \
-            version' -- "$cur" ) )
+    if ((cword == 1)); then
+        COMPREPLY=($(compgen -W 'dumpconfig help lvchange lvcreate lvdisplay
+            lvextend lvmchange lvmdiskscan lvmsadc lvmsar lvreduce lvremove
+            lvrename lvresize lvs lvscan pvchange pvcreate pvdata pvdisplay
+            pvmove pvremove pvresize pvs pvscan vgcfgbackup vgcfgrestore
+            vgchange vgck vgconvert vgcreate vgdisplay vgexport vgextend
+            vgimport vgmerge vgmknodes vgreduce vgremove vgrename vgs vgscan
+            vgsplit version' -- "$cur"))
     else
-        case ${COMP_WORDS[1]} in
-            pvchange)
-                _pvchange
-                ;;
-            pvcreate)
-                _pvcreate
-                ;;
-            pvdisplay)
-                _pvdisplay
-                ;;
-            pvmove)
-                _pvmove
-                ;;
-            pvremove)
-                _pvremove
-                ;;
-            pvresize)
-                _pvresize
-                ;;
-            pvs)
-                _pvs
-                ;;
-            pvscan)
-                _pvscan
-                ;;
-            vgcfgbackup)
-                _vgcfgbackup
-                ;;
-            vgcfgrestore)
-                _vgcfgrestore
-                ;;
-            vgchange)
-                _vgchange
-                ;;
-            vgck)
-                _vgck
-                ;;
-            vgconvert)
-                _vgconvert
-                ;;
-            vgcreate)
-                _vgcreate
-                ;;
-            vgdisplay)
-                _vgdisplay
-                ;;
-            vgexport)
-                _vgexport
-                ;;
-            vgextend)
-                _vgextend
-                ;;
-            vgimport)
-                _vgimport
-                ;;
-            vgmerge)
-                _vgmerge
-                ;;
-            vgmknodes)
-                _vgmknodes
-                ;;
-            vgreduce)
-                _vgreduce
-                ;;
-            vgremove)
-                _vgremove
-                ;;
-            vgrename)
-                _vgrename
-                ;;
-            vgs)
-                _vgs
-                ;;
-            vgscan)
-                _vgscan
-                ;;
-            vgsplit)
-                _vgsplit
-                ;;
-            lvchange)
-                _lvchange
-                ;;
-            lvcreate)
-                _lvcreate
-                ;;
-            lvdisplay)
-                _lvdisplay
-                ;;
-            lvextend)
-                _lvextend
-                ;;
-            lvreduce)
-                _lvreduce
-                ;;
-            lvremove)
-                _lvremove
-                ;;
-            lvrename)
-                _lvrename
-                ;;
-            lvresize)
-                _lvresize
-                ;;
-            lvs)
-                _lvs
-                ;;
-            lvscan)
-                _lvscan
+        case "${words[1]}" in
+            pvchange | pvcreate | pvdisplay | pvmove | pvremove | pvresize | pvs | pvscan | \
+                vgcfgbackup | vgcfgrestore | vgchange | vgck | vgconvert | vgcreate | \
+                vgdisplay | vgexport | vgextend | vgimport | vgmerge | vgmknodes | vgreduce | \
+                vgremove | vgrename | vgs | vgscan | vgsplit | lvchange | lvcreate | lvdisplay | \
+                lvextend | lvreduce | lvremove | lvrename | lvresize | lvscan)
+                "_${words[1]}"
                 ;;
         esac
     fi
-}
-complete -F _lvm lvm
-}
+} &&
+    complete -F _comp_cmd_lvm lvm
 
-# Local variables:
-# mode: shell-script
-# sh-basic-offset: 4
-# sh-indent-comment: t
-# indent-tabs-mode: nil
-# End:
-# ex: ts=4 sw=4 et filetype=sh
+# ex: filetype=sh

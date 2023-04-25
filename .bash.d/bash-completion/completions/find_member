@@ -1,0 +1,25 @@
+# mailman find_member completion                           -*- shell-script -*-
+
+_comp_cmd_find_member()
+{
+    local cur prev words cword split comp_args
+    _comp_initialize -s -- "$@" || return
+
+    case $prev in
+        -l | -x | --listname | --exclude)
+            _comp_xfunc list_lists mailman_lists
+            return
+            ;;
+    esac
+
+    $split && return
+
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '--listname --exclude --owners --help' \
+            -- "$cur"))
+    fi
+
+} &&
+    complete -F _comp_cmd_find_member find_member
+
+# ex: filetype=sh

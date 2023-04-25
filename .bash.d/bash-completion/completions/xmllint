@@ -1,55 +1,53 @@
-# bash completion for xmllint(1)
+# bash completion for xmllint(1)                           -*- shell-script -*-
 
-have xmllint &&
 _xmllint()
 {
-    local cur prev
-
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
 
     case $prev in
-        -o|--output)
+        -o | --output)
             _filedir
-            return 0
+            return
             ;;
-        --path|--dtdvalidfpi|--maxmem|--encode|--pattern)
+        --path | --dtdvalidfpi | --maxmem | --pattern | --xpath)
             # argument required but no completions available
-            return 0
+            return
             ;;
         --dtdvalid)
             _filedir 'dtd?(.gz)'
-            return 0
+            return
             ;;
         --relaxng)
             _filedir 'rng?(.gz)'
-            return 0
+            return
             ;;
         --schema)
             _filedir 'xsd?(.gz)'
-            return 0
+            return
             ;;
         --schematron)
             _filedir 'sch?(.gz)'
-            return 0
+            return
+            ;;
+        --encode)
+            _comp_xfunc iconv charsets
+            return
+            ;;
+        --pretty)
+            COMPREPLY=($(compgen -W '{0..2}' -- "$cur"))
+            return
             ;;
     esac
 
-    if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '$( xmllint --help 2>&1 | \
-            sed -ne "s/^[[:space:]]*\(--[^[:space:]:]*\).*/\1/p" ) \
-            -o' -- "$cur" ) )
-        return 0
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '$(_parse_help "$1")' -- "$cur"))
+        COMPREPLY=("${COMPREPLY[@]%:}")
+        return
     fi
 
-    _filedir '@(*ml|htm|svg|xs[dl]|rng|wsdl|jnlp)?(.gz)'
+    _filedir '@(*ml|htm|svg?(z)|xs[dl]|rng|wsdl|jnlp|tld|dbk|docbook|page)?(.gz)'
 } &&
-complete -F _xmllint xmllint
+    complete -F _xmllint xmllint
 
-# Local variables:
-# mode: shell-script
-# sh-basic-offset: 4
-# sh-indent-comment: t
-# indent-tabs-mode: nil
-# End:
-# ex: ts=4 sw=4 et filetype=sh
+# ex: filetype=sh

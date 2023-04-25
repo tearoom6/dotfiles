@@ -1,55 +1,80 @@
-# bash completion for getent
+# bash completion for getent                               -*- shell-script -*-
 
-have getent &&
-_getent()
+_comp_cmd_getent()
 {
-    local cur prev
+    local cur prev words cword split comp_args
+    _comp_initialize -s -- "$@" || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
+    local noargopts='!(-*|*[s]*)'
+    local i db has_db=""
+    for ((i = 1; i < cword; i++)); do
+        # shellcheck disable=SC2254
+        case ${words[i]} in
+            --version | --usage | --help | -${noargopts}[V?])
+                return
+                ;;
+            --service | -${noargopts}s)
+                ((i++))
+                ;;
+            -*) ;;
 
-    case $prev in
+            *)
+                # First non-option value is the db
+                db=${words[i]}
+                has_db=set
+                break
+                ;;
+        esac
+    done
+
+    case ${db-} in
         passwd)
-            COMPREPLY=( $( compgen -u "$cur"  ) )
-            return 0
+            COMPREPLY=($(compgen -u -- "$cur"))
+            return
             ;;
         group)
-            COMPREPLY=( $( compgen -g "$cur"  ) )
-            return 0
+            COMPREPLY=($(compgen -g -- "$cur"))
+            return
             ;;
         services)
-            COMPREPLY=( $( compgen -s "$cur"  ) )
-            return 0
+            COMPREPLY=($(compgen -s -- "$cur"))
+            return
             ;;
         hosts)
-            COMPREPLY=( $( compgen -A hostname "$cur"  ) )
-            return 0
+            COMPREPLY=($(compgen -A hostname -- "$cur"))
+            return
             ;;
-        protocols|networks|ahosts|ahostsv4|ahostsv6|rpc)
-            COMPREPLY=( $( compgen -W "$( getent "$prev" | \
-                awk '{ print $1 }' )" -- "$cur" ) )
-            return 0
+        protocols | networks | ahosts | ahostsv4 | ahostsv6 | rpc)
+            COMPREPLY=($(compgen -W "$("$1" "$db" |
+                awk '{ print $1 }')" -- "$cur"))
+            return
             ;;
-        aliases|shadow)
-            COMPREPLY=( $( compgen -W "$( getent "$prev" | cut -d: -f1 )" \
-                -- "$cur" ) )
-            return 0
+        aliases | shadow | gshadow)
+            COMPREPLY=($(compgen -W "$("$1" "$db" | cut -d: -f1)" -- "$cur"))
+            return
+            ;;
+        ethers | netgroup)
+            return
             ;;
     esac
 
+    case $prev in
+        -s | --service)
+            return
+            ;;
+    esac
 
-    if [ $COMP_CWORD -eq 1 ]; then
-        COMPREPLY=( $( compgen -W 'passwd group hosts services protocols \
-            networks ahosts ahostsv4 ahostsv6 aliases ethers netgroup rpc \
-            shadow' -- "$cur" ) )
+    $split && return
+
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '$(_parse_help "$1")' -- "$cur"))
+        [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
+    elif [[ ! $has_db ]]; then
+        COMPREPLY=($(compgen -W 'passwd group hosts services protocols
+            networks ahosts ahostsv4 ahostsv6 aliases ethers netgroup rpc
+            shadow gshadow' -- "$cur"))
     fi
 } &&
-complete -F _getent getent
+    complete -F _comp_cmd_getent getent
 
-# Local variables:
-# mode: shell-script
-# sh-basic-offset: 4
-# sh-indent-comment: t
-# indent-tabs-mode: nil
-# End:
-# ex: ts=4 sw=4 et filetype=sh
+# ex: filetype=sh

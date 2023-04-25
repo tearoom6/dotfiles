@@ -1,0 +1,48 @@
+# dot(1) completion                                        -*- shell-script -*-
+
+_comp_cmd_dot()
+{
+    local cur prev words cword comp_args
+    _comp_initialize -n := -- "$@" || return
+
+    [[ $prev == -[V?] ]] && return
+
+    case $cur in
+        -G* | -N* | -E* | -l?* | -q?* | -s?* | -Ln* | -LU* | -LC* | -LT*)
+            return
+            ;;
+        -T*)
+            local langs=($("$1" -TNON_EXISTENT 2>&1 |
+                command sed -ne 's/.*one of://p'))
+            ((${#langs[@]})) &&
+                COMPREPLY=($(compgen -P -T -W '"${langs[@]}"' -- "${cur#-T}"))
+            return
+            ;;
+        -K*)
+            local layouts=($("$1" -KNON_EXISTENT 2>&1 |
+                command sed -ne 's/.*one of://p'))
+            ((${#layouts[@]})) &&
+                COMPREPLY=($(compgen -P -K -W '"${layouts[@]}"' -- "${cur#-K}"))
+            return
+            ;;
+        -o*)
+            cur=${cur#-o}
+            _filedir
+            ((${#COMPREPLY[@]})) &&
+                COMPREPLY=($(compgen -P -o -W '"${COMPREPLY[@]}"' -- "$cur"))
+            return
+            ;;
+    esac
+
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '-V -v -G -N -E -T -K -l -o -O -P -q -s -y -n
+            -n1 -n2 -x -Lg -LO -Ln -LU -LC -LT -m -c -?' -- "$cur"))
+        [[ ${COMPREPLY-} == -@([GNETKo]|L[nUCT]) ]] && compopt -o nospace
+        return
+    fi
+
+    _filedir dot
+} &&
+    complete -F _comp_cmd_dot dot
+
+# ex: filetype=sh

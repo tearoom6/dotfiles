@@ -1,55 +1,48 @@
-# bash completion for k3b
+# bash completion for k3b                                  -*- shell-script -*-
 
-have k3b &&
-_k3b()
+_comp_cmd_k3b()
 {
-    local cur prev
-    _get_comp_words_by_ref cur prev
-    COMPREPLY=()
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
 
     case $prev in
-        --help*|--author|-v|--version|--license|--lang)
-            return 0
+        --help* | --author | -v | --version | --license | --lang)
+            return
             ;;
-        --datacd|--audiocd|--videocd|--mixedcd|--emovixcd|--videodvd)
+        --datacd | --audiocd | --videocd | --mixedcd | --emovixcd | --videodvd)
             _filedir
-            return 0
+            return
             ;;
-        --copydvd|--formatdvd|--videodvdrip)
+        --copydvd | --formatdvd | --videodvdrip)
             _dvd_devices
-            return 0
+            return
             ;;
-        --copycd|--erasecd|--cddarip|--videocdrip)
+        --copycd | --erasecd | --cddarip | --videocdrip)
             _cd_devices
             _dvd_devices
-            return 0
+            return
             ;;
-        --cdimage|--image)
-            _filedir @(cue|iso|toc)
-            return 0
+        --cdimage | --image)
+            _filedir '@(cue|iso|toc)'
+            return
             ;;
         --dvdimage)
             _filedir iso
-            return 0
+            return
             ;;
         --ao)
-            COMPREPLY=( $( compgen -W 'alsa arts' -- "$cur" ) )
-            return 0
+            COMPREPLY=($(compgen -W 'alsa arts' -- "$cur"))
+            return
             ;;
     esac
 
-    if [[ "$cur" == -* ]] ; then
-        COMPREPLY=( $( compgen -W "$( _parse_help "$1" )" -- "$cur" ) )
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W "$(_parse_help "$1")" -- "$cur"))
+        [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
     else
         _filedir
     fi
 } &&
-complete -F _k3b k3b
+    complete -F _comp_cmd_k3b k3b
 
-# Local variables:
-# mode: shell-script
-# sh-basic-offset: 4
-# sh-indent-comment: t
-# indent-tabs-mode: nil
-# End:
-# ex: ts=4 sw=4 et filetype=sh
+# ex: filetype=sh

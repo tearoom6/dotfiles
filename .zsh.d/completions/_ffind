@@ -1,6 +1,6 @@
 #compdef ffind
 # ------------------------------------------------------------------------------
-# Copyright (c) 2017 Github zsh-users - http://github.com/zsh-users
+# Copyright (c) 2017 Github zsh-users - https://github.com/zsh-users
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -42,6 +42,7 @@ _arguments -C \
   '--nosymlinks[do not follow symlinks]' \
   '--hidden[do not ignore hidden directories]' \
   '-c[force case sensitive]' \
+  '-i[force case insensitive]' \
   '--delete[delete files found]' \
   '--exec[execute the given command with the file found]:command:_command_names' \
   '--module[execute the given module with the file found]:module_name args:' \

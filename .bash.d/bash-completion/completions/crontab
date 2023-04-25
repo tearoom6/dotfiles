@@ -1,60 +1,48 @@
-# crontab(1) completion
+# crontab(1) completion                                    -*- shell-script -*-
 
-have crontab &&
 _crontab()
 {
-    local cur prev
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
 
     case $prev in
-        -u)
+        -*u)
             _allowed_users
-            return 0
+            return
             ;;
     esac
 
-    local i opts=" -u -l -r -e" # leading space at start is significant...
-    [ "$(uname -s)" = Linux ] && opts="$opts -i"
-    [ -e /etc/selinux ] && opts="$opts -s"
-    for (( i=0; i < ${#COMP_WORDS[@]}-1; i++ )); do
-        case "${COMP_WORDS[i]}" in
+    local -A opts=([-u]="" [-l]="" [-r]="" [-e]="")
+    [[ $OSTYPE == *linux* ]] && opts[-i]=
+    [[ -d /sys/fs/selinux || -d /selinux ]] && opts[-s]=
+
+    local i
+    for i in "${!words[@]}"; do
+        [[ ${words[i]} && $i -ne $cword ]] && unset -v "opts[${words[i]}]"
+        case "${words[i]}" in
             -l)
-                opts=${opts// -l -r -e/}
-                opts=${opts// -i/}
-                opts=${opts// -s/}
+                unset -v 'opts[-r]' 'opts[-e]' 'opts[-i]' 'opts[-s]'
                 ;;
             -e)
-                opts=${opts// -l -r -e/}
-                opts=${opts// -i/}
+                unset -v 'opts[-l]' 'opts[-r]' 'opts[-i]'
                 ;;
             -r)
-                opts=${opts// -l -r -e/}
+                unset -v 'opts[-l]' 'opts[-e]'
                 ;;
             -u)
-                opts=${opts// -u/}
-                opts=${opts// -i/}
-                ;;
-            -i|-s)
-                opts=${opts// ${COMP_WORDS[i]}/}
+                unset -v 'opts[-i]'
                 ;;
         esac
     done
 
-    if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '$opts' -- "$cur" ) )
-        return 0
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '"${!opts[@]}"' -- "$cur"))
+        return
     fi
 
     # do filenames only if we did not have -l, -r, or -e
-    [[ "${COMP_LINE}" == *\ -@(l|r|e)* ]] || _filedir
+    [[ ${words[*]} == *\ -[lre]* ]] || _filedir
 } &&
-complete -F _crontab crontab
+    complete -F _crontab crontab
 
-# Local variables:
-# mode: shell-script
-# sh-basic-offset: 4
-# sh-indent-comment: t
-# indent-tabs-mode: nil
-# End:
-# ex: ts=4 sw=4 et filetype=sh
+# ex: filetype=sh

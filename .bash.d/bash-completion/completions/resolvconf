@@ -1,30 +1,21 @@
-# bash completion for resolvconf
+# bash completion for resolvconf                           -*- shell-script -*-
 
-have resolvconf &&
 _resolvconf()
 {
-    local cur command
-
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
 
     case $prev in
-        -a|-d)
+        -a | -d)
             _available_interfaces
-            return 0
+            return
             ;;
     esac
 
-    if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '-a -d -u' -- "$cur" ) )
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '-a -d -u' -- "$cur"))
     fi
 } &&
-complete -F _resolvconf resolvconf
+    complete -F _resolvconf resolvconf
 
-# Local variables:
-# mode: shell-script
-# sh-basic-offset: 4
-# sh-indent-comment: t
-# indent-tabs-mode: nil
-# End:
-# ex: ts=4 sw=4 et filetype=sh
+# ex: filetype=sh

@@ -1,24 +1,34 @@
-# bash completion for sysctl
+# bash completion for sysctl                               -*- shell-script -*-
 
-have sysctl &&
 _sysctl()
 {
-    local cur
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur
+    local noargopts='!(-*|*[rpf]*)'
+    # shellcheck disable=SC2254
+    case $prev in
+        --help | --version | --pattern | -${noargopts}[hVr])
+            return
+            ;;
+        --load | -${noargopts}[pf])
+            _filedir conf
+            return
+            ;;
+    esac
 
-    COMPREPLY=( $( compgen -W \
-        "$( PATH="$PATH:/sbin" sysctl -N -a 2>/dev/null )" -- "$cur" ) )
-
-    return 0
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(
+            compgen -W '$(_parse_help "$1" || _parse_usage "$1")' -- "$cur"
+        ))
+    else
+        local suffix=
+        [[ $prev == -w ]] && suffix="="
+        COMPREPLY=($(compgen -S "$suffix" -W \
+            "$(PATH="$PATH:/sbin" $1 -N -a 2>/dev/null)" -- "$cur"))
+        [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
+    fi
 } &&
-complete -F _sysctl sysctl
+    complete -F _sysctl sysctl
 
-# Local variables:
-# mode: shell-script
-# sh-basic-offset: 4
-# sh-indent-comment: t
-# indent-tabs-mode: nil
-# End:
-# ex: ts=4 sw=4 et filetype=sh
+# ex: filetype=sh

@@ -1,80 +1,36 @@
-# Completions for automake tools
+# automake(1) completion                                   -*- shell-script -*-
 
-have automake &&
 _automake()
 {
-    COMPREPLY=()
-    local cur prev split=false
-    _get_comp_words_by_ref cur prev
-
-    _split_longopt && split=true
+    local cur prev words cword split comp_args
+    _comp_initialize -s -- "$@" || return
 
     case "$prev" in
-        --help|--version)
-            return 0
+        --help | --version)
+            return
             ;;
-        --warnings|-W)
-            local cats=( gnu obsolete override portability syntax unsupported )
-            COMPREPLY=( $( compgen -W \
-                '${cats[@]} ${cats[@]/#/no-} all none error' -- "$cur" ) )
-            return 0
+        --warnings | -W)
+            local cats=(gnu obsolete override portability syntax unsupported)
+            COMPREPLY=($(compgen -W \
+                '${cats[@]} ${cats[@]/#/no-} all none error' -- "$cur"))
+            return
             ;;
         --libdir)
             _filedir -d
-            return 0
+            return
             ;;
     esac
 
-    $split && return 0
+    $split && return
 
-    if [[ "$cur" == -* ]]; then
-        _longopt $1
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '$(_parse_help "$1")' -- "$cur"))
+        [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
         return
     fi
 
     _filedir
 } &&
-complete -F _automake automake automake-1.11
+    complete -F _automake automake automake-1.1{0..6}
 
-have aclocal &&
-_aclocal()
-{
-    COMPREPLY=()
-    local cur prev split=false
-    _get_comp_words_by_ref cur prev
-
-    _split_longopt && split=true
-
-    case "$prev" in
-        --help|--print-ac-dir|--version)
-            return 0
-            ;;
-        --acdir|-I)
-            _filedir -d
-            return 0
-            ;;
-        --output)
-            _filedir
-            return 0
-            ;;
-        --warnings|-W)
-            local cats=( syntax unsupported )
-            COMPREPLY=( $( compgen -W \
-                '${cats[@]} ${cats[@]/#/no-} all none error' -- "$cur" ) )
-            return 0
-            ;;
-    esac
-
-    $split && return 0
-
-    _longopt $1
-} &&
-complete -F _aclocal aclocal aclocal-1.11
-
-# Local variables:
-# mode: shell-script
-# sh-basic-offset: 4
-# sh-indent-comment: t
-# indent-tabs-mode: nil
-# End:
-# ex: ts=4 sw=4 et filetype=sh
+# ex: filetype=sh

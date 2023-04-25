@@ -1,0 +1,27 @@
+# mailman remove_members completion                        -*- shell-script -*-
+
+_remove_members()
+{
+    local cur prev words cword split comp_args
+    _comp_initialize -s -- "$@" || return
+
+    case $prev in
+        -f | --file)
+            _filedir
+            return
+            ;;
+    esac
+
+    $split && return
+
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '--file --all --fromall --nouserack
+            --noadminack --help' -- "$cur"))
+    else
+        _comp_xfunc list_lists mailman_lists
+    fi
+
+} &&
+    complete -F _remove_members remove_members
+
+# ex: filetype=sh

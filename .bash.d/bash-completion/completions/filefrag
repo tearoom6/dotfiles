@@ -1,0 +1,17 @@
+# filefrag(8) completion                                   -*- shell-script -*-
+
+_comp_cmd_filefrag()
+{
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
+
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '$(_parse_usage "$1")' -- "$cur"))
+        return
+    fi
+
+    _filedir
+} &&
+    complete -F _comp_cmd_filefrag filefrag
+
+# ex: filetype=sh

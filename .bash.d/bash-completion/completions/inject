@@ -1,0 +1,26 @@
+# mailman inject completion                                -*- shell-script -*-
+
+_inject()
+{
+    local cur prev words cword split comp_args
+    _comp_initialize -s -- "$@" || return
+
+    case $prev in
+        -l | --listname)
+            _comp_xfunc list_lists mailman_lists
+            return
+            ;;
+    esac
+
+    $split && return
+
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '--listname --queue --help' -- "$cur"))
+    else
+        _filedir
+    fi
+
+} &&
+    complete -F _inject inject
+
+# ex: filetype=sh

@@ -1,40 +1,52 @@
-# sitecopy(1) completion
+# sitecopy(1) completion                                   -*- shell-script -*-
 # Copyright 2003 Eelco Lempsink <eelcolempsink@gmx.net>
+#           2011 Raphaël Droz <raphael.droz+floss@gmail.com>
 # License: GNU GPL v2 or later
 
-have sitecopy &&
 _sitecopy()
 {
-    local cur
+    local cur prev words cword split comp_args
+    _comp_initialize -s -- "$@" || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur
-
-    case $cur in
-        --*)
-            COMPREPLY=( $( compgen -W "$(sitecopy -h | command grep -e '--\w' |\
-                awk '{sub (/=(FILE|PATH)/, "", $2); print $2}')" -- "$cur" ) )
+    local noargopts='!(-*|*[dgrp]*)'
+    # shellcheck disable=SC2254
+    case $prev in
+        --debug | -${noargopts}d)
+            COMPREPLY=($(compgen -W "socket files rcfile ftp http httpbody
+                rsh sftp xml xmlparse cleartext" -- "$cur"))
+            compopt -o nospace
+            return
             ;;
-        -*)
-            COMPREPLY=( $( compgen -W "$(sitecopy -h | command grep -e '-\w' | \
-                awk '{sub (",", "", $1); print $1}')" -- "$cur" ) )
+        --logfile | --rcfile | -${noargopts}[gr])
+            _filedir
+            return
             ;;
-        *)
-            if [ -r ~/.sitecopyrc ]; then
-                COMPREPLY=( $( compgen -W "$(command grep '^["$'\t '"]*site' \
-                    ~/.sitecopyrc | awk '{print $2}')" -- "$cur" ) )
-            fi
+        --storepath | -${noargopts}p)
+            _filedir -d
+            return
             ;;
     esac
 
-    return 0
-} &&
-complete -F _sitecopy -o default sitecopy
+    case $cur in
+        --*)
+            COMPREPLY=($(compgen -W "$(_parse_help "$1")" -- "$cur"))
+            [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
+            return
+            ;;
 
-# Local variables:
-# mode: shell-script
-# sh-basic-offset: 4
-# sh-indent-comment: t
-# indent-tabs-mode: nil
-# End:
-# ex: ts=4 sw=4 et filetype=sh
+        # only complete long options
+        -)
+            compopt -o nospace
+            COMPREPLY=(--)
+            return
+            ;;
+    esac
+
+    if [[ -r ~/.sitecopyrc ]]; then
+        COMPREPLY=($(compgen -W "$("$1" -v |
+            command sed -n '/^Site:/s/Site: //p')" -- "$cur"))
+    fi
+} &&
+    complete -F _sitecopy -o default sitecopy
+
+# ex: filetype=sh
