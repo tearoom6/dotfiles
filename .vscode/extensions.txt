@@ -24,6 +24,7 @@ ms-vscode.cpptools
 ms-vscode-remote.remote-containers
 PKief.material-icon-theme
 rebornix.ruby
+TabNine.tabnine-vscode
 tearoom6.s3uploader-vscode
 wingrunr21.vscode-ruby
 wmaurer.change-case
