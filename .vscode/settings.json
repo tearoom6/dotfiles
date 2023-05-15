@@ -20,6 +20,7 @@
     "npm.enableScriptExplorer": true,
     "s3uploader-vscode.basic.s3BucketName": "files.tearoom6.biz",
     "s3uploader-vscode.advanced.s3BucketCustomUrl": "https://files.tearoom6.biz",
+    "tabnine.experimentalAutoImports": true,
     "workbench.colorTheme": "Monokai",
     "workbench.editor.tabCloseButton": "left",
     "workbench.iconTheme": "material-icon-theme"
