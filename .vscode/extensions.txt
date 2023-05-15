@@ -1,4 +1,5 @@
 AmazonWebServices.aws-toolkit-vscode
+Chouzz.vscode-better-align
 DavidAnson.vscode-markdownlint
 dbaeumer.vscode-eslint
 donjayamanne.githistory
@@ -6,14 +7,10 @@ eamodio.gitlens
 EditorConfig.EditorConfig
 eriklynd.json-tools
 esbenp.prettier-vscode
-felixfbecker.php-debug
-felixfbecker.php-intellisense
-felixfbecker.php-pack
 GitHub.copilot
 GitHub.vscode-pull-request-github
 goessner.mdmath
 golang.Go
-streetsidesoftware.code-spell-checker
 jebbs.plantuml
 mbessey.vscode-rufo
 mitchdenny.ecdc
@@ -24,9 +21,12 @@ ms-vscode.cpptools
 ms-vscode-remote.remote-containers
 PKief.material-icon-theme
 rebornix.ruby
+streetsidesoftware.code-spell-checker
 TabNine.tabnine-vscode
 tearoom6.s3uploader-vscode
 wingrunr21.vscode-ruby
 wmaurer.change-case
-wwm.better-align
+xdebug.php-debug
+xdebug.php-pack
 yzhang.markdown-all-in-one
+zobo.php-intellisense
