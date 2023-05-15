@@ -22,7 +22,7 @@ if [ -d "$VSCODE_CONFIG_DIR" ]; then
 
   # Install extensions.
   for EXTENSION in `cat $DOTFILES_VSCODE_DIR/extensions.txt`; do
-    code --install-extension $EXTENSION
+    code --install-extension $EXTENSION --force
   done
 fi
 
