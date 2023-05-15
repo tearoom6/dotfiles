@@ -21,6 +21,10 @@
 	rebase = false
 [fetch]
 	prune = true
+[merge]
+	autoStash = true
+[rebase]
+	autoStash = true
 [color]
 	ui = true
 [mergetool]
