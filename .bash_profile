@@ -11,11 +11,13 @@ export PATH=~/.bash.d:$PATH
 
 # Basic Config
 export LANG='en_US.UTF-8'
+#export TZ='Africa/Tunis'
 export TZ='Asia/Tokyo'
 #export TZ='Asia/Dubai'
 #export TZ='Asia/Singapore'
 #export TZ='Australia/Hobart'
 #export TZ='Australia/Sydney'
+#export TZ='Europe/Istanbul'
 #export TZ='Europe/London'
 #export TZ='Pacific/Auckland'
 #export TZ='Pacific/Noumea'
