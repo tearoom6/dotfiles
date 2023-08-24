@@ -1,5 +1,6 @@
 AmazonWebServices.aws-toolkit-vscode
 Chouzz.vscode-better-align
+darkriszty.markdown-table-prettify
 DavidAnson.vscode-markdownlint
 dbaeumer.vscode-eslint
 donjayamanne.githistory
