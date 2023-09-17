@@ -30,5 +30,6 @@ wingrunr21.vscode-ruby
 wmaurer.change-case
 xdebug.php-debug
 xdebug.php-pack
+yzane.markdown-pdf
 yzhang.markdown-all-in-one
 zobo.php-intellisense
