@@ -23,11 +23,10 @@ ms-vscode-remote.remote-containers
 ms-vscode.cpptools
 ms-vscode.PowerShell
 PKief.material-icon-theme
-rebornix.ruby
+Shopify.ruby-lsp
 streetsidesoftware.code-spell-checker
 TabNine.tabnine-vscode
 tearoom6.s3uploader-vscode
-wingrunr21.vscode-ruby
 wmaurer.change-case
 xdebug.php-debug
 xdebug.php-pack
