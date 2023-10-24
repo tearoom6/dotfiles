@@ -9,6 +9,7 @@ EditorConfig.EditorConfig
 eriklynd.json-tools
 esbenp.prettier-vscode
 GitHub.copilot
+GitHub.vscode-github-actions
 GitHub.vscode-pull-request-github
 goessner.mdmath
 golang.Go
@@ -18,9 +19,9 @@ mitchdenny.ecdc
 ms-azuretools.vscode-docker
 ms-dotnettools.csharp
 ms-python.python
+ms-vscode-remote.remote-containers
 ms-vscode.cpptools
 ms-vscode.PowerShell
-ms-vscode-remote.remote-containers
 PKief.material-icon-theme
 rebornix.ruby
 streetsidesoftware.code-spell-checker
