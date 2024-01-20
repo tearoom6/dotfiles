@@ -13,11 +13,9 @@
 # See [Cannot install virtualbox on macOS High Sierra](https://github.com/caskroom/homebrew-cask/issues/39369).
 
 tap "homebrew/bundle"
-tap "homebrew/cask"
 tap "homebrew/cask-drivers"
 tap "homebrew/cask-fonts"
 tap "homebrew/cask-versions"
-tap "homebrew/core"
 tap "homebrew/services"
 #brew "ansible"
 brew "anyenv"
