@@ -1,6 +1,7 @@
 AmazonWebServices.aws-toolkit-vscode
 BlockceptionLtd.blockceptionvscodeminecraftbedrockdevelopmentextension
 Chouzz.vscode-better-align
+Cosine.cosine-vscode
 darkriszty.markdown-table-prettify
 DavidAnson.vscode-markdownlint
 dbaeumer.vscode-eslint
