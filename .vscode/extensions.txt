@@ -25,6 +25,7 @@ ms-vscode-remote.remote-containers
 ms-vscode.cpptools
 ms-vscode.PowerShell
 oderwat.indent-rainbow
+phind.phind
 PKief.material-icon-theme
 Shopify.ruby-lsp
 streetsidesoftware.code-spell-checker
