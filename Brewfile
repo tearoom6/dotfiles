@@ -143,6 +143,7 @@ cask "visual-studio-code"
 #cask "vlc"
 #cask "warp"
 #cask "whatsapp"
+#cask "xnviewmp"
 #cask "zoom"
 #mas "Fusion 360", id: 868968810
 mas "LINE", id: 539883307
