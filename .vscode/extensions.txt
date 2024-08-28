@@ -1,5 +1,7 @@
 AmazonWebServices.aws-toolkit-vscode
+bierner.markdown-mermaid
 BlockceptionLtd.blockceptionvscodeminecraftbedrockdevelopmentextension
+bpruitt-goddard.mermaid-markdown-syntax-highlighting
 Chouzz.vscode-better-align
 Cosine.cosine-vscode
 darkriszty.markdown-table-prettify
