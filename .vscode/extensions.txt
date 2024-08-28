@@ -31,6 +31,7 @@ ms-vscode.PowerShell
 oderwat.indent-rainbow
 phind.phind
 PKief.material-icon-theme
+shd101wyy.markdown-preview-enhanced
 Shopify.ruby-lsp
 streetsidesoftware.code-spell-checker
 TabNine.tabnine-vscode
