@@ -33,6 +33,8 @@ phind.phind
 PKief.material-icon-theme
 shd101wyy.markdown-preview-enhanced
 Shopify.ruby-lsp
+soutaro.rbs-syntax
+soutaro.steep-vscode
 streetsidesoftware.code-spell-checker
 TabNine.tabnine-vscode
 tearoom6.s3uploader-vscode
