@@ -5,6 +5,7 @@ bpruitt-goddard.mermaid-markdown-syntax-highlighting
 Chouzz.vscode-better-align
 Cosine.cosine-vscode
 darkriszty.markdown-table-prettify
+Dart-Code.flutter
 DavidAnson.vscode-markdownlint
 dbaeumer.vscode-eslint
 destruc7i0n.vscode-bedrock-definitions
