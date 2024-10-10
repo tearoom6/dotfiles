@@ -21,6 +21,9 @@
       },
       "homebrew/services": {
         "revision": "052d11e0f2733f5d33f0af500de2607eb8a4ed54"
+      },
+      "leoafarias/fvm": {
+        "revision": "67a0db0a2f9252b91be6a61584a540af8b249334"
       }
     },
     "brew": {
@@ -1194,6 +1197,10 @@
             }
           }
         }
+      },
+      "fvm": {
+        "version": "3.2.1",
+        "bottle": false
       }
     },
     "cask": {
