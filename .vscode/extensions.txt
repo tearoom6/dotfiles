@@ -32,6 +32,7 @@ ms-vscode.PowerShell
 oderwat.indent-rainbow
 phind.phind
 PKief.material-icon-theme
+saoudrizwan.claude-dev
 shd101wyy.markdown-preview-enhanced
 Shopify.ruby-lsp
 soutaro.rbs-syntax
