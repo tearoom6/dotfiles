@@ -29,6 +29,7 @@ ms-python.python
 ms-vscode-remote.remote-containers
 ms-vscode.cpptools
 ms-vscode.PowerShell
+MS-vsliveshare.vsliveshare
 oderwat.indent-rainbow
 phind.phind
 PKief.material-icon-theme
