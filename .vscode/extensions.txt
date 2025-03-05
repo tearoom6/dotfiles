@@ -33,6 +33,7 @@ MS-vsliveshare.vsliveshare
 oderwat.indent-rainbow
 phind.phind
 PKief.material-icon-theme
+RooVeterinaryInc.roo-cline
 saoudrizwan.claude-dev
 shd101wyy.markdown-preview-enhanced
 Shopify.ruby-lsp
