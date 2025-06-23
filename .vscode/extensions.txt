@@ -1,4 +1,5 @@
 AmazonWebServices.aws-toolkit-vscode
+anthropic.claude-code
 bierner.markdown-mermaid
 BlockceptionLtd.blockceptionvscodeminecraftbedrockdevelopmentextension
 bpruitt-goddard.mermaid-markdown-syntax-highlighting
