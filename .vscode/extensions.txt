@@ -22,6 +22,7 @@ goessner.mdmath
 golang.Go
 jebbs.plantuml
 mbessey.vscode-rufo
+mechatroner.rainbow-csv
 mitchdenny.ecdc
 ms-azuretools.vscode-docker
 ms-dotnettools.csharp
