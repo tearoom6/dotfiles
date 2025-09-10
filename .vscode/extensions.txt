@@ -33,6 +33,7 @@ ms-vscode.cpptools
 ms-vscode.PowerShell
 MS-vsliveshare.vsliveshare
 oderwat.indent-rainbow
+openai.chatgpt
 phind.phind
 PKief.material-icon-theme
 RooVeterinaryInc.roo-cline
