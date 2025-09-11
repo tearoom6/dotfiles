@@ -20,6 +20,7 @@ GitHub.vscode-github-actions
 GitHub.vscode-pull-request-github
 goessner.mdmath
 golang.Go
+Google.gemini-cli-vscode-ide-companion
 jebbs.plantuml
 mbessey.vscode-rufo
 mechatroner.rainbow-csv
