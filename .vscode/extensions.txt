@@ -21,6 +21,7 @@ GitHub.vscode-pull-request-github
 goessner.mdmath
 golang.Go
 Google.gemini-cli-vscode-ide-companion
+Google.geminicodeassist
 jebbs.plantuml
 mbessey.vscode-rufo
 mechatroner.rainbow-csv
