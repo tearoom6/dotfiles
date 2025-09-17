@@ -47,6 +47,7 @@ soutaro.steep-vscode
 streetsidesoftware.code-spell-checker
 TabNine.tabnine-vscode
 tearoom6.s3uploader-vscode
+tomoki1207.pdf
 wmaurer.change-case
 xdebug.php-debug
 xdebug.php-pack
