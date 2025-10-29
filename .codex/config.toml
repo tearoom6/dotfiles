@@ -40,3 +40,15 @@ exclude = [ "AWS_*", "AZURE_*" ]   # Case-insensitive glob patterns to drop afte
 set = { }                          # Explicit key/value overrides or additions – always win over inherited values.
 include_only = []                  # If non-empty, a whitelist of patterns; only variables that match one pattern survive the final step.
 
+[sandbox_workspace_write]
+# Permit network access when sandbox mode is workspace-write.
+network_access = true
+
+[profiles.auto]
+sandbox_mode    = "workspace-write"
+approval_policy = "on-request"
+
+[profiles.readonly]
+sandbox_mode    = "read-only"
+approval_policy = "never"
+
