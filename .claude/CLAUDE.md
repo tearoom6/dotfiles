@@ -1,37 +1,42 @@
-# AI 向けガイドライン (個人的カスタマイズ)
+# AI Guidelines (Personal Customization)
 
-## コミュニケーションについて
+## Communication
 
-- REPL 上では、日本語で output してください
-- AI 内部では英語で think しても構いません
+- On the REPL, please output in **Japanese**.
+- Internal reasoning or “thinking” in **English** is allowed.
 
-## Git の操作について
+## Git Operations
 
-- commit や push はこちらが指示したタイミングでのみ行ってください
-- 修正を行った場合、その修正を commit する場合の commit message も一緒に提案してください
-  - commit message は英語で書いてください
-- commit message は1行目は簡潔に内容を要約し、2行目は空行、3行目以降に詳細な説明を記載してください
-  - もし1行目で十分に説明できている場合は2行目以降は不要です
+- Perform `commit` or `push` **only when instructed**.
+- When you make modifications, please also suggest a **commit message** if the change should be committed.
+  - Write commit messages in **English**.
+- Commit messages should follow this structure:
+  - **Line 1:** A concise summary of the change.
+  - **Line 2:** Blank line.
+  - **Line 3 and onward:** Detailed explanation if needed.
+  - If the first line is sufficient, lines 2 and onward can be omitted.
 
-## PullRequest の作成について
+## Pull Request Creation
 
-- 新規作成する際は常に draft 版として作成してください
-- タイトルは英語で記載してください
-- 説明文は指示やコンテキストに応じて、日本語や英語で記載してください
+- Always create new pull requests as **drafts**.
+- Write the **title** in **English**.
+- The **description** may be written in **Japanese or English**, depending on the context or instructions.
 
-## コーディングについて
+## Coding
 
-- コード内のインラインコメントは常に英語で記載してください
-- 行末尾には trailing space を残さないでください
-- ファイル末尾には blank line を 1 行だけ含めてください
-- その他のフォーマットは、 各プロジェクトで用いている linter の指示に従います
+- All inline comments in code must be written in **English**.
+- Do **not** leave trailing spaces at the end of lines.
+- Ensure there is **exactly one blank line** at the end of each file.
+- Follow the formatting rules defined by the **linter** used in each project.
 
-## ドキュメンテーションについて
+## Documentation
 
-- 指示があれば Markdown 等のドキュメントを残してください
-- 指示やコンテキストに応じて、日本語や英語で記載してください
-- Markdown は以下のフォーマットに従ってください
-  - 英単語の前後には半角スペースを挟む (ただし、文の先頭・末尾にあるときは、それぞれ前後にはスペースは挟まない)
-  - カッコには半角カッコを用い、両端の前後には半角スペースを挟む (ただし、文の先頭・末尾にあるときは、それぞれ前後にはスペースは挟まない)
-  - Markdown のタイトル行の前後には空白行を1行ずつ挟む (ただし、ファイルの先頭にあるときには、上には空白行を挟まない)
-
+- When instructed, leave documentation such as **Markdown** files.
+- Write in **Japanese or English**, depending on the context or instructions.
+- Follow these Markdown formatting rules:
+  - Insert a half-width space before and after English words
+    (except when they appear at the beginning or end of a sentence).
+  - Use **half-width parentheses**, with a half-width space before and after them
+    (except when they appear at the beginning or end of a sentence).
+  - Insert **one blank line** before and after Markdown headings
+    (except when the heading is at the top of the file, where no line above is needed).
