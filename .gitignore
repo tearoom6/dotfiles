@@ -31,4 +31,5 @@ tags
 
 # AI agents
 /.claude/
+/.codex/
 

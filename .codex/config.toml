@@ -1,0 +1,42 @@
+# Model configurations
+model = "gpt-5-codex"
+model_reasoning_summary = "auto"   # Reasoning summaries (auto | concise | detailed | none)
+model_reasoning_effort = "medium"  # Responses API reasoning effort (minimal | low | medium | high)
+model_verbosity = "medium"         # Controls output length/detail on GPT‑5 family models (low | medium | high)
+
+# OS sandbox policy (read-only | workspace-write | danger-full-access)
+sandbox_mode = "read-only"
+
+# When to prompt for approval
+# - untrusted: prompt the user before running a command not in the "trusted" set
+# - on-request: run until the model decides that it needs to ask you for escalated permissions
+# - on-failure: notify whenever a command fails
+# - never: never ask to run a command with escalated permissions
+approval_policy = "untrusted"
+
+# URI scheme for clickable citations (vscode | vscode-insiders | windsurf | cursor | none)
+file_opener = "vscode"
+
+# External program for notifications
+notify = [ "bash", "-lc", "afplay /System/Library/Sounds/Ping.aiff" ]
+
+# Allow the command being run inside the sandbox to make outbound network requests
+network_access = false
+
+[tui]
+# Send desktop notifications when approvals are required or a turn completes.
+notifications = true
+
+# You can optionally filter to specific notification types.
+# Available types are "agent-turn-complete" and "approval-requested".
+# notifications = [ "agent-turn-complete", "approval-requested" ]
+
+[shell_environment_policy]
+# Codex spawns subprocesses. By default it now passes your full environment to those subprocesses.
+inherit = "core"                   # Starting template for the environment (all | core | none).
+ignore_default_excludes = false    # When false, Codex removes any var whose name contains
+                                   # KEY, SECRET, or TOKEN (case-insensitive) before other rules run.
+exclude = [ "AWS_*", "AZURE_*" ]   # Case-insensitive glob patterns to drop after the default filter.
+set = { }                          # Explicit key/value overrides or additions – always win over inherited values.
+include_only = []                  # If non-empty, a whitelist of patterns; only variables that match one pattern survive the final step.
+
