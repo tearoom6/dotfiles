@@ -4,6 +4,15 @@ model_reasoning_summary = "auto"   # Reasoning summaries (auto | concise | detai
 model_reasoning_effort = "medium"  # Responses API reasoning effort (minimal | low | medium | high)
 model_verbosity = "medium"         # Controls output length/detail on GPT‑5 family models (low | medium | high)
 
+# URI scheme for clickable citations (vscode | vscode-insiders | windsurf | cursor | none)
+file_opener = "vscode"
+
+# External program for notifications
+notify = [ "bash", "-lc", "afplay /System/Library/Sounds/Ping.aiff" ]
+
+# Allow the command being run inside the sandbox to make outbound network requests
+network_access = false
+
 # OS sandbox policy (read-only | workspace-write | danger-full-access)
 sandbox_mode = "read-only"
 
@@ -14,14 +23,13 @@ sandbox_mode = "read-only"
 # - never: never ask to run a command with escalated permissions
 approval_policy = "untrusted"
 
-# URI scheme for clickable citations (vscode | vscode-insiders | windsurf | cursor | none)
-file_opener = "vscode"
+[profiles.auto]
+sandbox_mode = "workspace-write"
+approval_policy = "on-request"
 
-# External program for notifications
-notify = [ "bash", "-lc", "afplay /System/Library/Sounds/Ping.aiff" ]
-
-# Allow the command being run inside the sandbox to make outbound network requests
-network_access = false
+[profiles.readonly]
+sandbox_mode = "read-only"
+approval_policy = "never"
 
 [tui]
 # Send desktop notifications when approvals are required or a turn completes.
@@ -43,12 +51,4 @@ include_only = []                  # If non-empty, a whitelist of patterns; only
 [sandbox_workspace_write]
 # Permit network access when sandbox mode is workspace-write.
 network_access = true
-
-[profiles.auto]
-sandbox_mode    = "workspace-write"
-approval_policy = "on-request"
-
-[profiles.readonly]
-sandbox_mode    = "read-only"
-approval_policy = "never"
 
