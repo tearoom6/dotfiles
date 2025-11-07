@@ -28,7 +28,7 @@
 # Description
 # -----------
 #
-#  Completion script for xsel (https://www.vergenet.net/~conrad/software/xsel/).
+#  Completion script for xsel v1.2.1 (https://www.vergenet.net/~conrad/software/xsel/).
 #
 # ------------------------------------------------------------------------------
 # Authors
@@ -39,12 +39,13 @@
 # ------------------------------------------------------------------------------
 
 local input='(-a --append -f --follow -i --input)'
-local operation='(-c --clear -d --delete -k --keep -x --exchange)' 
+local operation='(-c --clear -d --delete -k --keep -x --exchange)'
 local selection='(-p --primary -s --secondary -b --clipboard)'
 
 _arguments -s \
   $input{-a,--append}'[append standard input to the selection]' \
   $input{-f,--follow}'[append to selection as standard input grows]' \
+  $input{-z,--zeroflush}'[overwrites selection when zero(\\0) is received]' \
   $input{-i,--input}'[read standard input into the selection]' \
   {-o,--output}'[write the selection to standard output]' \
   $operation{-c,--clear}'[clear the selection]' \
@@ -55,9 +56,18 @@ _arguments -s \
   $operation{-k,--keep}'[do not modify the selections, but make the PRIMARY and SECONDARY selections persist even after the programs they were selected in exit]' \
   $operation{-x,--exchange}'[exchange the PRIMARY and SECONDARY selections]' \
   '--display[specify the server to use; see X(1)]:X display:_x_display' \
+  '--windowName[specify the X WM_ NAME window property]:window_name' \
   {-t,--selectionTimeout}'[specify the timeout in milliseconds within which the selection must be retrieved]:number' \
   {-l,--logfile}'[specify the file to log errors to when detached (default $HOME/.xsel.log)]:log file:_files' \
   {-n,--nodetach}'[do not detach from the controlling terminal]' \
-  {-h,--help}'[display usage information and exit]' \
+  '(- *)'{-h,--help}'[display usage information and exit]' \
   {-v,--verbose}'[print informative messages; additional instances of -v raise the debugging level]' \
-  '--version[output version information and exit]'
+  '(- *)--version[output version information and exit]'
+
+# Local Variables:
+# mode: Shell-Script
+# sh-indentation: 2
+# indent-tabs-mode: nil
+# sh-basic-offset: 2
+# End:
+# vim: ft=zsh sw=2 ts=2 et

@@ -222,17 +222,16 @@ __docker_get_log_options() {
 
     integer ret=1
     local log_driver=${opt_args[--log-driver]:-"all"}
-    local -a common_options common_options2 awslogs_options fluentd_options gelf_options journald_options json_file_options logentries_options syslog_options splunk_options
+    local -a common_options common_options2 awslogs_options fluentd_options gelf_options journald_options json_file_options syslog_options splunk_options
 
     common_options=("max-buffer-size" "mode")
     common_options2=("env" "env-regex" "labels")
     awslogs_options=($common_options "awslogs-create-group" "awslogs-datetime-format" "awslogs-group" "awslogs-multiline-pattern" "awslogs-region" "awslogs-stream" "tag")
-    fluentd_options=($common_options $common_options2 "fluentd-address" "fluentd-async-connect" "fluentd-buffer-limit" "fluentd-retry-wait" "fluentd-max-retries" "fluentd-sub-second-precision" "tag")
+    fluentd_options=($common_options $common_options2 "fluentd-address" "fluentd-async" "fluentd-buffer-limit" "fluentd-retry-wait" "fluentd-max-retries" "fluentd-sub-second-precision" "tag")
     gcplogs_options=($common_options $common_options2 "gcp-log-cmd" "gcp-meta-id" "gcp-meta-name" "gcp-meta-zone" "gcp-project")
     gelf_options=($common_options $common_options2 "gelf-address" "gelf-compression-level" "gelf-compression-type" "tag")
     journald_options=($common_options $common_options2 "tag")
     json_file_options=($common_options $common_options2 "max-file" "max-size")
-    logentries_options=($common_options $common_options2 "logentries-token" "tag")
     syslog_options=($common_options $common_options2 "syslog-address" "syslog-facility" "syslog-format" "syslog-tls-ca-cert" "syslog-tls-cert" "syslog-tls-key" "syslog-tls-skip-verify" "tag")
     splunk_options=($common_options $common_options2 "splunk-caname" "splunk-capath" "splunk-format" "splunk-gzip" "splunk-gzip-level" "splunk-index" "splunk-insecureskipverify" "splunk-source" "splunk-sourcetype" "splunk-token" "splunk-url" "splunk-verify-connection" "tag")
 
@@ -242,7 +241,6 @@ __docker_get_log_options() {
     [[ $log_driver = (gelf|all) ]] && _describe -t gelf-options "gelf options" gelf_options "$@" && ret=0
     [[ $log_driver = (journald|all) ]] && _describe -t journald-options "journald options" journald_options "$@" && ret=0
     [[ $log_driver = (json-file|all) ]] && _describe -t json-file-options "json-file options" json_file_options "$@" && ret=0
-    [[ $log_driver = (logentries|all) ]] && _describe -t logentries-options "logentries options" logentries_options "$@" && ret=0
     [[ $log_driver = (syslog|all) ]] && _describe -t syslog-options "syslog options" syslog_options "$@" && ret=0
     [[ $log_driver = (splunk|all) ]] && _describe -t splunk-options "splunk options" splunk_options "$@" && ret=0
 
@@ -602,6 +600,7 @@ __docker_container_subcommand() {
     opts_create_run=(
         "($help -a --attach)"{-a=,--attach=}"[Attach to stdin, stdout or stderr]:device:(STDIN STDOUT STDERR)"
         "($help)*--add-host=[Add a custom host-to-IP mapping]:host\:ip mapping: "
+        "($help)*--annotation=[Add an annotation to the container (passed through to the OCI runtime)]:annotations: "
         "($help)*--blkio-weight-device=[Block IO (relative device weight)]:device:Block IO weight: "
         "($help)*--cap-add=[Add Linux capabilities]:capability: "
         "($help)*--cap-drop=[Drop Linux capabilities]:capability: "
@@ -837,7 +836,7 @@ __docker_container_subcommand() {
         (restart)
             _arguments $(__docker_arguments) \
                 $opts_help \
-                "($help -t --time)"{-t=,--time=}"[Number of seconds to try to stop for before killing the container]:seconds to before killing:(1 5 10 30 60)" \
+                "($help -t --timeout)"{-t=,--timeout=}"[Number of seconds to try to stop for before killing the container]:seconds to before killing:(1 5 10 30 60)" \
                 "($help -)*:containers:__docker_complete_containers" && ret=0
             ;;
         (rm)
@@ -916,7 +915,7 @@ __docker_container_subcommand() {
         (stop)
             _arguments $(__docker_arguments) \
                 $opts_help \
-                "($help -t --time)"{-t=,--time=}"[Number of seconds to try to stop for before killing the container]:seconds to before killing:(1 5 10 30 60)" \
+                "($help -t --timeout)"{-t=,--timeout=}"[Number of seconds to try to stop for before killing the container]:seconds to before killing:(1 5 10 30 60)" \
                 "($help -)*:containers:__docker_complete_running_containers" && ret=0
             ;;
         (top)
@@ -1006,7 +1005,6 @@ __docker_image_subcommand() {
                 "($help)--cpu-rt-runtime=[Limit the CPU real-time runtime]:CPU real-time runtime in microseconds: " \
                 "($help)--cpuset-cpus=[CPUs in which to allow execution]:CPUs: " \
                 "($help)--cpuset-mems=[MEMs in which to allow execution]:MEMs: " \
-                "($help)--disable-content-trust[Skip image verification]" \
                 "($help -f --file)"{-f=,--file=}"[Name of the Dockerfile]:Dockerfile:_files" \
                 "($help)--force-rm[Always remove intermediate containers]" \
                 "($help)--isolation=[Container isolation technology]:isolation:(default hyperv process)" \
@@ -2535,7 +2533,7 @@ __docker_volume_subcommand() {
             _arguments $(__docker_arguments) \
                 $opts_help \
                 "($help -f --force)"{-f,--force}"[Force the removal of one or more volumes]" \
-                "($help -):volume:__docker_complete_volumes" && ret=0
+                "($help -)*:volumes:__docker_complete_volumes" && ret=0
             ;;
         (help)
             _arguments $(__docker_arguments) ":subcommand:__docker_volume_commands" && ret=0
@@ -2727,8 +2725,6 @@ __docker_subcommand() {
             _arguments $(__docker_arguments) \
                 $opts_help \
                 "($help)*--add-runtime=[Register an additional OCI compatible runtime]:runtime:__docker_complete_runtimes" \
-                "($help)*--allow-nondistributable-artifacts=[Push nondistributable artifacts to specified registries]:registry: " \
-                "($help)--api-cors-header=[CORS headers in the Engine API]:CORS headers: " \
                 "($help)*--authorization-plugin=[Authorization plugins to load]" \
                 "($help -b --bridge)"{-b=,--bridge=}"[Attach containers to a network bridge]:bridge:_net_interfaces" \
                 "($help)--bip=[Network bridge IP]:IP address: " \
@@ -2771,12 +2767,11 @@ __docker_subcommand() {
                 "($help)--max-concurrent-uploads[Set the max concurrent uploads]" \
                 "($help)--max-download-attempts[Set the max download attempts for each pull]" \
                 "($help)--mtu=[Network MTU]:mtu:(0 576 1420 1500 9000)" \
-                "($help)--oom-score-adjust=[Set the oom_score_adj for the daemon]:oom-score:(-500)" \
                 "($help -p --pidfile)"{-p=,--pidfile=}"[Path to use for daemon PID file]:PID file:_files" \
                 "($help)--raw-logs[Full timestamps without ANSI coloring]" \
                 "($help)*--registry-mirror=[Preferred registry mirror]:registry mirror: " \
                 "($help)--seccomp-profile=[Path to seccomp profile]:path:_files -g \"*.json\"" \
-                "($help -s --storage-driver)"{-s=,--storage-driver=}"[Storage driver to use]:driver:(aufs btrfs devicemapper overlay overlay2 vfs zfs)" \
+                "($help -s --storage-driver)"{-s=,--storage-driver=}"[Storage driver to use]:driver:(btrfs devicemapper overlay2 vfs zfs)" \
                 "($help)--selinux-enabled[Enable selinux support]" \
                 "($help)--shutdown-timeout=[Set the shutdown timeout value in seconds]:time: " \
                 "($help)*--storage-opt=[Storage driver options]:storage driver options: " \
