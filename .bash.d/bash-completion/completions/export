@@ -31,24 +31,23 @@ _comp_cmd_export()
     case $cur in
         *=)
             local pname=${cur%=}
-            local ret
+            local REPLY
             _comp_quote "${!pname-}"
-            local pval=$ret
+            local pval=$REPLY
             # Complete previous value if it's not empty.
             if [[ $pval != \'\' ]]; then
                 COMPREPLY=("$pval")
             else
-                cur=${cur#*=}
-                _filedir
+                _comp_compgen -c "${cur#*=}" filedir
             fi
             ;;
         *=*)
-            cur=${cur#*=}
-            _filedir
+            _comp_compgen -c "${cur#*=}" filedir
             ;;
         *)
             if [[ $cword -eq 1 && $cur == -* ]]; then
-                COMPREPLY=($(compgen -W '-p $(_parse_usage help "-s $1")' -- "$cur"))
+                _comp_compgen_usage -c help -s "$1"
+                _comp_compgen -a -- -W '-p'
                 return
             fi
             local suffix=""
@@ -56,7 +55,7 @@ _comp_cmd_export()
                 suffix="="
                 compopt -o nospace
             fi
-            COMPREPLY=($(compgen -A $action -S "$suffix" -- "$cur"))
+            _comp_compgen -- -A $action -S "$suffix"
             ;;
     esac
 } &&

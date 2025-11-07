@@ -3,67 +3,61 @@
 _comp_cmd_lintian__tags()
 {
     local search tags check_files
-    _comp_expand_glob check_files '/usr/share/lintian/checks/*.desc'
-    ((${#check_files[@]})) || return 0
+    _comp_expand_glob check_files '/usr/share/lintian/checks/*.desc' || return 0
 
-    tags=$(awk '/^Tag/ { print $2 }' "${check_files[@]}")
+    tags=$(_comp_awk '/^Tag/ { print $2 }' "${check_files[@]}")
     if [[ $cur == *, ]]; then
         search=${cur//,/ }
         for item in $search; do
             tags=$(command sed -e "s/\<$item\>//g" <<<"$tags")
         done
-        COMPREPLY+=($(compgen -W "$tags"))
-    elif [[ $cur == *,* ]]; then
-        COMPREPLY+=($(compgen -P "${cur%,*}," -W "$tags" -- "${cur##*,}"))
+        _comp_compgen -aR -- -W "$tags"
     else
-        COMPREPLY+=($(compgen -W "$tags" -- "$cur"))
+        [[ $cur == ^.*, ]]
+        _comp_compgen -aP "${BASH_REMATCH-}" -- -W "$tags"
     fi
 }
 
 _comp_cmd_lintian__checks()
 {
     local match search todisable checks check_files
-    _comp_expand_glob check_files '/usr/share/lintian/checks/*.desc'
-    ((${#check_files[@]})) || return 0
+    _comp_expand_glob check_files '/usr/share/lintian/checks/*.desc' || return 0
 
-    checks=$(awk '/^(Check-Script|Abbrev)/ { print $2 }' \
+    checks=$(_comp_awk '/^(Check-Script|Abbrev)/ { print $2 }' \
         "${check_files[@]}")
     if [[ $cur == *, ]]; then
         search=${cur//,/ }
         for item in $search; do
             match=$(command grep -nE "^(Check-Script|Abbrev): $item$" \
                 "${check_files[@]}" | cut -d: -f1)
-            todisable=$(awk '/^(Check-Script|Abbrev)/ { print $2 }' "$match")
+            todisable=$(_comp_awk '/^(Check-Script|Abbrev)/ { print $2 }' "$match")
             for name in $todisable; do
                 checks=$(command sed -e "s/\<$name\>//g" <<<"$checks")
             done
         done
-        COMPREPLY+=($(compgen -W "$checks"))
-    elif [[ $cur == *,* ]]; then
-        COMPREPLY+=($(compgen -P "${cur%,*}," -W "$checks" -- "${cur##*,}"))
+        _comp_compgen -aR -- -W "$checks"
     else
-        COMPREPLY+=($(compgen -W "$checks" -- "$cur"))
+        [[ $cur == ^.*, ]]
+        _comp_compgen -aP "${BASH_REMATCH-}" -- -W "$checks"
     fi
 }
 
 _comp_cmd_lintian__infos()
 {
     local search infos collection_files
-    _comp_expand_glob collection_files '/usr/share/lintian/collection/*.desc'
-    ((${#collection_files[@]})) || return 0
+    _comp_expand_glob collection_files '/usr/share/lintian/collection/*.desc' || return 0
 
-    infos=$(awk '/^Collector/ { print $2 }' \
+    infos=$(_comp_awk '/^Collector/ { print $2 }' \
         "${collection_files[@]}")
     if [[ $cur == *, ]]; then
         search=${cur//,/ }
         for item in $search; do
             infos=$(command sed -e "s/\<$item\>//g" <<<"$infos")
         done
-        COMPREPLY+=($(compgen -W "$infos"))
-    elif [[ $cur == *,* ]]; then
-        COMPREPLY+=($(compgen -P "${cur%,*}," -W "$infos" -- "${cur##*,}"))
+        _comp_compgen -aR -- -W "$infos"
     else
-        COMPREPLY+=($(compgen -W "$infos" -- "$cur"))
+        [[ $cur == ^.*, ]]
+        _comp_compgen -aP "${BASH_REAMTCH-}" -- -W "$infos"
     fi
 }
 
@@ -89,35 +83,43 @@ _comp_cmd_lintian()
         case $prev in
             -C | --check-part | -X | --dont-check-part)
                 _comp_cmd_lintian__checks
+                return
                 ;;
             -T | --tags | --suppress-tags)
                 _comp_cmd_lintian__tags
+                return
                 ;;
             --tags-from-file | --suppress-tags-from-file | --cfg | -p | \
                 --packages-file)
-                _filedir
+                _comp_compgen_filedir
+                return
                 ;;
             --lab | --archivedir | --dist | --root)
-                _filedir -d
+                _comp_compgen_filedir -d
+                return
                 ;;
             --color)
-                COMPREPLY=($(compgen -W "never always auto html" -- "$cur"))
+                _comp_compgen -- -W "never always auto html"
+                return
                 ;;
             -U | --unpack-info)
                 _comp_cmd_lintian__infos
+                return
                 ;;
             --area | --section)
-                COMPREPLY=($(compgen -W "main contrib non-free" -- "$cur"))
+                _comp_compgen -- -W "main contrib non-free"
+                return
                 ;;
-            --arch) ;;
-
+            --arch)
+                return
+                ;;
         esac
     fi
 
     case "$cur" in
         --*)
-            COMPREPLY=($(compgen -W "$lint_actions $general_opts
-                $behaviour_opts $configuration_opts" -- "$cur"))
+            _comp_compgen -- -W "$lint_actions $general_opts $behaviour_opts
+                $configuration_opts"
             ;;
         *,)
             # If we're here, the user is trying to complete on
@@ -137,7 +139,7 @@ _comp_cmd_lintian()
             ;;
         *)
             # in Ubuntu, dbgsym packages end in .ddeb, lintian >= 2.57.0 groks
-            _filedir '@(?(u|d)deb|changes|dsc|buildinfo)'
+            _comp_compgen_filedir '@(?(u|d)deb|changes|dsc|buildinfo)'
             ;;
     esac
     return 0
@@ -158,17 +160,17 @@ _comp_cmd_lintian_info()
             return
             ;;
         --include-dir)
-            _filedir -d
+            _comp_compgen_filedir -d
             return
             ;;
     esac
 
     case "$cur" in
         --*)
-            COMPREPLY=($(compgen -W '$(_parse_help "$1")' -- "$cur"))
+            _comp_compgen_help
             ;;
         *)
-            _filedir
+            _comp_compgen_filedir
             ;;
     esac
     return 0

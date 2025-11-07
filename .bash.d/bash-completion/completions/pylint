@@ -1,6 +1,6 @@
 # pylint(1) completion                                     -*- shell-script -*-
 
-_comp_cmd_pylint_message_ids()
+_comp_cmd_pylint__message_ids()
 {
     local filter=p
     [[ ${2-} ]] && filter="/^$2 messages/,/^$/p"
@@ -10,18 +10,18 @@ _comp_cmd_pylint_message_ids()
     #   again later?
     local msgs="$(
         set -o pipefail
-        ${1:-pylint} --list-msgs-enabled 2>/dev/null |
+        "$1" --list-msgs-enabled 2>/dev/null |
             command sed -ne "$filter" |
             command sed -ne 's/^[[:space:]]\{1,\}\([a-z-]\{6,\}\).*/\1/p' ||
-            ${1:-pylint} --list-msgs 2>/dev/null |
+            "$1" --list-msgs 2>/dev/null |
             command sed -ne 's/^:\([a-z-]\{6,\}\).*/\1/p'
     )"
     _comp_delimited , -W "$msgs"
 }
 
-_pylint()
+_comp_cmd_pylint()
 {
-    local cur prev words cword split comp_args
+    local cur prev words cword was_split comp_args
     _comp_initialize -s -- "$@" || return
 
     local python=python
@@ -48,70 +48,72 @@ _pylint()
             return
             ;;
         --fail-on | --help-msg)
-            _comp_cmd_pylint_message_ids "$1"
+            _comp_cmd_pylint__message_ids "$1"
             return
             ;;
         --enable | -${noargopts}e)
-            _comp_cmd_pylint_message_ids "$1" Disabled
+            _comp_cmd_pylint__message_ids "$1" Disabled
             return
             ;;
         --disable | -${noargopts}d)
-            _comp_cmd_pylint_message_ids "$1" Enabled
-            COMPREPLY+=($(compgen -W 'all' -- "$cur"))
+            _comp_cmd_pylint__message_ids "$1" Enabled
+            _comp_compgen -a -- -W 'all'
             return
             ;;
         --rcfile)
-            _filedir
+            _comp_compgen_filedir
             return
             ;;
         --persistent | --include-ids | --symbols | --files-output | \
             --reports | --comment | --ignore-comments | --ignore-docstrings | \
             --ignore-imports | --init-import | --ignore-mixin-members | \
             --zope | --suggestion-mode | -${noargopts}[isr])
-            COMPREPLY=($(compgen -W 'yes no' -- "$cur"))
+            _comp_compgen -- -W 'yes no'
             return
             ;;
         --load-plugins | --deprecated-modules)
-            cur="${cur##*,}" _comp_xfunc python modules $python
+            _comp_compgen -c "${cur##*,}" -x python modules $python
             ((${#COMPREPLY[@]})) &&
                 _comp_delimited , -W '"${COMPREPLY[@]}"'
             return
             ;;
         --jobs | -${noargopts}j)
-            COMPREPLY=($(compgen -W "{1..$(_ncpus)}" -- "$cur"))
+            local REPLY
+            _comp_get_ncpus
+            _comp_compgen -- -W "{1..$REPLY}"
             return
             ;;
         --confidence)
             local prefix=
             [[ $cur == *,* ]] && prefix="${cur%,*},"
-            COMPREPLY=($(compgen -W "HIGH INFERENCE INFERENCE_FAILURE
-                UNDEFINED" -- "${cur##*,}"))
-            ((${#COMPREPLY[@]} == 1)) && COMPREPLY=(${COMPREPLY/#/$prefix})
+            _comp_compgen -c "${cur##*,}" -- -W "HIGH INFERENCE
+                INFERENCE_FAILURE UNDEFINED"
+            ((${#COMPREPLY[@]} == 1)) &&
+                _comp_compgen -Rv COMPREPLY -- -P "$prefix" -W '"$COMPREPLY"'
             return
             ;;
         --format | -${noargopts}f)
-            COMPREPLY=($(compgen -W 'text parseable colorized json msvs' \
-                -- "$cur"))
+            _comp_compgen -- -W 'text parseable colorized json msvs'
             return
             ;;
         --import-graph | --ext-import-graph | --int-import-graph)
-            _filedir dot
+            _comp_compgen_filedir dot
             return
             ;;
     esac
 
-    $split && return
+    [[ $was_split ]] && return
 
     if [[ $cur == -* ]]; then
-        COMPREPLY=($(compgen -W \
-            '$(_parse_help "$1" --long-help)' -- "$cur"))
+        _comp_compgen_help -- --long-help
         [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
         return
     fi
 
-    _comp_looks_like_path "$cur" || _comp_xfunc python modules $python
-    _filedir py
+    _comp_compgen_set
+    _comp_looks_like_path "$cur" || _comp_compgen -x python modules $python
+    _comp_compgen -a filedir py
 } &&
-    complete -F _pylint pylint pylint-2 pylint-3
+    complete -F _comp_cmd_pylint pylint pylint-2 pylint-3
 
 # ex: filetype=sh

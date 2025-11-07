@@ -1,8 +1,8 @@
 # bash completion for pkgconfig                            -*- shell-script -*-
 
-_pkg_config()
+_comp_cmd_pkg_config()
 {
-    local cur prev words cword split comp_args
+    local cur prev words cword was_split comp_args
     _comp_initialize -s -- "$@" || return
 
     case $prev in
@@ -15,9 +15,9 @@ _pkg_config()
             local word
             for word in "${words[@]:1}"; do
                 if [[ $word != -* ]]; then
-                    COMPREPLY=($(compgen -W \
-                        '$("$1" $word --print-variables 2>/dev/null)' \
-                        -- "$cur"))
+                    _comp_compgen_split -- "$(
+                        "$1" "$word" --print-variables 2>/dev/null
+                    )"
                     break
                 fi
             done
@@ -29,17 +29,17 @@ _pkg_config()
             ;;
     esac
 
-    $split && return
+    [[ $was_split ]] && return
 
     if [[ $cur == -* ]]; then
-        COMPREPLY=($(compgen -W '$(_parse_help "$1")' -- "$cur"))
+        _comp_compgen_help
         [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
     else
-        COMPREPLY=($(compgen -W "$("$1" --list-all \
-            2>/dev/null | awk '{print $1}')" -- "$cur"))
-        _filedir pc
+        _comp_compgen_split -- "$("$1" --list-all 2>/dev/null |
+            _comp_awk '{print $1}')"
+        _comp_compgen -a filedir pc
     fi
 } &&
-    complete -F _pkg_config pkg-config pkgconf
+    complete -F _comp_cmd_pkg_config pkg-config pkgconf
 
 # ex: filetype=sh

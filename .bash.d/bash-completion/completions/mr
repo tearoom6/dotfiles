@@ -1,6 +1,6 @@
 # mr completion                                            -*- shell-script -*-
 
-_mr()
+_comp_cmd_mr()
 {
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
@@ -10,20 +10,26 @@ _mr()
     help="$(PERLDOC_PAGER=cat PERLDOC=-otext "${1}" help 2>/dev/null)"
 
     commands="$(
+        # shellcheck disable=SC2030
         printf %s "$help" | while read -r _ options cmd _; do
             [[ $options != "[options]" ]] || printf "%s\n" "$cmd"
         done
     )"
     # Split [online|offline] and remove `action` placeholder.
-    commands="${commands//@(action|[\[\|\]])/$'\n'}"
+    commands="${commands//@(action|[\[\|\]])/ }"
     # Add standard aliases.
     commands="${commands} ci co ls"
+    _comp_split commands "$commands"
+    local IFS='|'
+    local glob_commands="@(${commands[*]})"
+    _comp_unlocal IFS
 
     # Determine if user has entered an `mr` command. Used to block top-level
     # (option and command) completions.
     local cmd has_cmd="" i
-    for ((i = 1; i < ${#words[@]} - 1; i++)); do
-        if [[ $commands == *"${words[i]}"* ]]; then
+    for ((i = 1; i < cword; i++)); do
+        # shellcheck disable=SC2053
+        if [[ ${words[i]} == $glob_commands ]]; then
             cmd="${words[i]}"
             has_cmd=set
             break
@@ -34,7 +40,7 @@ _mr()
     if [[ $has_cmd ]]; then
         case $cmd in
             bootstrap)
-                _filedir
+                _comp_compgen_filedir
                 # Also complete stdin (-) as a potential bootstrap source.
                 if [[ ! ${cur} || $cur == - ]] && [[ $prev != - ]]; then
                     COMPREPLY+=(-)
@@ -43,18 +49,18 @@ _mr()
                 ;;
             clean)
                 if [[ ${cur} == -* ]]; then
-                    COMPREPLY=($(compgen -W '-f' -- "${cur}"))
+                    _comp_compgen -- -W '-f'
                 fi
                 return
                 ;;
             commit | ci | record)
                 if [[ ${cur} == -* ]]; then
-                    COMPREPLY=($(compgen -W '-m' -- "${cur}"))
+                    _comp_compgen -- -W '-m'
                 fi
                 return
                 ;;
             run)
-                COMPREPLY=($(compgen -c -- "${cur}"))
+                _comp_compgen_commands
                 return
                 ;;
             *)
@@ -69,26 +75,24 @@ _mr()
     # shellcheck disable=SC2254
     case $prev in
         --config | -${noargopts}c)
-            _filedir
+            _comp_compgen_filedir
             return
             ;;
         --directory | -${noargopts}d)
-            _filedir -d
+            _comp_compgen_filedir -d
             return
             ;;
     esac
 
     if [[ $cur == -* ]]; then
-        options="$(printf '%s\n' "$help" | _parse_help -)"
-        # Remove short options (all have compatible long options).
-        options="${options//-[a-z]$'\n'/}"
-        # Remove deprecated options.
-        options="${options//--path/}"
-        COMPREPLY=($(compgen -W "${options}" -- "${cur}"))
+        _comp_compgen -Rv options help - <<<"$help"
+        # -X '-[a-z]': Remove short options (all have compatible long options).
+        # -X '--path': Remove deprecated options.
+        _comp_compgen -- -W '"${options[@]}"' -X '@(-[a-z]|--path)'
     else
-        COMPREPLY=($(compgen -W "${commands}" -- "${cur}"))
+        _comp_compgen -- -W '"${commands[@]}"'
     fi
 } &&
-    complete -F _mr mr
+    complete -F _comp_cmd_mr mr
 
 # ex: filetype=sh

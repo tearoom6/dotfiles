@@ -1,12 +1,12 @@
-# Debian apt-mark(8) completion                             -*- shell-script -*-
+# Debian apt-mark(8) completion                            -*- shell-script -*-
 
 _comp_cmd_apt_mark()
 {
-    local cur prev words cword split comp_args
+    local cur prev words cword was_split comp_args
     _comp_initialize -s -- "$@" || return
 
     local special="" i
-    for ((i = 1; i < ${#words[@]} - 1; i++)); do
+    for ((i = 1; i < cword; i++)); do
         if [[ ${words[i]} == @(auto|manual|minimize-manual|showauto|showmanual|hold|unhold|showhold|install|remove|deinstall|purge|showinstall|showremove|showpurge) ]]; then
             special=${words[i]}
             break
@@ -18,16 +18,14 @@ _comp_cmd_apt_mark()
             auto | manual | unhold)
                 local -A showcmds=([auto]=manual [manual]=auto [unhold]=hold)
                 local showcmd=${showcmds[$special]}
-                COMPREPLY=($(
-                    compgen -W "$("$1" "show$showcmd" 2>/dev/null)" -- "$cur"
-                ))
+                _comp_compgen_split -- "$("$1" "show$showcmd" 2>/dev/null)"
                 return
                 ;;
             minimize-manual)
                 return
                 ;;
             *)
-                _comp_xfunc apt-get installed_packages
+                _comp_compgen -x apt-get installed_packages
                 ;;
         esac
         return
@@ -40,25 +38,24 @@ _comp_cmd_apt_mark()
             return
             ;;
         --config-file | -${noargopts}c)
-            _filedir conf
+            _comp_compgen_filedir conf
             return
             ;;
         --file | -${noargopts}f)
-            _filedir
+            _comp_compgen_filedir
             return
             ;;
     esac
 
-    $split && return
+    [[ $was_split ]] && return
 
     if [[ $cur == -* ]]; then
-        COMPREPLY=($(compgen -W '--file= --help --version --config-file
-            --option' -- "$cur"))
+        _comp_compgen -- -W '--file= --help --version --config-file --option'
         [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
     else
-        COMPREPLY=($(compgen -W 'auto manual minimize-manual showauto
-            showmanual hold unhold showhold install remove purge
-            showinstall showremove showpurge' -- "$cur"))
+        _comp_compgen -- -W 'auto manual minimize-manual showauto showmanual
+            hold unhold showhold install remove purge showinstall showremove
+            showpurge'
     fi
 
 } &&

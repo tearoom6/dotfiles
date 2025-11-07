@@ -2,7 +2,7 @@
 
 _comp_cmd_tree()
 {
-    local cur prev words cword split comp_args
+    local cur prev words cword was_split comp_args
     _comp_initialize -s -- "$@" || return
 
     local noargopts='!(-*|*[LPIHTo]*)'
@@ -12,23 +12,23 @@ _comp_cmd_tree()
             return
             ;;
         --charset)
-            _comp_xfunc iconv charsets
+            _comp_compgen -x iconv charsets
             return
             ;;
         -${noargopts}o)
-            _filedir
+            _comp_compgen_filedir
             return
             ;;
         --sort)
-            COMPREPLY=($(compgen -W "name version size mtime ctime" -- "$cur"))
+            _comp_compgen -- -W "name version size mtime ctime"
             return
             ;;
     esac
 
-    $split && return
+    [[ $was_split ]] && return
 
     if [[ $cur == -* ]]; then
-        COMPREPLY=($(compgen -W '$(_parse_help "$1")' -- "$cur"))
+        _comp_compgen_help
         return
     fi
 
@@ -36,9 +36,9 @@ _comp_cmd_tree()
     # assign ${words[*]} in a temporary variable "line".
     local line="${words[*]}"
     if [[ $line == *\ --fromfile\ * ]]; then
-        _filedir
+        _comp_compgen_filedir
     else
-        _filedir -d
+        _comp_compgen_filedir -d
     fi
 } &&
     complete -F _comp_cmd_tree tree

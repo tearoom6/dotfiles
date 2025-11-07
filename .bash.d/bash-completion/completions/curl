@@ -1,9 +1,9 @@
 # curl(1) completion                                       -*- shell-script -*-
 
-_curl()
+_comp_cmd_curl()
 {
     local cur prev words cword comp_args
-    _comp_initialize -- "$@" || return
+    _comp_initialize -n : -- "$@" || return
 
     local noargopts='!(-*|*[KbcDoTCFmQreYytzuAwEdHPxX]*)'
     # shellcheck disable=SC2254
@@ -11,9 +11,9 @@ _curl()
         --abstract-unix-socket | --alt-svc | --config | --cookie | \
             --cookie-jar | --dump-header | --egd-file | --etag-compare | \
             --etag-save | --hsts | --key | --libcurl | --netrc-file | \
-            --output | --proxy-key | --random-file | --trace | --trace-ascii | \
-            --unix-socket | --upload-file | -${noargopts}[KbcDoT])
-            _filedir
+            --output | --proxy-key | --random-file | --unix-socket | \
+            --upload-file | -${noargopts}[KbcDoT])
+            _comp_compgen_filedir
             return
             ;;
         --ciphers | --connect-timeout | --connect-to | --continue-at | \
@@ -22,7 +22,7 @@ _curl()
             --happy-eyeballs-timeout-ms | --hostpubmd5 | --keepalive-time | \
             --limit-rate | --local-port | --login-options | --mail-auth | \
             --mail-from | --mail-rcpt | --max-filesize | --max-redirs | \
-            --max-time | --pass | --proto | --proto-default | --proto-redir | \
+            --max-time | --pass | --proto | --proto-redir | \
             --proxy-ciphers | --proxy-pass | --proxy-service-name | \
             --proxy-tls13-ciphers | --proxy-tlspassword | --proxy-tlsuser | \
             --proxy-user | --proxy1.0 | --quote | --range | --referer | \
@@ -30,49 +30,48 @@ _curl()
             --sasl-authzid | --service-name | --socks5-gssapi-service | \
             --speed-limit | --speed-time | --telnet-option | --tftp-blksize | \
             --time-cond | --tls13-ciphers | --tlspassword | --tlsuser | \
-            --url | --user | --user-agent | --version | --write-out | \
-            -${noargopts}[CFmQreYytzuAVw])
+            --url | --user | --user-agent | --version | \
+            -${noargopts}[CFmQreYytzuAV])
             return
             ;;
         --cacert | --cert | --proxy-cacert | --proxy-cert | -${noargopts}E)
-            _filedir '@(c?(e)rt|cer|pem|der)'
+            _comp_compgen_filedir '@(c?(e)rt|cer|pem|der)'
             return
             ;;
         --capath | --output-dir | --proxy-capath)
-            _filedir -d
+            _comp_compgen_filedir -d
             return
             ;;
         --cert-type | --key-type | --proxy-cert-type | --proxy-key-type)
-            COMPREPLY=($(compgen -W 'DER PEM ENG' -- "$cur"))
+            _comp_compgen -- -W 'DER PEM ENG'
             return
             ;;
         --crlfile | --proxy-crlfile)
-            _filedir crl
+            _comp_compgen_filedir crl
             return
             ;;
-        --data | --data-ascii | --data-binary | --data-urlencode | --header | \
-            --proxy-header | -${noargopts}[dH])
+        --data | --data-ascii | --data-binary | --data-urlencode | --json | \
+            --header | --proxy-header | --write-out | -${noargopts}[dHw])
             if [[ $cur == \@* ]]; then
-                cur=${cur:1}
-                _filedir
-                if [[ ${#COMPREPLY[@]} -eq 1 && -d ${COMPREPLY[0]} ]]; then
+                _comp_compgen -P @ filedir
+                _comp_compgen -aP @ -- -W '-'
+                if [[ ${#COMPREPLY[@]} -eq 1 && -d ${COMPREPLY[0]#@} ]]; then
                     COMPREPLY[0]+=/
                     compopt -o nospace
                 fi
-                COMPREPLY=("${COMPREPLY[@]/#/@}")
             fi
             return
             ;;
         --delegation)
-            COMPREPLY=($(compgen -W 'none policy always' -- "$cur"))
+            _comp_compgen -- -W 'none policy always'
             return
             ;;
         --dns-ipv[46]-addr)
-            _ip_addresses -"${prev:9:1}"
+            _comp_compgen_ip_addresses -"${prev:9:1}"
             return
             ;;
         --dns-servers | --noproxy)
-            _known_hosts_real -- "${cur##*,}"
+            _comp_compgen_known_hosts -- "${cur##*,}"
             ((${#COMPREPLY[@]})) &&
                 _comp_delimited , -W '"${COMPREPLY[@]}"'
             return
@@ -82,88 +81,91 @@ _curl()
                 "$1" --engine list 2>/dev/null |
                     command grep "^[[:space:]]"
             )
-            COMPREPLY=($(compgen -W '$engines list' -- "$cur"))
+            _comp_compgen -- -W '$engines list'
             return
             ;;
         --ftp-port | -${noargopts}P)
-            _available_interfaces -a
-            _known_hosts_real -- "$cur"
-            _ip_addresses -a
+            _comp_compgen_available_interfaces -a
+            _comp_compgen -a known_hosts -- "$cur"
+            _comp_compgen -a ip_addresses -a
             return
             ;;
         --ftp-method)
-            COMPREPLY=($(compgen -W 'multicwd nocwd singlecwd' -- "$cur"))
+            _comp_compgen -- -W 'multicwd nocwd singlecwd'
             return
             ;;
         --ftp-ssl-ccc-mode)
-            COMPREPLY=($(compgen -W 'active passive' -- "$cur"))
+            _comp_compgen -- -W 'active passive'
             return
             ;;
         --interface)
-            _available_interfaces -a
+            _comp_compgen_available_interfaces -a
+            _comp_compgen -a ip_addresses -a
             return
             ;;
         --help | -${noargopts}h)
-            local x categories=(
-                $("$1" --help non-existent-category 2>&1 |
-                    awk '/^[[:space:]]/ {print $1}')
-            )
-            if ((${#categories[@]})); then
+            local x categories
+            if _comp_split categories "$("$1" --help non-existent-category 2>&1 |
+                _comp_awk '/^[ \t]/ {print $1}')"; then
                 for x in "${categories[@]}"; do
                     # Looks like an option? Likely no --help category support
                     [[ $x != -* ]] || return
                 done
-                COMPREPLY=($(compgen -W '"${categories[@]}"' -- "$cur"))
+                _comp_compgen -- -W '"${categories[@]}" category all'
             fi
             return
             ;;
         --krb)
-            COMPREPLY=($(compgen -W 'clear safe confidential private' -- "$cur"))
+            _comp_compgen -- -W 'clear safe confidential private'
             return
             ;;
         --pinnedpubkey | --proxy-pinnedpubkey)
-            _filedir '@(pem|der|key)'
+            _comp_compgen_filedir '@(pem|der|key)'
             return
             ;;
         --preproxy | --proxy | --socks4 | --socks4a | --socks5 | \
             --socks5-hostname | -${noargopts}x)
-            _known_hosts_real -- "$cur"
+            _comp_compgen_known_hosts -- "$cur"
             return
             ;;
+        --proto-default)
+            _comp_compgen_split "$("$1" --version 2>/dev/null | command sed -e '/Protocols/!d' -e 's/Protocols://')"
+            ;;
         --pubkey)
-            _comp_xfunc ssh identityfile pub
+            _comp_compgen -x ssh identityfile pub
             return
             ;;
         --request | -${noargopts}X)
             # TODO: these are valid for http(s) only
-            COMPREPLY=($(
-                compgen -W \
-                    'GET HEAD POST PUT DELETE CONNECT OPTIONS TRACE PATCH' \
-                    -- "$cur"
-            ))
+            _comp_compgen -- -W 'GET HEAD POST PUT DELETE CONNECT OPTIONS TRACE
+                PATCH'
             return
             ;;
         --stderr)
-            COMPREPLY=($(compgen -W '-' -- "$cur"))
-            _filedir
+            _comp_compgen -- -W '-'
+            _comp_compgen -a filedir
             return
             ;;
         --tls-max)
-            COMPREPLY=($(compgen -W 'default 1.0 1.1 1.2 1.3' -- "$cur"))
+            _comp_compgen -- -W 'default 1.0 1.1 1.2 1.3'
             return
             ;;
         --tlsauthtype | --proxy-tlsauthtype)
-            COMPREPLY=($(compgen -W 'SRP' -- "$cur"))
+            _comp_compgen -- -W 'SRP'
+            return
+            ;;
+        --trace | --trace-ascii)
+            _comp_compgen -- -W '% -'
+            _comp_compgen -a filedir
             return
             ;;
     esac
 
     if [[ $cur == -* ]]; then
-        COMPREPLY=($(compgen -W '$(_parse_help "$1" --help all)' -- "$cur"))
-        [[ ${COMPREPLY-} ]] ||
-            COMPREPLY=($(compgen -W '$(_parse_help "$1")' -- "$cur"))
+        _comp_compgen_help -- --help all
+        [[ ${COMPREPLY-} ]] || _comp_compgen_help
     fi
 } &&
-    complete -F _curl curl
+    complete -F _comp_cmd_curl curl
 
 # ex: filetype=sh

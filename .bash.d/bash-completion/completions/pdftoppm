@@ -10,25 +10,25 @@ _comp_cmd_pdftoppm()
             return
             ;;
         -tiffcompression)
-            COMPREPLY=($(compgen -W 'none packbits jpeg lzw deflate' -- "$cur"))
+            _comp_compgen -- -W 'none packbits jpeg lzw deflate'
             return
             ;;
         -freetype | -aa | -aaVector)
-            COMPREPLY=($(compgen -W 'yes no' -- "$cur"))
+            _comp_compgen -- -W 'yes no'
             return
             ;;
         -thinlinemode)
-            COMPREPLY=($(compgen -W 'none solid shape' -- "$cur"))
+            _comp_compgen -- -W 'none solid shape'
             return
             ;;
     esac
 
     if [[ $cur == -* ]]; then
-        COMPREPLY=($(compgen -W '$(_parse_help "$1")' -- "$cur"))
+        _comp_compgen_help
         return
     fi
 
-    [[ $prev == *.pdf ]] || _filedir pdf
+    [[ $prev == *.pdf ]] || _comp_compgen_filedir pdf
 } &&
     complete -F _comp_cmd_pdftoppm pdftoppm
 

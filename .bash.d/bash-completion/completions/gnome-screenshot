@@ -2,7 +2,7 @@
 
 _comp_cmd_gnome_screenshot()
 {
-    local cur prev words cword split comp_args
+    local cur prev words cword was_split comp_args
     _comp_initialize -s -- "$@" || return
 
     local noargopts='!(-*|*[def]*)'
@@ -12,19 +12,19 @@ _comp_cmd_gnome_screenshot()
             return
             ;;
         --border-effect | -${noargopts}e)
-            COMPREPLY=($(compgen -W 'shadow border vintage none' -- "$cur"))
+            _comp_compgen -- -W 'shadow border vintage none'
             return
             ;;
         --file | -${noargopts}f)
-            _filedir '@(jp?(e)|pn)g'
+            _comp_compgen_filedir '@(jp?(e)|pn)g'
             return
             ;;
     esac
 
-    $split && return
+    [[ $was_split ]] && return
 
     if [[ $cur == -* ]]; then
-        COMPREPLY=($(compgen -W '$(_parse_help "$1")' -- "$cur"))
+        _comp_compgen_help
         [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
     fi
 } &&

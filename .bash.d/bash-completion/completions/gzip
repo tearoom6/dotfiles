@@ -13,18 +13,21 @@ _comp_cmd_gzip()
             return
             ;;
         --processes | -${noargopts}p)
-            COMPREPLY=($(compgen -W "{1..$(_ncpus)}" -- "$cur"))
+            local REPLY
+            _comp_get_ncpus
+            _comp_compgen -- -W "{1..$REPLY}"
             return
             ;;
     esac
 
     if [[ $cur == -* ]]; then
-        COMPREPLY=($(compgen -W '$(_parse_help "$1") {-1..-9}' -- "$cur"))
+        _comp_compgen_help
+        _comp_compgen -a -- -W '-{1..9}'
         [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
         return
     fi
 
-    local IFS=$'\n' xspec="*.@(gz|t[ag]z)"
+    local xspec="*.@(gz|t[ag]z)"
     [[ ${1##*/} == pigz ]] && xspec="*.@([gz]z|t[ag]z)"
 
     if [[ $prev == --* ]]; then
@@ -35,11 +38,10 @@ _comp_cmd_gzip()
         [[ $prev == -*f* ]] && xspec=
     fi
 
-    _tilde "$cur" || return
+    _comp_compgen_tilde && return
 
     compopt -o filenames
-    COMPREPLY=($(compgen -f -X "$xspec" -- "$cur")
-    $(compgen -d -- "$cur"))
+    _comp_compgen -- -f -X "$xspec" -o plusdirs
 } &&
     complete -F _comp_cmd_gzip gzip pigz
 

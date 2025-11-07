@@ -1,16 +1,26 @@
 # iconv(1) completion                                      -*- shell-script -*-
 
-_comp_xfunc_iconv_charsets()
+# @since 2.12
+_comp_xfunc_iconv_compgen_charsets()
 {
-    COMPREPLY+=($(compgen -X ... -W '$("${1:-iconv}" -l | \
-        command sed -e "s@/*\$@@" -e "s/[,()]//g")' -- "$cur"))
+    _comp_cmd_iconv__compgen_charsets iconv
 }
 
-_comp_deprecate_func _iconv_charsets _comp_xfunc_iconv_charsets
-
-_iconv()
+# @deprecated 2.12 use `_comp_xfunc_iconv_compgen_charsets` instead
+_iconv_charsets()
 {
-    local cur prev words cword split comp_args
+    _comp_compgen -ai iconv charsets "${1:-iconv}"
+}
+
+_comp_cmd_iconv__compgen_charsets()
+{
+    _comp_compgen_split -X ... -- "$("$1" -l |
+        command sed -e 's@/*$@@' -e 's/[,()]//g')"
+}
+
+_comp_cmd_iconv()
+{
+    local cur prev words cword was_split comp_args
     _comp_initialize -s -- "$@" || return
 
     local noargopts='!(-*|*[fto]*)'
@@ -21,22 +31,22 @@ _iconv()
             return
             ;;
         --from-code | --to-code | -${noargopts}[ft])
-            _comp_xfunc_iconv_charsets "$1"
+            _comp_cmd_iconv__compgen_charsets "$1"
             return
             ;;
         --output | -${noargopts}o)
-            _filedir
+            _comp_compgen_filedir
             return
             ;;
     esac
 
-    $split && return
+    [[ $was_split ]] && return
 
     if [[ $cur == -* ]]; then
-        COMPREPLY=($(compgen -W '$(_parse_help "$1")' -- "$cur"))
+        _comp_compgen_help
         [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
     fi
 } &&
-    complete -F _iconv -o default iconv
+    complete -F _comp_cmd_iconv -o default iconv
 
 # ex: filetype=sh

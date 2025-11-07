@@ -13,19 +13,17 @@ _comp_cmd_hexdump()
             return
             ;;
         -f)
-            _filedir
+            _comp_compgen_filedir
             return
             ;;
     esac
 
     if [[ $cur == -* ]]; then
-        COMPREPLY=($(
-            compgen -W '$(_parse_help "$1" || _parse_usage "$1")' -- "$cur"
-        ))
+        _comp_compgen_help || _comp_compgen_usage
         return
     fi
 
-    _filedir
+    _comp_compgen_filedir
 } &&
     complete -F _comp_cmd_hexdump hexdump hd
 

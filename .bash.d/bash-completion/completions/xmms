@@ -1,8 +1,8 @@
 # bash completion for xmms                                 -*- shell-script -*-
 
-_xmms()
+_comp_cmd_xmms()
 {
-    local cur prev words cword split comp_args
+    local cur prev words cword was_split comp_args
     _comp_initialize -s -- "$@" || return
 
     local noargopts='!(-*|*[SRA]*)'
@@ -12,20 +12,20 @@ _xmms()
             return
             ;;
         --toggle-shuffle | --toggle-repeat | --toggle-advance | -${noargopts}[SRA])
-            COMPREPLY=($(compgen -W 'on off' -- "$cur"))
+            _comp_compgen -- -W 'on off'
             return
             ;;
     esac
 
-    $split && return
+    [[ $was_split ]] && return
 
     if [[ $cur == -* ]]; then
-        COMPREPLY=($(compgen -W '$(_parse_help "$1")' -- "$cur"))
+        _comp_compgen_help
     else
-        _filedir '@(mp[23]|ogg|wav|pls|m3u|xm|mod|s[3t]m|it|mtm|ult|flac)'
+        _comp_compgen_filedir '@(mp[23]|ogg|wav|pls|m3u|xm|mod|s[3t]m|it|mtm|ult|flac)'
     fi
 
 } &&
-    complete -F _xmms xmms
+    complete -F _comp_cmd_xmms xmms
 
 # ex: filetype=sh

@@ -2,7 +2,7 @@
 
 _comp_cmd_sha256sum()
 {
-    local cur prev words cword split comp_args
+    local cur prev words cword was_split comp_args
     _comp_initialize -s -- "$@" || return
 
     case $prev in
@@ -11,28 +11,29 @@ _comp_cmd_sha256sum()
             ;;
     esac
 
-    $split && return
+    [[ $was_split ]] && return
 
     if [[ $cur == -* ]]; then
-        _longopt "$@"
+        _comp_complete_longopt "$@"
         return
     fi
 
     local sumtype=${1##*/}
     sumtype=${sumtype%sum}
+    local sumglob="@(*.$sumtype|@(check|${sumtype})sums?(.txt))"
+    compopt -o filenames
 
     local opt
     for opt in "${words[@]}"; do
         if [[ $opt == -@(c|-check) ]]; then
-            _filedir "$sumtype"
+            _comp_compgen -- -f -X "!$sumglob" -o plusdirs
             return
         fi
     done
 
-    _filedir
-    ((${#COMPREPLY[@]})) &&
-        COMPREPLY=($(compgen -X "*.$sumtype" -W '"${COMPREPLY[@]}"' -- "$cur"))
+    _comp_compgen -- -f -X "$sumglob" -o plusdirs
 } &&
-    complete -F _comp_cmd_sha256sum md5sum sha{,1,224,256,384,512}sum
+    complete -F _comp_cmd_sha256sum b2sum cksum md5sum \
+        sha{,1,224,256,384,512}sum
 
 # ex: filetype=sh

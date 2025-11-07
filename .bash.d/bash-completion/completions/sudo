@@ -1,8 +1,8 @@
 # bash completion for sudo(8)                              -*- shell-script -*-
 
-_sudo()
+_comp_cmd_sudo()
 {
-    local cur prev words cword split comp_args
+    local cur prev words cword was_split comp_args
     _comp_initialize -s -- "$@" || return
 
     local i mode=normal
@@ -13,7 +13,7 @@ _sudo()
         for ((i = 1; i <= cword; i++)); do
             if [[ ${words[i]} != -* ]]; then
                 local PATH=$PATH:/sbin:/usr/sbin:/usr/local/sbin
-                local root_command=${words[i]}
+                local _comp_root_command=$1
                 _comp_command_offset $i
                 return
             fi
@@ -30,11 +30,11 @@ _sudo()
     # shellcheck disable=SC2254
     case "$prev" in
         --user | --other-user | -${noargopts}[uU])
-            COMPREPLY=($(compgen -u -- "$cur"))
+            _comp_compgen -- -u
             return
             ;;
         --group | -${noargopts}g)
-            COMPREPLY=($(compgen -g -- "$cur"))
+            _comp_compgen -- -g
             return
             ;;
         --close-from | --prompt | -${noargopts}[Cp])
@@ -42,19 +42,17 @@ _sudo()
             ;;
     esac
 
-    $split && return
+    [[ $was_split ]] && return
 
     if [[ $cur == -* ]]; then
-        COMPREPLY=($(
-            compgen -W '$(_parse_help "$1" || _parse_usage "$1")' -- "$cur"
-        ))
+        _comp_compgen_help || _comp_compgen_usage
         [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
         return
     fi
     if [[ $mode == edit ]]; then
-        _filedir
+        _comp_compgen_filedir
     fi
 } &&
-    complete -F _sudo sudo sudoedit
+    complete -F _comp_cmd_sudo sudo sudoedit
 
 # ex: filetype=sh

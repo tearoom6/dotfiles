@@ -1,8 +1,8 @@
 # bash completion for pydocstyle                           -*- shell-script -*-
 
-_pydocstyle()
+_comp_cmd_pydocstyle()
 {
-    local cur prev words cword split comp_args
+    local cur prev words cword was_split comp_args
     _comp_initialize -s -- "$@" || return
 
     case $prev in
@@ -11,25 +11,25 @@ _pydocstyle()
             return
             ;;
         --config)
-            _filedir xml
+            _comp_compgen_filedir xml
             return
             ;;
         --convention)
-            COMPREPLY=($(compgen -W "pep257 numpy" -- "$cur"))
+            _comp_compgen -- -W "pep257 numpy"
             return
             ;;
     esac
 
-    $split && return
+    [[ $was_split ]] && return
 
     if [[ $cur == -* ]]; then
-        COMPREPLY=($(compgen -W '$(_parse_help "$1")' -- "$cur"))
+        _comp_compgen_help
         [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
         return
     fi
 
-    _filedir py
+    _comp_compgen_filedir py
 } &&
-    complete -F _pydocstyle pydocstyle
+    complete -F _comp_cmd_pydocstyle pydocstyle
 
 # ex: filetype=sh

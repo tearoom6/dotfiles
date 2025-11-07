@@ -1,93 +1,24 @@
 # bash completion for GNU make                             -*- shell-script -*-
 
-_make_target_extract_script()
+# Extract the valid target names starting with PREFIX from the output of
+# `make -npq'
+# @param mode    If this is `-d', the directory names already specified in
+#                PREFIX are omitted in the output
+# @param prefix  Prefix of the target names
+_comp_cmd_make__extract_targets()
 {
-    local mode="$1"
-    shift
+    local mode=$1
+    local -x prefix=$2
 
-    local prefix="$1"
-    local prefix_pat=$(command sed 's/[][\,.*^$(){}?+|/]/\\&/g' <<<"$prefix")
-    local basename=${prefix##*/}
-    local dirname_len=$((${#prefix} - ${#basename}))
-    # Avoid expressions like '\(.\{0\}\)', FreeBSD sed doesn't like them:
-    # > sed: 1: ...: RE error: empty (sub)expression
-    local dirname_re=
-    ((dirname_len > 0)) && dirname_re="\(.\{${dirname_len}\}\)"
+    # display mode, only output current path component to the next slash
+    local -x prefix_replace=$prefix
+    [[ $mode == -d && $prefix == */* ]] &&
+        prefix_replace=${prefix##*/}
 
-    if [[ ! $dirname_re ]]; then
-        local output="\1"
-    elif [[ $mode == -d ]]; then
-        # display mode, only output current path component to the next slash
-        local output="\2"
-    else
-        # completion mode, output full path to the next slash
-        local output="\1\2"
-    fi
-
-    cat <<EOF
-    1,/^# * Make data base/           d;        # skip any makefile output
-    /^# * Finished Make data base/,/^# * Make data base/{
-                                      d;        # skip any makefile output
-    }
-    /^# * Variables/,/^# * Files/     d;        # skip until files section
-    /^# * Not a target/,/^$/          d;        # skip not target blocks
-    /^${prefix_pat}/,/^$/!            d;        # skip anything user dont want
-
-    # The stuff above here describes lines that are not
-    #  explicit targets or not targets other than special ones
-    # The stuff below here decides whether an explicit target
-    #  should be output.
-
-    /^# * File is an intermediate prerequisite/ {
-      s/^.*$//;x;                               # unhold target
-      d;                                        # delete line
-    }
-
-    /^$/ {                                      # end of target block
-      x;                                        # unhold target
-      /^$/d;                                    # dont print blanks
-      s|^${dirname_re-}\(.\{${#basename}\}[^:]*\):.*$|${output}|p;
-      d;                                        # hide any bugs
-    }
-
-    # This pattern includes a literal tab character as \t is not a portable
-    # representation and fails with BSD sed
-    /^[^#	:%]\{1,\}:/ {         # found target block
-      /^\.PHONY:/                 d;            # special target
-      /^\.SUFFIXES:/              d;            # special target
-      /^\.DEFAULT:/               d;            # special target
-      /^\.PRECIOUS:/              d;            # special target
-      /^\.INTERMEDIATE:/          d;            # special target
-      /^\.SECONDARY:/             d;            # special target
-      /^\.SECONDEXPANSION:/       d;            # special target
-      /^\.DELETE_ON_ERROR:/       d;            # special target
-      /^\.IGNORE:/                d;            # special target
-      /^\.LOW_RESOLUTION_TIME:/   d;            # special target
-      /^\.SILENT:/                d;            # special target
-      /^\.EXPORT_ALL_VARIABLES:/  d;            # special target
-      /^\.NOTPARALLEL:/           d;            # special target
-      /^\.ONESHELL:/              d;            # special target
-      /^\.POSIX:/                 d;            # special target
-      /^\.NOEXPORT:/              d;            # special target
-      /^\.MAKE:/                  d;            # special target
-EOF
-
-    # don't complete with hidden targets unless we are doing a partial completion
-    if [[ ! ${prefix_pat} || ${prefix_pat} == */ ]]; then
-        cat <<EOF
-      /^${prefix_pat}[^a-zA-Z0-9]/d;            # convention for hidden tgt
-EOF
-    fi
-
-    cat <<EOF
-      h;                                        # hold target
-      d;                                        # delete line
-    }
-
-EOF
+    _comp_awk -f "${BASH_SOURCE[0]%/*}/../helpers/make-extract-targets.awk"
 }
 
-# Truncate the non-unique filepaths in COMPRELY to only generate unique
+# Truncate the non-unique filepaths in COMPREPLY to only generate unique
 # directories or files.  This function discards the files under subdirectories
 # unless the path is unique under each subdirectory and instead generate the
 # subdirectory path.  For example, when there are two candidates, "abc/def" and
@@ -98,7 +29,7 @@ EOF
 # @var[in] cur
 # @var[in] mode
 # @var[in,out] COMPREPLY
-_comp_make__truncate_non_unique_paths()
+_comp_cmd_make__truncate_non_unique_paths()
 {
     local prefix=$cur
     [[ $mode == -d ]] && prefix=
@@ -137,9 +68,9 @@ _comp_make__truncate_non_unique_paths()
     fi
 }
 
-_make()
+_comp_cmd_make()
 {
-    local cur prev words cword split comp_args
+    local cur prev words cword was_split comp_args
     _comp_initialize -s -- "$@" || return
 
     local makef makef_dir=("-C" ".") i
@@ -149,49 +80,49 @@ _make()
     case $prev in
         --file | --makefile | --old-file | --assume-old | --what-if | --new-file | \
             --assume-new | -${noargopts}[foW])
-            _filedir
+            _comp_compgen_filedir
             return
             ;;
         --include-dir | --directory | -${noargopts}[ICm])
-            _filedir -d
+            _comp_compgen_filedir -d
             return
             ;;
         -${noargopts}E)
-            COMPREPLY=($(compgen -v -- "$cur"))
+            _comp_compgen -- -v
             return
             ;;
         --eval | -${noargopts}[DVx])
             return
             ;;
         --jobs | -${noargopts}j)
-            COMPREPLY=($(compgen -W "{1..$(($(_ncpus) * 2))}" -- "$cur"))
+            local REPLY
+            _comp_get_ncpus
+            _comp_compgen -- -W "{1..$((REPLY * 2))}"
             return
             ;;
     esac
 
-    $split && return
+    [[ $was_split ]] && return
 
     if [[ $cur == -* ]]; then
-        COMPREPLY=($(
-            compgen -W '$(_parse_help "$1" || _parse_usage "$1")' -- "$cur"
-        ))
+        _comp_compgen_help || _comp_compgen_usage
         [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
     elif [[ $cur == *=* ]]; then
         prev=${cur%%=*}
         cur=${cur#*=}
-        local diropt
+        local diropt=""
         [[ ${prev,,} == *dir?(ectory) ]] && diropt=-d
-        _filedir $diropt
+        _comp_compgen_filedir ${diropt:+"$diropt"}
     else
         # before we check for makefiles, see if a path was specified
         # with -C/--directory
         for ((i = 1; i < ${#words[@]}; i++)); do
-            if [[ ${words[i]} == -@(C|-directory) ]]; then
+            if [[ ${words[i]} == @(-${noargopts}C|--directory) ]]; then
                 # Expand tilde expansion
-                local ret
+                local REPLY
                 _comp_dequote "${words[i + 1]-}" &&
-                    [[ -d ${ret-} ]] &&
-                    makef_dir=(-C "$ret")
+                    [[ -d $REPLY ]] &&
+                    makef_dir=(-C "$REPLY")
                 break
             fi
         done
@@ -199,12 +130,12 @@ _make()
         # before we scan for targets, see if a Makefile name was
         # specified with -f/--file/--makefile
         for ((i = 1; i < ${#words[@]}; i++)); do
-            if [[ ${words[i]} == -@(f|-?(make)file) ]]; then
+            if [[ ${words[i]} == @(-${noargopts}f|--?(make)file) ]]; then
                 # Expand tilde expansion
-                local ret
+                local REPLY
                 _comp_dequote "${words[i + 1]-}" &&
-                    [[ -f ${ret-} ]] &&
-                    makef=(-f "$ret")
+                    [[ -f $REPLY ]] &&
+                    makef=(-f "$REPLY")
                 break
             fi
         done
@@ -223,13 +154,12 @@ _make()
         #     mode=-d # display-only mode
         # fi
 
-        local IFS=$' \t\n' script=$(_make_target_extract_script $mode "$cur")
-        COMPREPLY=($(LC_ALL=C \
+        _comp_split COMPREPLY "$(LC_ALL=C \
             $1 -npq __BASH_MAKE_COMPLETION__=1 \
             ${makef+"${makef[@]}"} "${makef_dir[@]}" .DEFAULT 2>/dev/null |
-            command sed -ne "$script"))
+            _comp_cmd_make__extract_targets "$mode" "$cur")"
 
-        _comp_make__truncate_non_unique_paths
+        _comp_cmd_make__truncate_non_unique_paths
 
         if [[ $mode != -d ]]; then
             # Completion will occur if there is only one suggestion
@@ -239,6 +169,6 @@ _make()
 
     fi
 } &&
-    complete -F _make make gmake gnumake pmake colormake bmake
+    complete -F _comp_cmd_make make gmake gnumake pmake colormake bmake
 
 # ex: filetype=sh

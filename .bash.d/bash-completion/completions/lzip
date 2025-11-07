@@ -2,7 +2,7 @@
 
 _comp_cmd_lzip()
 {
-    local cur prev words cword split comp_args
+    local cur prev words cword was_split comp_args
     _comp_initialize -s -- "$@" || return
 
     local decompress=""
@@ -18,31 +18,33 @@ _comp_cmd_lzip()
             decompress=set
             ;;
         --threads | -${noargopts}n)
-            COMPREPLY=($(compgen -W "{1..$(_ncpus)}" -- "$cur"))
+            local REPLY
+            _comp_get_ncpus
+            _comp_compgen -- -W "{1..$REPLY}"
             return
             ;;
         --output | -${noargopts}o)
-            _filedir
+            _comp_compgen_filedir
             return
             ;;
     esac
 
-    $split && return
+    [[ $was_split ]] && return
 
     if [[ $cur == -* ]]; then
-        COMPREPLY=($(compgen -W '$(_parse_help "$1") {-1..-9}' -- "$cur"))
+        _comp_compgen_help
+        _comp_compgen -a -- -W '-{1..9}'
         [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
         return
     fi
 
     if [[ $decompress ]]; then
-        _filedir lz
+        _comp_compgen_filedir lz
         return
     fi
 
-    local IFS=$'\n'
     compopt -o filenames
-    COMPREPLY=($(compgen -f -X "*.lz" -- "$cur") $(compgen -d -- "$cur"))
+    _comp_compgen -- -f -X "*.lz" -o plusdirs
 } &&
     complete -F _comp_cmd_lzip clzip lzip pdlzip plzip
 

@@ -22,21 +22,19 @@ _comp_cmd_chsh()
             return
             ;;
         -R | --root)
-            _filedir -d
+            _comp_compgen_filedir -d
             return
             ;;
         -s | --shell)
-            _shells "${chroot-}"
+            _comp_compgen_shells "${chroot-}"
             return
             ;;
     esac
 
     if [[ $cur == -* ]]; then
-        COMPREPLY=($(
-            compgen -W '$(_parse_help "$1" || _parse_usage "$1")' -- "$cur"
-        ))
+        _comp_compgen_help || _comp_compgen_usage
     else
-        _allowed_users
+        _comp_compgen_allowed_users
     fi
 
 } &&

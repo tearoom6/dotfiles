@@ -1,8 +1,8 @@
 # useradd(8) completion                                    -*- shell-script -*-
 
-_useradd()
+_comp_cmd_useradd()
 {
-    local cur prev words cword split comp_args
+    local cur prev words cword was_split comp_args
     _comp_initialize -s -- "$@" || return
 
     # TODO: if -o/--non-unique is given, could complete on existing uids
@@ -25,14 +25,12 @@ _useradd()
             return
             ;;
         --base-dir | --home-dir | --skel | --root | -${noargopts}[bdkR])
-            _filedir -d
+            _comp_compgen_filedir -d
             return
             ;;
         --gid | -${noargopts}g)
-            _gids
-            COMPREPLY+=($(compgen -g))
-            ((${#COMPREPLY[@]})) &&
-                COMPREPLY=($(compgen -W '"${COMPREPLY[@]}"' -- "$cur"))
+            _comp_compgen_gids
+            _comp_compgen -a -- -g
             return
             ;;
         --groups | -${noargopts}G)
@@ -40,20 +38,20 @@ _useradd()
             return
             ;;
         --selinux-user | -${noargopts}Z)
-            _comp_selinux_users
+            _comp_compgen_selinux_users
             return
             ;;
         --shell | -${noargopts}s)
-            _shells "${chroot-}"
+            _comp_compgen_shells "${chroot-}"
             return
             ;;
     esac
 
-    $split && return
+    [[ $was_split ]] && return
 
     [[ $cur == -* ]] &&
-        COMPREPLY=($(compgen -W '$(_parse_help "$1")' -- "$cur"))
+        _comp_compgen_help
 } &&
-    complete -F _useradd useradd
+    complete -F _comp_cmd_useradd useradd
 
 # ex: filetype=sh

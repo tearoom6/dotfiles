@@ -1,47 +1,48 @@
 # bash completion for xrandr                               -*- shell-script -*-
 
-_comp_cmd_xrandr_outputs()
+_comp_cmd_xrandr__compgen_outputs()
 {
-    "$1" -q 2>/dev/null | awk '/connected/ {print $1}'
+    _comp_compgen_split -- "$("$1" -q 2>/dev/null | _comp_awk '/connected/ {print $1}')"
 }
 
-_comp_cmd_xrandr_monitors()
+_comp_cmd_xrandr__compgen_monitors()
 {
-    "$1" --listmonitors 2>/dev/null |
-        command sed -ne 's/.* [0-9]*: [+\*]*\([^ ]*\).*/\1/p'
+    _comp_compgen_split -- "$(
+        "$1" --listmonitors 2>/dev/null |
+            command sed -ne 's/.* [0-9]*: [+\*]*\([^ ]*\).*/\1/p'
+    )"
 }
 
-_comp_cmd_xrandr_providers()
+_comp_cmd_xrandr__compgen_providers()
 {
-    "$1" --listproviders 2>/dev/null |
-        command sed -ne "s/.*cap:.*$2.* name:\([^ ]*\).*/\1/p"
+    _comp_compgen_split -- "$("$1" --listproviders 2>/dev/null |
+        command sed -ne "s/.*cap:.*$2.* name:\([^ ]*\).*/\1/p")"
 }
 
-_comp_cmd_xrandr_modes()
+_comp_cmd_xrandr__compgen_modes()
 {
-    "$1" -q 2>/dev/null | command sed \
-        -e "1,/^$2 / d" \
-        -e '/connected/,$ d' \
-        -e '/^[[:space:]]*h: / d' \
-        -e '/^[[:space:]]*v: / d' \
-        -e 's/\([^[:space:]]\)[[:space:]].*/\1/'
+    _comp_compgen_split -- "$(
+        "$1" -q 2>/dev/null | command sed \
+            -e "1,/^$2 / d" \
+            -e '/connected/,$ d' \
+            -e '/^[[:space:]]*h: / d' \
+            -e '/^[[:space:]]*v: / d' \
+            -e 's/\([^[:space:]]\)[[:space:]].*/\1/'
+    )"
 }
 
-_comp_cmd_xrandr_all_modes()
+_comp_cmd_xrandr__compgen_all_modes()
 {
-    "$1" -q 2>/dev/null | command sed \
-        -e '/^[^[:space:]].*/ d' \
-        -e '/^[[:space:]]*h: / d' \
-        -e '/^[[:space:]]*v: / d' \
-        -e 's/[[:space:]]*\([^[:space:]]*\)[[:space:]].*/\1/'
+    _comp_compgen_split -- "$(
+        "$1" -q 2>/dev/null | command sed \
+            -e '/^[^[:space:]].*/ d' \
+            -e '/^[[:space:]]*h: / d' \
+            -e '/^[[:space:]]*v: / d' \
+            -e 's/[[:space:]]*\([^[:space:]]*\)[[:space:]].*/\1/'
+    )"
 }
 
-_comp_cmd_xrandr_help()
-{
-    "$1" --help 2>/dev/null
-}
-
-_xrandr()
+_comp_cmd_xrandr()
 {
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
@@ -62,61 +63,53 @@ _xrandr()
             return
             ;;
         --output | --addmode | --delmode | --dpi)
-            local outputs=$(_comp_cmd_xrandr_outputs "$1")
-            COMPREPLY=($(compgen -W "$outputs" -- "$cur"))
+            _comp_cmd_xrandr__compgen_outputs "$1"
             return
             ;;
         --left-of | --right-of | --above | --below | --same-as)
             if [[ $has_output ]]; then
-                local outputs=$(_comp_cmd_xrandr_outputs "$1")
-                COMPREPLY=($(compgen -W "$outputs" -- "$cur"))
+                _comp_cmd_xrandr__compgen_outputs "$1"
             fi
             return
             ;;
         --mode)
             if [[ $has_output ]]; then
-                local modes=$(_comp_cmd_xrandr_modes "$1" "$output")
-                COMPREPLY=($(compgen -W "$modes" -- "$cur"))
+                _comp_cmd_xrandr__compgen_modes "$1" "$output"
             fi
             return
             ;;
         -o | --orientation)
-            COMPREPLY=($(
-                compgen -W 'normal inverted left right 0 1 2 3' -- "$cur"
-            ))
+            _comp_compgen -- -W 'normal inverted left right 0 1 2 3'
             return
             ;;
         --reflect)
             if [[ $has_output ]]; then
-                COMPREPLY=($(compgen -W 'normal x y xy' -- "$cur"))
+                _comp_compgen -- -W 'normal x y xy'
             fi
             return
             ;;
         --rotate)
             if [[ $has_output ]]; then
-                COMPREPLY=($(compgen -W 'normal inverted left right' -- "$cur"))
+                _comp_compgen -- -W 'normal inverted left right'
             fi
             return
             ;;
         --filter)
             if [[ $has_output ]]; then
-                COMPREPLY=($(compgen -W 'bilinear nearest' -- "$cur"))
+                _comp_compgen -- -W 'bilinear nearest'
             fi
             return
             ;;
         --setprovideroutputsource)
-            local providers=$(_comp_cmd_xrandr_providers "$1" "Sink Output")
-            COMPREPLY=($(compgen -W "$providers" -- "$cur"))
+            _comp_cmd_xrandr__compgen_providers "$1" "Sink Output"
             return
             ;;
         --setprovideroffloadsink)
-            local providers=$(_comp_cmd_xrandr_providers "$1" "Source Offload")
-            COMPREPLY=($(compgen -W "$providers" -- "$cur"))
+            _comp_cmd_xrandr__compgen_providers "$1" "Source Offload"
             return
             ;;
         --delmonitor)
-            local monitors=$(_comp_cmd_xrandr_monitors "$1")
-            COMPREPLY=($(compgen -W "$monitors" -- "$cur"))
+            _comp_cmd_xrandr__compgen_monitors "$1"
             return
             ;;
     esac
@@ -128,31 +121,25 @@ _xrandr()
                 return
                 ;;
             --addmode)
-                local modes=$(_comp_cmd_xrandr_all_modes "$1")
-                COMPREPLY=($(compgen -W "$modes" -- "$cur"))
+                _comp_cmd_xrandr__compgen_all_modes "$1"
                 return
                 ;;
             --delmode)
-                local modes=$(_comp_cmd_xrandr_modes "$1" "${words[cword - 1]}")
-                COMPREPLY=($(compgen -W "$modes" -- "$cur"))
+                _comp_cmd_xrandr__compgen_modes "$1" "${words[cword - 1]}"
                 return
                 ;;
             --setmonitor)
-                COMPREPLY=($(compgen -W 'auto' -- "$cur"))
+                _comp_compgen -- -W 'auto'
                 return
                 ;;
             --setprovideroutputsource)
-                local providers=$(
-                    _comp_cmd_xrandr_providers "$1" "Source Output"
-                )
-                COMPREPLY=($(compgen -W "0x0 $providers" -- "$cur"))
+                _comp_cmd_xrandr__compgen_providers "$1" "Source Output"
+                _comp_compgen -a -- -W "0x0"
                 return
                 ;;
             --setprovideroffloadsink)
-                local providers=$(
-                    _comp_cmd_xrandr_providers "$1" "Sink Offload"
-                )
-                COMPREPLY=($(compgen -W "0x0 $providers" -- "$cur"))
+                _comp_cmd_xrandr__compgen_providers "$1" "Sink Offload"
+                _comp_compgen -a -- -W "0x0"
                 return
                 ;;
         esac
@@ -162,9 +149,9 @@ _xrandr()
     if ((cword >= 3)); then
         case "${words[cword - 3]}" in
             --setmonitor)
-                local outputs=$(_comp_cmd_xrandr_outputs "$1")
-                COMPREPLY=($(compgen -W "none $outputs" -- "$cur"))
-                # TODO: the third argument is actually a comma-separated list
+                _comp_compgen -c "${cur##*,}" -i xrandr outputs "$1"
+                _comp_compgen -ac "${cur##*,}" -- -W "none"
+                _comp_delimited , -W '"${COMPREPLY[@]}"'
                 return
                 ;;
         esac
@@ -172,22 +159,20 @@ _xrandr()
 
     local options
     if [[ $has_output ]]; then
-        options=$(
-            _comp_cmd_xrandr_help "$1" |
-                command sed -e 's/ or /\n  /g' -e 's/<[^>]*>]//g' |
-                _parse_help -
-        )
+        _comp_compgen -v options help - <<<"$(
+            "$1" --help 2>/dev/null |
+                command sed -e 's/ or /\n  /g' -e 's/<[^>]*>]//g'
+        )"
     else
         # if no output is specified, remove per-output options
-        options=$(
-            _comp_cmd_xrandr_help "$1" |
-                command sed -e '/^  -/!d' -e 's/ or /\n  /g' \
-                    -e 's/<[^>]*>]//g' | _parse_help -
-        )
+        _comp_compgen -v options help - <<<"$(
+            "$1" --help 2>/dev/null |
+                command sed -e '/^  -/!d' -e 's/ or /\n  /g' -e 's/<[^>]*>]//g'
+        )"
     fi
 
-    COMPREPLY=($(compgen -W "$options" -- "$cur"))
+    _comp_compgen -- -W '"${options[@]}"'
 } &&
-    complete -F _xrandr xrandr
+    complete -F _comp_cmd_xrandr xrandr
 
 # ex: filetype=sh

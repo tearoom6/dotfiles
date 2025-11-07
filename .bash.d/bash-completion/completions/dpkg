@@ -1,43 +1,66 @@
-# This function is required by _dpkg and _dpkg-reconfigure -*- shell-script -*-
+# dpkg(1) and related commands completion                  -*- shell-script -*-
 
-if _comp_have_command grep-status; then
-    _comp_xfunc_dpkg_installed_packages()
-    {
-        grep-status -P -e "^${1-}" -a -FStatus 'ok installed' -n -s Package
-    }
-
-    _comp_xfunc_dpkg_purgeable_packages()
-    {
-        grep-status -P -e "^${1-}" -a -FStatus 'ok installed' -o -FStatus 'ok config-files' -n -s Package
-    }
-else
-    _comp_xfunc_dpkg_installed_packages()
-    {
-        command awk -F '\n' -v RS="" "
-            index(\$1, \"Package: ${1-}\") == 1 &&
+# @since 2.12
+_comp_xfunc_dpkg_compgen_installed_packages()
+{
+    _comp_compgen_split -- "$(
+        grep-status -P -e "^${cur-}" -a \
+            -FStatus 'ok installed' \
+            -n -s Package 2>/dev/null ||
+            _comp_awk -F '\n' -v RS="" "
+            index(\$1, \"Package: ${cur-}\") == 1 &&
             \$2 ~ /ok installed|half-installed|unpacked|half-configured|^Essential: yes/ {
                 print(substr(\$1, 10));
             }" /var/lib/dpkg/status 2>/dev/null
-    }
+    )"
+}
 
-    _comp_xfunc_dpkg_purgeable_packages()
-    {
-        command awk -F '\n' -v RS="" "
-            index(\$1, \"Package: ${1-}\") == 1 &&
+# @since 2.12
+_comp_xfunc_dpkg_compgen_purgeable_packages()
+{
+    _comp_compgen_split -- "$(
+        grep-status -P -e "^${cur-}" -a \
+            -FStatus 'ok installed' -o -FStatus 'ok config-files' \
+            -n -s Package 2>/dev/null ||
+            _comp_awk -F '\n' -v RS="" "
+            index(\$1, \"Package: ${cur-}\") == 1 &&
             \$2 ~ /ok installed|half-installed|unpacked|half-configured|config-files|^Essential: yes/ {
                 print(substr(\$1, 10));
             }" /var/lib/dpkg/status 2>/dev/null
-    }
-fi
+    )"
+}
 
-_comp_deprecate_func _comp_dpkg_installed_packages _comp_xfunc_dpkg_installed_packages
-_comp_deprecate_func _comp_dpkg_purgeable_packages _comp_xfunc_dpkg_purgeable_packages
+# @since 2.12
+_comp_xfunc_dpkg_compgen_held_packages()
+{
+    _comp_compgen_split -- "$(
+        dpkg --get-selections ${cur:+"$cur}"} |
+            _comp_awk '{for(i=2;i<=NF;i++){ if($i=="hold"){ print $1;break }}}'
+    )"
+}
+
+# @deprecated 2.12 use _comp_xfunc_dpkg_compgen_installed_packages instead
+_comp_dpkg_installed_packages()
+{
+    local COMPREPLY=() cur="${1-}"
+    # shellcheck disable=SC2119
+    _comp_xfunc_dpkg_compgen_installed_packages
+    printf "%s\n" "${COMPREPLY[@]}"
+}
+# @deprecated 2.12 use _comp_xfunc_dpkg_compgen_purgeable_packages instead
+_comp_dpkg_purgeable_packages()
+{
+    local COMPREPLY=() cur="${1-}"
+    # shellcheck disable=SC2119
+    _comp_xfunc_dpkg_compgen_purgeable_packages
+    printf "%s\n" "${COMPREPLY[@]}"
+}
 
 # Debian dpkg(1) completion
 #
 _comp_cmd_dpkg()
 {
-    local cur prev words cword split comp_args
+    local cur prev words cword was_split comp_args
     _comp_initialize -s -- "$@" || return
 
     local i=$cword
@@ -49,73 +72,72 @@ _comp_cmd_dpkg()
         done
     fi
 
-    local noargopts='!(-*|*[ciAIfexXbsplWSrVLPD]*)'
+    local noargopts='!(-*|*[ciAIfexXRbsplWSrVLPD]*)'
     # shellcheck disable=SC2254
     case $prev in
         --install | --unpack | --record-avail | --contents | --info | --fsys-tarfile | \
-            --field | --control | --extract | --vextract | --raw-extract | -${noargopts}[ciAIfexX])
-            _filedir '?(u|d)deb'
+            --field | --control | --extract | --vextract | --raw-extract | -${noargopts}[ciAIfexXR])
+            _comp_compgen_filedir '?(u|d)deb'
             return
             ;;
         --build | --admindir | --instdir | --root | -${noargopts}b)
-            _filedir -d
+            _comp_compgen_filedir -d
             return
             ;;
         --status | --print-avail | --list | -${noargopts}[spl])
-            COMPREPLY=($(_comp_xfunc apt-cache packages))
+            _comp_compgen -x apt-cache packages
             return
             ;;
         --show | -${noargopts}W)
             if [[ $1 == *dpkg-query ]]; then
-                COMPREPLY=($(_comp_xfunc apt-cache packages))
+                _comp_compgen -x apt-cache packages
             else
-                _filedir '?(u|d)deb'
+                _comp_compgen_filedir '?(u|d)deb'
             fi
             return
             ;;
         --search | -${noargopts}S)
-            _filedir
+            _comp_compgen_filedir
             return
             ;;
         --remove | --verify | -${noargopts}[rV])
-            COMPREPLY=($(_comp_xfunc_dpkg_installed_packages "$cur"))
+            _comp_xfunc_dpkg_compgen_installed_packages
             return
             ;;
         --listfiles | --purge | -${noargopts}[LP])
-            COMPREPLY=($(_comp_xfunc_dpkg_purgeable_packages "$cur"))
+            _comp_xfunc_dpkg_compgen_purgeable_packages
             return
             ;;
         --debug | -${noargopts}D)
-            COMPREPLY=($(compgen -W 'help' -- "$cur"))
+            _comp_compgen -- -W 'help'
             return
             ;;
         --ignore-depends)
-            local packages=$(
-                cur=${cur##*,} _comp_xfunc apt-cache packages
-            )
-            _comp_delimited , -W '$packages'
+            local packages
+            _comp_compgen -v packages -c "${cur##*,}" -x apt-cache packages
+            _comp_delimited , -W '"${packages[@]}"'
             return
             ;;
         --log)
-            _filedir log
+            _comp_compgen_filedir log
             return
             ;;
         --path-exclude | --path-include)
             return
             ;;
         --status-logger)
-            COMPREPLY=($(compgen -c -- "$cur"))
+            _comp_compgen_commands
             return
             ;;
         --verify-format)
-            COMPREPLY=($(compgen -W 'rpm' -- "$cur"))
+            _comp_compgen -- -W 'rpm'
             return
             ;;
     esac
 
-    $split && return
+    [[ $was_split ]] && return
 
-    COMPREPLY=($(compgen -W '$(_parse_help "$1")' -- "$cur"))
+    _comp_compgen_help
     for i in ${!COMPREPLY[*]}; do
         # remove ones ending with a dash (known parse issue, hard to fix)
         [[ ${COMPREPLY[i]} != *- ]] || unset -v 'COMPREPLY[i]'
@@ -124,8 +146,6 @@ _comp_cmd_dpkg()
 } &&
     complete -F _comp_cmd_dpkg dpkg dpkg-deb dpkg-query
 
-# Debian GNU dpkg-reconfigure(8) completion
-#
 _comp_cmd_dpkg_reconfigure()
 {
     local cur prev words cword comp_args
@@ -137,25 +157,24 @@ _comp_cmd_dpkg_reconfigure()
     # shellcheck disable=SC2254
     case $prev in
         --frontend | -${noargopts}f)
-            _comp_expand_glob opt '/usr/share/perl5/Debconf/FrontEnd/*'
-            if ((${#opt[@]})); then
+            if _comp_expand_glob opt '/usr/share/perl5/Debconf/FrontEnd/*'; then
                 opt=("${opt[@]##*/}")
                 opt=("${opt[@]%.pm}")
-                COMPREPLY=($(compgen -W '"${opt[@]}"' -- "$cur"))
+                _comp_compgen -- -W '"${opt[@]}"'
             fi
             return
             ;;
         --priority | -${noargopts}p)
-            COMPREPLY=($(compgen -W 'low medium high critical' -- "$cur"))
+            _comp_compgen -- -W 'low medium high critical'
             return
             ;;
     esac
 
     if [[ $cur == -* ]]; then
-        COMPREPLY=($(compgen -W '--frontend --priority --all --unseen-only
-            --help --showold --force --terse' -- "$cur"))
+        _comp_compgen -- -W '--frontend --priority --all --unseen-only --help
+            --showold --force --terse'
     else
-        COMPREPLY=($(_comp_xfunc_dpkg_installed_packages "$cur"))
+        _comp_xfunc_dpkg_compgen_installed_packages
     fi
 } &&
     complete -F _comp_cmd_dpkg_reconfigure -o default dpkg-reconfigure

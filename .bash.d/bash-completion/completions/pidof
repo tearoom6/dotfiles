@@ -1,6 +1,6 @@
 # pidof(8) completion                                      -*- shell-script -*-
 
-_pidof()
+_comp_cmd_pidof()
 {
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
@@ -12,18 +12,18 @@ _pidof()
             return
             ;;
         --omit-pid | -${noargopts}o)
-            _pids
+            _comp_compgen_pids
             return
             ;;
     esac
 
     if [[ $cur == -* ]]; then
-        COMPREPLY=($(compgen -W '$(_parse_help "$1")' -- "$cur"))
+        _comp_compgen_help
         return
     fi
 
-    _pnames
+    _comp_compgen_pnames
 } &&
-    complete -F _pidof pidof
+    complete -F _comp_cmd_pidof pidof
 
 # ex: filetype=sh

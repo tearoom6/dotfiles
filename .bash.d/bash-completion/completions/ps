@@ -7,31 +7,30 @@ _comp_cmd_ps()
 
     case $prev in
         --help)
-            COMPREPLY=($(compgen -W 'simple list output threads misc all' \
-                -- "$cur"))
+            _comp_compgen -- -W 'simple list output threads misc all'
             return
             ;;
         --info | V | --version)
             return
             ;;
         -C)
-            _pnames
+            _comp_compgen_pnames
             return
             ;;
         -[Gg] | --[Gg]roup)
-            COMPREPLY=($(compgen -g -- "$cur"))
+            _comp_compgen -- -g
             return
             ;;
         ?(-)p | [^-]*p | --pid)
-            _pids
+            _comp_compgen_pids
             return
             ;;
         --ppid)
-            _pids # TODO: Only pids with children?
+            _comp_compgen_pids # TODO: Only pids with children?
             return
             ;;
         ?(-)q | [^-]*q | --quick-pid)
-            _pids
+            _comp_compgen_pids
             return
             ;;
         -s | --sid)
@@ -39,32 +38,31 @@ _comp_cmd_ps()
             return
             ;;
         ?(-)t | [^-]*t | --tty)
-            _comp_expand_glob COMPREPLY '/dev/tty*'
-            ((${#COMPREPLY[@]})) &&
-                COMPREPLY=($(compgen -W '"${COMPREPLY[@]}" "${COMPREPLY[@]#/dev/}"' \
-                    -- "$cur"))
+            _comp_expand_glob COMPREPLY '/dev/tty*' &&
+                _comp_compgen -- -W '"${COMPREPLY[@]}" "${COMPREPLY[@]#/dev/}"'
             return
             ;;
         ?(-)U | [^-]*U | -u | --[Uu]ser)
-            COMPREPLY=($(compgen -u -- "$cur"))
+            _comp_compgen -- -u
             return
             ;;
         --format | ?(-)[Oo] | [^-]*[Oo])
             # TODO: This doesn't work well when there are multiple options for
             # the non-first item (similarly to useradd --groups and others).
-            _comp_delimited , -W "$("$1" L | awk '{ print $1 }')"
+            local labels=$("$1" L | _comp_awk '{ print $1 }')
+            _comp_delimited , -W '$labels'
             return
             ;;
     esac
 
     if [[ $cur == -* ]]; then
-        # sed: strip single char dashless ", x," that trip _parse_help
-        local opts=$({
+        # sed: strip single char dashless ", x," that trip _comp_compgen_help
+        _comp_compgen_help - <<<"$({
             "$1" --help
             "$1" --help all
         } 2>/dev/null |
-            sed -e "s/, [A-Za-z],/,/" | _parse_help -)
-        COMPREPLY=($(compgen -W '${opts:-$(_parse_usage "$1")}' -- "$cur"))
+            command sed -e "s/, [A-Za-z],/,/")" ||
+            _comp_compgen_usage
     fi
 } &&
     complete -F _comp_cmd_ps ps

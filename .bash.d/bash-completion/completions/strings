@@ -1,8 +1,8 @@
 # strings(1) completion                                    -*- shell-script -*-
 
-_strings()
+_comp_cmd_strings()
 {
-    local cur prev words cword split comp_args
+    local cur prev words cword was_split comp_args
     _comp_initialize -s -- "$@" || return
 
     local noargopts='!(-*|*[nstTe]*)'
@@ -13,48 +13,35 @@ _strings()
             return
             ;;
         --radix | -${noargopts}t)
-            COMPREPLY=($(compgen -W 'o d x' -- "$cur"))
+            _comp_compgen -- -W 'o d x'
             return
             ;;
         --target | -${noargopts}T)
-            COMPREPLY=($(compgen -W '$(LC_ALL=C "$1" --help 2>/dev/null | \
-                command sed -ne "s/: supported targets: \(.*\)/\1/p")' \
-                -- "$cur"))
+            _comp_compgen_split -- "$(LC_ALL=C "$1" --help 2>/dev/null |
+                command sed -ne 's/: supported targets: \(.*\)/\1/p')"
             return
             ;;
         --encoding | -${noargopts}e)
-            COMPREPLY=($(
-                IFS=, compgen -W \
-                    '$(LC_ALL=C "$1" --help 2>/dev/null | \
-                         command sed -ne "s/.*--encoding={\([^}]*\)}.*/\1/p")' \
-                    -- "$cur"
-            ))
+            _comp_compgen_split -F , -- "$(LC_ALL=C "$1" --help 2>/dev/null |
+                command sed -ne 's/.*--encoding={\([^}]*\)}.*/\1/p')"
             return
             ;;
     esac
 
-    $split && return
+    [[ $was_split ]] && return
 
     if [[ $cur == -* ]]; then
         # macOS: ... [-t format] [-number] [-n number] ...
-        COMPREPLY=($(
-            compgen -W \
-                '$(_parse_help "$1" ||
-                   "$1" --help 2>&1 | \
-                       command sed -e "s/\[-number\]//" | _parse_usage -)' \
-                -- "$cur"
-        ))
+        _comp_compgen_help ||
+            _comp_compgen_usage - <<<"$("$1" --help 2>&1 |
+                command sed -e "s/\[-number\]//")"
         [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
-        return
-    elif [[ $cur == @* ]]; then
-        cur=${cur:1}
-        _filedir
-        COMPREPLY=("${COMPREPLY[@]/#/@}")
         return
     fi
 
-    _filedir
+    [[ $cur =~ ^@ ]]
+    _comp_compgen -P "${BASH_REMATCH-}" filedir
 } &&
-    complete -F _strings strings
+    complete -F _comp_cmd_strings strings
 
 # ex: filetype=sh

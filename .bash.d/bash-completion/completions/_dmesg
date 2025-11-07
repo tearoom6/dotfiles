@@ -15,19 +15,16 @@ _comp_cmd_dmesg()
             return
             ;;
         -f | --facility)
-            COMPREPLY=($(compgen -W 'kern user mail daemon auth syslog lpr
-                news' -- "$cur"))
+            _comp_compgen -- -W 'kern user mail daemon auth syslog lpr news'
             return
             ;;
         -l | --level | -n | --console-level)
-            COMPREPLY=($(compgen -W '{1..8}' -- "$cur"))
+            _comp_compgen -- -W '{1..8}'
             return
             ;;
     esac
 
-    COMPREPLY=($(
-        compgen -W '$(_parse_help "$1" || _parse_usage "$1")' -- "$cur"
-    ))
+    _comp_compgen_help || _comp_compgen_usage
 } &&
     complete -F _comp_cmd_dmesg dmesg
 

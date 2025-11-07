@@ -2,7 +2,7 @@
 
 _comp_cmd_luseradd()
 {
-    local cur prev words cword split comp_args
+    local cur prev words cword was_split comp_args
     _comp_initialize -s -- "$@" || return
 
     local noargopts='!(-*|*[culPpdksg]*)'
@@ -14,28 +14,28 @@ _comp_cmd_luseradd()
             return
             ;;
         --directory | --skeleton | -${noargopts}[dk])
-            _filedir -d
+            _comp_compgen_filedir -d
             return
             ;;
         --shell | -${noargopts}s)
-            _shells
+            _comp_compgen_shells
             return
             ;;
         --gid | -${noargopts}g)
-            _gids
+            _comp_compgen_gids
             return
             ;;
     esac
 
-    $split && return
+    [[ $was_split ]] && return
 
     if [[ $cur == -* ]]; then
-        COMPREPLY=($(compgen -W '$(_parse_help "$1")' -- "$cur"))
+        _comp_compgen_help
         [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
         return
     fi
 
-    [[ ${1##*/} == luseradd ]] || COMPREPLY=($(compgen -u -- "$cur"))
+    [[ ${1##*/} == luseradd ]] || _comp_compgen -- -u
 } &&
     complete -F _comp_cmd_luseradd luseradd lusermod
 

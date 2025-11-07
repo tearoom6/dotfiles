@@ -2,10 +2,10 @@
 
 _comp_cmd_firefox()
 {
-    local cur prev words cword split comp_args
+    local cur prev words cword was_split comp_args
     _comp_initialize -s -- "$@" || return
 
-    [[ $cur == -MOZ_LOG*=* ]] && prev=${cur%%=*} cur=${cur#*=}
+    [[ ! $was_split && $cur == -MOZ_LOG*=* ]] && prev=${cur%%=*} cur=${cur#*=}
 
     case $prev in
         --help | --version | --display | --UILocale | -MOZ_LOG | --new-window | --new-tab | \
@@ -14,39 +14,39 @@ _comp_cmd_firefox()
             return
             ;;
         -P)
-            COMPREPLY=($(compgen -W "$(
-                awk -F= '$1 == "Name" { print $2 }' \
+            _comp_compgen_split -- "$(
+                _comp_awk -F = '$1 == "Name" { print $2 }' \
                     ~/.mozilla/firefox/profiles.ini 2>/dev/null
-            )" -- "$cur"))
+            )"
             return
             ;;
         --profile | --screenshot)
-            _filedir -d
+            _comp_compgen_filedir -d
             return
             ;;
         -MOZ_LOG_FILE)
-            _filedir log
+            _comp_compgen_filedir log
             return
             ;;
         --recording-output | --recording-file)
-            _filedir
+            _comp_compgen_filedir
             return
             ;;
         --debugger | -d)
-            COMPREPLY=($(compgen -c -- "$cur"))
+            _comp_compgen_commands
             return
             ;;
     esac
 
-    $split && return
+    [[ $was_split ]] && return
 
     if [[ $cur == -* ]]; then
-        COMPREPLY=($(compgen -W '$(_parse_help "$1")' -- "$cur"))
+        _comp_compgen_help
         [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
         return
     fi
 
-    _filedir "@(?([xs])htm?(l)|pdf|txt|svg)"
+    _comp_compgen_filedir "@(?([xs])htm?(l)|pdf|txt|svg)"
 } &&
     complete -F _comp_cmd_firefox firefox firefox-esr iceweasel mozilla-firefox
 

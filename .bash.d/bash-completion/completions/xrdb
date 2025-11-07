@@ -1,6 +1,6 @@
 # xrdb(1) completion                                       -*- shell-script -*-
 
-_xrdb()
+_comp_cmd_xrdb()
 {
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
@@ -10,18 +10,18 @@ _xrdb()
             return
             ;;
         -cpp | -edit)
-            _filedir
+            _comp_compgen_filedir
             return
             ;;
     esac
 
     if [[ $cur == -* ]]; then
-        COMPREPLY=($(compgen -W '$(_parse_help "$1")' -- "$cur"))
+        _comp_compgen_help
         return
     fi
 
-    _filedir
+    _comp_compgen_filedir
 } &&
-    complete -F _xrdb xrdb
+    complete -F _comp_cmd_xrdb xrdb
 
 # ex: filetype=sh

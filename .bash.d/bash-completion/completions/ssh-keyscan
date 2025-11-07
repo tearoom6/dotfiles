@@ -3,7 +3,7 @@
 _comp_cmd_ssh_keyscan()
 {
     local cur prev words cword comp_args
-    _comp_initialize -- "$@" || return
+    _comp_initialize -n = -- "$@" || return
 
     local ipvx
 
@@ -15,7 +15,21 @@ _comp_cmd_ssh_keyscan()
             ipvx=-6
             ;;
         -*f)
-            _filedir
+            _comp_compgen_filedir
+            return
+            ;;
+        -*O)
+            case $cur in
+                hashalg=*)
+                    cur=${cur#*=}
+                    _comp_compgen -- -W 'sha1 sha256'
+                    ;;
+                *=*) ;;
+                *)
+                    _comp_compgen -- -W 'hashalg='
+                    compopt -o nospace
+                    ;;
+            esac
             return
             ;;
         -*p | -*T)
@@ -28,11 +42,11 @@ _comp_cmd_ssh_keyscan()
     esac
 
     if [[ $cur == -* ]]; then
-        COMPREPLY=($(compgen -W '$(_parse_usage "$1")' -- "$cur"))
+        _comp_compgen_usage
         return
     fi
 
-    _known_hosts_real ${ipvx-} -- "$cur"
+    _comp_compgen_known_hosts ${ipvx-} -- "$cur"
 } &&
     complete -F _comp_cmd_ssh_keyscan ssh-keyscan
 

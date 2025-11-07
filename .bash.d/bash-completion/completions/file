@@ -12,22 +12,22 @@ _comp_cmd_file()
             return
             ;;
         --magic-file | --files-from | -${noargopts}[mf])
-            _filedir
+            _comp_compgen_filedir
             return
             ;;
         --exclude | -${noargopts}e)
-            COMPREPLY=($(compgen -W 'apptype ascii cdf compress elf encoding
-                soft tar text tokens troff' -- "$cur"))
+            _comp_compgen -- -W 'apptype ascii cdf compress elf encoding soft
+                tar text tokens troff'
             return
             ;;
     esac
 
     if [[ $cur == -* ]]; then
-        COMPREPLY=($(compgen -W '$(_parse_help "$1")' -- "$cur"))
+        _comp_compgen_help
         return
     fi
 
-    _filedir
+    _comp_compgen_filedir
 } &&
     complete -F _comp_cmd_file file
 

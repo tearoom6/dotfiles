@@ -1,7 +1,10 @@
 # Linux rmmod(8) completion.                               -*- shell-script -*-
 # This completes on a list of all currently installed kernel modules.
 
-_rmmod()
+# Use of this file is deprecated.
+# Upstream completion is available in kmod >= 34, use that instead.
+
+_comp_cmd_rmmod()
 {
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
@@ -13,12 +16,12 @@ _rmmod()
     esac
 
     if [[ $cur == -* ]]; then
-        COMPREPLY=($(compgen -W '$(_parse_help "$1")' -- "$cur"))
+        _comp_compgen_help
         return
     fi
 
-    _installed_modules "$cur"
+    _comp_compgen_inserted_kernel_modules
 } &&
-    complete -F _rmmod rmmod
+    complete -F _comp_cmd_rmmod rmmod
 
 # ex: filetype=sh

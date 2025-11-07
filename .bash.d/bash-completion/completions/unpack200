@@ -1,8 +1,8 @@
 # unpack200(1) completion                                  -*- shell-script -*-
 
-_unpack200()
+_comp_cmd_unpack200()
 {
-    local cur prev words cword split comp_args
+    local cur prev words cword was_split comp_args
     _comp_initialize -s -- "$@" || return
 
     local noargopts='!(-*|*[Hl]*)'
@@ -12,17 +12,17 @@ _unpack200()
             return
             ;;
         --deflate-hint | -${noargopts}H)
-            COMPREPLY=($(compgen -W 'true false keep' -- "$cur"))
+            _comp_compgen -- -W 'true false keep'
             return
             ;;
         --log-file | -${noargopts}l)
-            COMPREPLY=($(compgen -W '-' -- "$cur"))
-            _filedir log
+            _comp_compgen -- -W '-'
+            _comp_compgen -a filedir log
             return
             ;;
     esac
 
-    $split && return
+    [[ $was_split ]] && return
 
     # Check if a pack or a jar was already given.
     local word pack="" jar=""
@@ -35,16 +35,16 @@ _unpack200()
 
     if [[ ! $pack ]]; then
         if [[ $cur == -* ]]; then
-            COMPREPLY=($(compgen -W '--deflate-hint= --remove-pack-file
-                --verbose --quiet --log-file= --help --version' -- "$cur"))
+            _comp_compgen -- -W '--deflate-hint= --remove-pack-file --verbose
+                --quiet --log-file= --help --version'
             [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
         else
-            _filedir 'pack?(.gz)'
+            _comp_compgen_filedir 'pack?(.gz)'
         fi
     elif [[ ! $jar ]]; then
-        _filedir jar
+        _comp_compgen_filedir jar
     fi
 } &&
-    complete -F _unpack200 unpack200
+    complete -F _comp_cmd_unpack200 unpack200
 
 # ex: filetype=sh

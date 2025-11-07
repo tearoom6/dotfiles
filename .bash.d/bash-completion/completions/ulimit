@@ -1,6 +1,6 @@
 # bash completion for ulimit                               -*- shell-script -*-
 
-_ulimit()
+_comp_cmd_ulimit()
 {
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
@@ -10,7 +10,7 @@ _ulimit()
     local mode=
     case $prev in
         -a)
-            COMPREPLY=($(compgen -W "-S -H" -- "$cur"))
+            _comp_compgen -- -W "-S -H"
             return
             ;;
         -[SH]) ;;
@@ -27,13 +27,13 @@ _ulimit()
         done
 
         if [[ $cur == -* ]]; then
-            COMPREPLY=($(compgen -W '$(_parse_usage help "-s $1")' -- "$cur"))
+            _comp_compgen_usage -c help -s "$1"
             return
         fi
     fi
 
-    [[ ${mode-} ]] && COMPREPLY=($(compgen -W "soft hard unlimited" -- "$cur"))
+    [[ ${mode-} ]] && _comp_compgen -- -W "soft hard unlimited"
 } &&
-    complete -F _ulimit ulimit
+    complete -F _comp_cmd_ulimit ulimit
 
 # ex: filetype=sh

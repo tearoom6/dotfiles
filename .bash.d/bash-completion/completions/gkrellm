@@ -7,19 +7,19 @@ _comp_cmd_gkrellm()
 
     case $prev in
         -t | --theme)
-            _filedir -d
+            _comp_compgen_filedir -d
             return
             ;;
         -p | --plugin)
-            _filedir so
+            _comp_compgen_filedir so
             return
             ;;
         -s | --server)
-            _known_hosts_real -- "$cur"
+            _comp_compgen_known_hosts -- "$cur"
             return
             ;;
         -l | --logfile)
-            _filedir
+            _comp_compgen_filedir
             return
             ;;
         -g | --geometry | -c | --config | -P | --port | -d | --debug-level)
@@ -32,7 +32,7 @@ _comp_cmd_gkrellm()
             ;;
     esac
 
-    COMPREPLY=($(compgen -W '$(_parse_help "$1")' -- "$cur"))
+    _comp_compgen_help
 } &&
     complete -F _comp_cmd_gkrellm gkrellm gkrellm2
 

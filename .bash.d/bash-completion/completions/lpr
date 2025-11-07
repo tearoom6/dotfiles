@@ -7,26 +7,26 @@ _comp_cmd_lpr()
 
     case $prev in
         -P)
-            COMPREPLY=($(compgen -W "$(lpstat -a 2>/dev/null | cut -d' ' -f1)" -- "$cur"))
+            _comp_compgen_split -- "$(lpstat -a 2>/dev/null | cut -d' ' -f1)"
             return
             ;;
         -U)
-            COMPREPLY=($(compgen -u -- "$cur"))
+            _comp_compgen -- -u
             return
             ;;
         -o)
-            COMPREPLY=($(compgen -W "media= landscape orientation-requested= sides= fitplot number-up= scaling= cpi= lpi= page-bottom= page-top= page-left= page-right=" -- "$cur"))
+            _comp_compgen -- -W "media= landscape orientation-requested= sides= fitplot number-up= scaling= cpi= lpi= page-bottom= page-top= page-left= page-right="
             [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
             return
             ;;
     esac
 
     if [[ $cur == - ]]; then
-        COMPREPLY=($(compgen -W '-E -H -C -J -T -P -U -h -l -m -o -p -q -r' -- "$cur"))
+        _comp_compgen -- -W '-E -H -C -J -T -P -U -h -l -m -o -p -q -r'
         return
     fi
 
-    _filedir
+    _comp_compgen_filedir
 } &&
     complete -F _comp_cmd_lpr lpr
 

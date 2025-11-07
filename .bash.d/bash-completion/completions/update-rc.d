@@ -2,7 +2,7 @@
 #
 # Copyright (C) 2004 Servilio Afre Puentes <servilio@gmail.com>
 
-_update_rc_d()
+_comp_cmd_update_rc_d()
 {
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
@@ -12,15 +12,15 @@ _update_rc_d()
     [[ -d /etc/rc.d/init.d ]] && sysvdir=/etc/rc.d/init.d ||
         sysvdir=/etc/init.d
 
-    services=($sysvdir/!(README*|*.sh|$_comp_backup_glob))
-    ((${#services[@]})) && services=("${services[@]#$sysvdir/}")
+    _comp_expand_glob services '"$sysvdir"/!(README*|*.sh|$_comp_backup_glob)' &&
+        services=("${services[@]#$sysvdir/}")
     options=(-f -n)
 
     if [[ $cword -eq 1 || $prev == -* ]]; then
-        COMPREPLY=($(compgen -W '"${options[@]}" ${services[@]+"${services[@]}"}' \
-            -X '$(tr " " "|" <<<${words[@]})' -- "$cur"))
+        _comp_compgen -- -W '"${options[@]}" ${services[@]+"${services[@]}"}' \
+            -X '$(tr " " "|" <<<${words[@]})'
     elif ((${#services[@]})) && [[ $prev == ?($(tr " " "|" <<<"${services[*]}")) ]]; then
-        COMPREPLY=($(compgen -W 'remove defaults start stop' -- "$cur"))
+        _comp_compgen -- -W 'remove defaults start stop'
     elif [[ $prev == defaults && $cur == [0-9] ]]; then
         COMPREPLY=(0 1 2 3 4 5 6 7 8 9)
     elif [[ $prev == defaults && $cur == [sk]?([0-9]) ]]; then
@@ -31,7 +31,7 @@ _update_rc_d()
         if [[ $cur == [0-9] || ! $cur ]]; then
             COMPREPLY=(0 1 2 3 4 5 6 7 8 9)
         elif [[ $cur == [0-9][0-9] ]]; then
-            COMPREPLY=($cur)
+            COMPREPLY=("$cur")
         else
             COMPREPLY=()
         fi
@@ -43,16 +43,16 @@ _update_rc_d()
                 COMPREPLY=(0 1 2 3 4 5 6 S .)
             fi
         elif [[ $cur == [0-6S.] ]]; then
-            COMPREPLY=($cur)
+            COMPREPLY=("$cur")
         else
             COMPREPLY=()
         fi
     elif [[ $prev == "." ]]; then
-        COMPREPLY=($(compgen -W "start stop" -- "$cur"))
+        _comp_compgen -- -W "start stop"
     else
         COMPREPLY=()
     fi
 } &&
-    complete -F _update_rc_d update-rc.d
+    complete -F _comp_cmd_update_rc_d update-rc.d
 
 # ex: filetype=sh

@@ -1,8 +1,8 @@
 # jpegoptim(1) completion                                  -*- shell-script -*-
 
-_jpegoptim()
+_comp_cmd_jpegoptim()
 {
-    local cur prev words cword split comp_args
+    local cur prev words cword was_split comp_args
     _comp_initialize -s -- "$@" || return
 
     local noargopts='!(-*|*[dmTS]*)'
@@ -12,29 +12,29 @@ _jpegoptim()
             return
             ;;
         --dest | -${noargopts}d)
-            _filedir -d
+            _comp_compgen_filedir -d
             return
             ;;
         --max | --threshold | -${noargopts}[mT])
-            COMPREPLY=($(compgen -W '{0..100}' -- "$cur"))
+            _comp_compgen -- -W '{0..100}'
             return
             ;;
         --size | -${noargopts}S)
-            COMPREPLY=($(compgen -W '{1..99}%' -- "$cur"))
+            _comp_compgen -- -W '{1..99}%'
             return
             ;;
     esac
 
-    $split && return
+    [[ $was_split ]] && return
 
     if [[ $cur == -* ]]; then
-        COMPREPLY=($(compgen -W '$(_parse_help "$1")' -- "$cur"))
+        _comp_compgen_help
         [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
         return
     fi
 
-    _filedir 'jp?(e)g'
+    _comp_compgen_filedir 'jp?(e)g'
 } &&
-    complete -F _jpegoptim jpegoptim
+    complete -F _comp_cmd_jpegoptim jpegoptim
 
 # ex: filetype=sh

@@ -1,10 +1,12 @@
 # dict(1) completion                                       -*- shell-script -*-
 
-_dictdata()
+_comp_cmd_dict__compgen_dictdata()
 {
     # shellcheck disable=SC2086
-    dict $host $port $1 2>/dev/null | command sed -ne \
-        's/^[[:blank:]]\{1,\}\([^[:blank:]]*\).*$/\1/p'
+    _comp_compgen_split -- "$(
+        "$@" 2>/dev/null | command sed -ne \
+            's/^[[:blank:]]\{1,\}\([^[:blank:]]*\).*$/\1/p'
+    )"
 }
 
 _comp_cmd_dict()
@@ -12,7 +14,8 @@ _comp_cmd_dict()
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
 
-    local host port db i
+    local -a dict_command=("$1")
+    local host="" port="" db i
 
     local noargopts='!(-*|*[hpdis]*)'
     for ((i = 1; i < cword; i++)); do
@@ -20,32 +23,32 @@ _comp_cmd_dict()
         case ${words[i]} in
             --host | -${noargopts}h)
                 host=${words[++i]}
-                [[ $host ]] && host="-h $host"
+                [[ $host ]] && dict_command+=(-h "$host")
                 ;;
             --port | -${noargopts}p)
                 port=${words[++i]}
-                [[ $port ]] && port="-p $port"
+                [[ $port ]] && dict_command+=(-p "$port")
                 ;;
             --database | -${noargopts}d)
                 db=${words[++i]}
-                [[ $db ]] && host="-d $db"
+                [[ $db ]] && dict_command+=(-d "$db")
                 ;;
         esac
     done
 
     if [[ $cur == -* ]]; then
-        COMPREPLY=($(compgen -W '$(_parse_help "$1")' -- "$cur"))
+        _comp_compgen_help
         return
     fi
 
     # shellcheck disable=SC2254
     case $prev in
         --database | -info | -${noargopts}[di])
-            COMPREPLY=($(compgen -W '$(_dictdata -D)' -- "$cur"))
+            _comp_cmd_dict__compgen_dictdata "${dict_command[@]}" -D
             return
             ;;
         --strategy | -${noargopts}s)
-            COMPREPLY=($(compgen -W '$(_dictdata -S)' -- "$cur"))
+            _comp_cmd_dict__compgen_dictdata "${dict_command[@]}" -S
             return
             ;;
     esac
@@ -56,10 +59,11 @@ _comp_cmd_dict()
         # it down with grep if $cur looks like something that's safe to embed
         # in a pattern instead.
         if [[ $cur == +([-A-Za-z0-9/.]) ]]; then
-            COMPREPLY=($(compgen -W \
-                '$(command grep "^${cur//./\\.}" $dictfile)' -- "$cur"))
+            _comp_compgen_split -- "$(
+                command grep "^${cur//./\\.}" "$dictfile"
+            )"
         else
-            COMPREPLY=($(compgen -W '$(cat $dictfile)' -- "$cur"))
+            _comp_compgen_split -- "$(cat "$dictfile")"
         fi
     fi
 } &&

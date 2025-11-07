@@ -1,13 +1,13 @@
 # bash completion for info                                 -*- shell-script -*-
 
-_info()
+_comp_cmd_info()
 {
-    local cur prev words cword split comp_args
+    local cur prev words cword was_split comp_args
     _comp_initialize -s -- "$@" || return
 
     # default completion if parameter looks like a path
     if [[ $cur == @(*/|[.~])* ]]; then
-        _filedir
+        _comp_compgen_filedir
         return
     fi
 
@@ -19,24 +19,24 @@ _info()
             ;;
         -${noargopts}d)
             if [[ ${1##*/} == info ]]; then
-                _filedir -d
+                _comp_compgen_filedir -d
                 return
             fi
             ;;
         --directory)
-            _filedir -d
+            _comp_compgen_filedir -d
             return
             ;;
         --dribble | --file | --output | --restore | --raw-filename | --rcfile | -${noargopts}[for])
-            _filedir
+            _comp_compgen_filedir
             return
             ;;
     esac
 
-    $split && return
+    [[ $was_split ]] && return
 
     if [[ $cur == -* ]]; then
-        COMPREPLY=($(compgen -W '$(_parse_help "$1")' -- "$cur"))
+        _comp_compgen_help
         [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
         return
     fi
@@ -51,22 +51,20 @@ _info()
 
     _comp_split -F : infopath "$infopath"
     if ((${#infopath[@]})); then
-        infopath=("${infopath[@]/%//$cur*}")
+        _comp_compgen -Rv infopath -- -S "/$cur*" -W '"${infopath[@]}"'
         local IFS=
-        _comp_expand_glob COMPREPLY '${infopath[@]}'
-        _comp_unlocal IFS
-
-        if ((${#COMPREPLY[@]})); then
+        if _comp_expand_glob COMPREPLY '${infopath[@]}'; then
             # weed out directory path names and paths to info pages (empty
             # elements will be removed by the later `compgen -X ''`)
             COMPREPLY=("${COMPREPLY[@]##*/?(:)}")
             # strip suffix from info pages
             COMPREPLY=("${COMPREPLY[@]%.@(gz|bz2|xz|lzma)}")
             # weed out info dir file with -X 'dir'
-            _comp_split -l COMPREPLY "$(compgen -W '"${COMPREPLY[@]%.*}"' -X '@(|dir)' -- "${cur//\\\\/}")"
+            _comp_compgen -c "${cur//\\\\/}" -- -W '"${COMPREPLY[@]%.*}"' -X '@(|dir)'
         fi
+        _comp_unlocal IFS
     fi
 } &&
-    complete -F _info info pinfo
+    complete -F _comp_cmd_info info pinfo
 
 # ex: filetype=sh

@@ -15,10 +15,10 @@ _comp_cmd_umount__reply_compgen_array()
     # argument.
     local i wlist
     for i in ${!COMPREPLY[*]}; do
-        local ret
-        printf -v ret %q "${COMPREPLY[i]}"
-        _comp_quote "$ret"
-        wlist+=$ret$'\n'
+        local REPLY
+        printf -v REPLY %q "${COMPREPLY[i]}"
+        _comp_quote "$REPLY"
+        wlist+=$REPLY$'\n'
     done
 
     # We also have to add another round of escaping to $cur.
@@ -27,9 +27,7 @@ _comp_cmd_umount__reply_compgen_array()
     ecur=${ecur//\'/\\\'}
 
     # Actually generate completions.
-    local IFS=$'\n'
-    COMPREPLY=($(compgen -W "$wlist" -- "${ecur}"))
-    _comp_unlocal IFS
+    _comp_compgen -lc "${ecur}" -- -W "$wlist"
 }
 
 # Unescape strings in the linux fstab(5) format (with octal escapes).
@@ -74,7 +72,7 @@ _comp_cmd_umount__linux_fstab()
             realcur="$(readlink -f "$cur." 2>/dev/null)/" ||
             realcur=$(readlink -f "$cur" 2>/dev/null)
         if [[ $realcur ]]; then
-            local dirrealcur="" dircur="" basecur
+            local dirrealcur="" dircur=. basecur
             if [[ $cur == */* ]]; then
                 dirrealcur="${realcur%/*}/"
                 dircur="${cur%/*}/"
@@ -83,9 +81,8 @@ _comp_cmd_umount__linux_fstab()
             local i
             for i in ${!COMPREPLY[*]}; do
                 [[ ${COMPREPLY[i]} == "$realcur"* ]] &&
-                    COMPREPLY+=($(command cd -- "$dircur" 2>/dev/null &&
-                        compgen -f -d -P "$dircur" \
-                            -X "!${COMPREPLY[i]##"$dirrealcur"}" -- "$basecur"))
+                    _comp_compgen -aC "$dircur" -c "$basecur" -- \
+                        -f -d -P "$dircur" -X "!${COMPREPLY[i]##"$dirrealcur"}"
             done
         fi
     fi
@@ -101,19 +98,14 @@ _comp_cmd_umount()
     case "$prev" in
         -t)
             # FIXME: no<fstype>
-            local split=""
-            if [[ $cur == ?*,* ]]; then
-                prev="${cur%,*}"
-                cur="${cur##*,}"
-                split=set
-            fi
-            COMPREPLY=($(compgen -W 'adfs affs autofs btrfs cifs coda
+            [[ $cur =~ ^.+, ]]
+            local prefix=${BASH_REMATCH-}
+            _comp_compgen -P "$prefix" -- -W 'adfs affs autofs btrfs cifs coda
                 cramfs debugfs devpts efs ext2 ext3 ext4 fuse hfs hfsplus hpfs
                 iso9660 jfs minix msdos ncpfs nfs nfs4 ntfs ntfs-3g proc qnx4
                 ramfs reiserfs romfs squashfs smbfs sysv tmpfs ubifs udf ufs
-                umsdos usbfs vfat xfs' -- "$cur"))
-            _fstypes
-            [[ $split ]] && COMPREPLY=(${COMPREPLY[@]/#/$prev,})
+                umsdos usbfs vfat xfs'
+            _comp_compgen -aP "$prefix" fstypes
             return
             ;;
         -O)
@@ -123,8 +115,8 @@ _comp_cmd_umount()
     esac
 
     if [[ $cur == -* ]]; then
-        COMPREPLY=($(compgen -W '-V -h -v -n -r -d -i -a -t -O -f -l
-            --no-canonicalize --fake' -- "$cur"))
+        _comp_compgen -- -W '-V -h -v -n -r -d -i -a -t -O -f -l
+            --no-canonicalize --fake'
         [[ ${COMPREPLY-} ]] && return
     fi
 
@@ -133,8 +125,7 @@ _comp_cmd_umount()
         # unmounting usb devices with pretty names.
         _comp_cmd_umount__linux_fstab </proc/mounts
     else
-        local IFS=$'\n'
-        COMPREPLY=($(compgen -W '$(mount | cut -d" " -f 3)' -- "$cur"))
+        _comp_compgen_split -l -- "$(mount | cut -d" " -f 3)"
     fi
 } &&
     complete -F _comp_cmd_umount -o dirnames umount

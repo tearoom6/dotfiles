@@ -1,22 +1,39 @@
 # bash completion for python                               -*- shell-script -*-
 
-_comp_xfunc_python_modules()
+# @since 2.12
+_comp_xfunc_python_compgen_modules()
 {
-    COMPREPLY+=($(compgen -W \
-        "$("${1:-python}" "${BASH_SOURCE[0]%/*}/../helpers/python" "$cur" \
-            2>/dev/null)" -- "$cur"))
+    local _python=python
+    [[ ${comp_args[0]##*/} == *3* ]] && _python=python3
+    _comp_cmd_python__compgen_modules "$_python"
 }
 
-_comp_xfunc_python_warning_actions()
+# @deprecated 2.12 use `_comp_xfunc_python_compgen_modules` instead
+_python_modules()
 {
-    COMPREPLY+=($(compgen -W "ignore default all module once error" \
-        ${prefix:+-P "$prefix"} -- "$cur"))
+    _comp_compgen -a -i python modules "${1:-python}"
 }
 
-_comp_deprecate_func _python_modules _comp_xfunc_python_modules
-_comp_deprecate_func _python_warning_actions _comp_xfunc_python_warning_actions
+_comp_cmd_python__compgen_modules()
+{
+    _comp_compgen_split -- "$("$1" \
+        "${BASH_SOURCE[0]%/*}/../helpers/python" "$cur" 2>/dev/null)"
+}
 
-_python()
+# @since 2.12
+_comp_xfunc_python_compgen_warning_actions()
+{
+    _comp_compgen -- -W "ignore default all module once error" \
+        ${prefix:+-P "$prefix"}
+}
+
+# @deprecated 2.12 use `_comp_xfunc_python_compgen_warning_actions` instead
+_python_warning_actions()
+{
+    _comp_compgen -a -i python warning_actions "${1:-python}"
+}
+
+_comp_cmd_python()
 {
     local cur prev words cword comp_args prefix
     _comp_initialize -- "$@" || return
@@ -30,54 +47,79 @@ _python()
     esac
 
     local noargopts='!(-*|*[cmQWX]*)'
+
+    # if command, module, or script is already given by [-c command | -m module
+    # | script], complete all kind of files.
+    local i has_command=""
+    for ((i = 1; i < cword; i++)); do
+        # shellcheck disable=SC2254
+        case ${words[i]} in
+            -${noargopts}[QWX])
+                ((i++))
+                ;;
+            -${noargopts}[cm]?*)
+                has_command=set
+                break
+                ;;
+            -- | -${noargopts}[cm])
+                if ((i + 1 < cword)); then
+                    has_command=set
+                    break
+                fi
+                ;;
+            -*) ;;
+            *)
+                has_command=set
+                break
+                ;;
+        esac
+    done
+    if [[ $has_command ]]; then
+        _comp_compgen_filedir
+        return
+    fi
+
     # shellcheck disable=SC2254
     case $prev in
         --help | --version | -${noargopts}[?hVc])
             return
             ;;
         -${noargopts}m)
-            _comp_xfunc_python_modules "$1"
+            _comp_cmd_python__compgen_modules "$1"
             return
             ;;
         -${noargopts}Q)
-            COMPREPLY=($(compgen -W "old new warn warnall" -P "$prefix" \
-                -- "$cur"))
+            _comp_compgen -- -W 'old new warn warnall' -P "$prefix"
             return
             ;;
         -${noargopts}W)
-            _comp_xfunc_python_warning_actions
+            _comp_xfunc_python_compgen_warning_actions
             return
             ;;
         -${noargopts}X)
-            COMPREPLY=($(compgen -W "$("$1" -h 2>&1 |
-                awk '$1 == "-X" && $2 ~ /:$/ {
+            _comp_compgen_split -- "$("$1" -h 2>&1 |
+                _comp_awk '$1 == "-X" && $2 ~ /:$/ {
                     sub(":$","",$2); sub("=.*","=",$2); print $2
-                }')" -- "$cur"))
+                }')"
             [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
             return
             ;;
         --jit)
             # TODO: quite a few others, parse from "--jit help" output?
-            COMPREPLY=($(compgen -W "help off" -- "$cur"))
+            _comp_compgen -- -W "help off"
             return
-            ;;
-        !(?(*/)python*([0-9.])|?(*/)pypy*([0-9.])|-?))
-            [[ $cword -lt 2 || ${words[cword - 2]} != -[QWX] ]] && _filedir
             ;;
     esac
 
-    # if -c or -m is already given, complete all kind of files.
-    if [[ ${words[*]::cword} == *\ -[cm]\ * ]]; then
-        _filedir
-    elif [[ $cur != -* ]]; then
-        _filedir '@(py?([cowz])|zip)'
+    if [[ $prev == -- || $cur != -* ]]; then
+        _comp_compgen_filedir '@(py?([cowz])|zip)'
     else
-        COMPREPLY=($(compgen -W \
-            '$("$1" -h | awk "{ sub(\"\\\(-bb:\",\"\n-bb \"); print }" |
-                         _parse_help -)' -- "$cur"))
+        _comp_compgen_help - <<<"$("$1" -h |
+            _comp_awk '{ sub("\\(-bb:","\n-bb "); print }')"
     fi
 } &&
-    complete -F _python python python2 python2.7 python3 python3.{3..12} \
+    complete -F _comp_cmd_python \
+        python python2 python2.7 python3 python3.{3..13} \
         pypy pypy3 pyston pyston3 micropython
 
 # ex: filetype=sh

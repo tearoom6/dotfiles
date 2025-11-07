@@ -1,6 +1,6 @@
 # tox completion                                           -*- shell-script -*-
 
-_tox()
+_comp_cmd_tox()
 {
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
@@ -19,11 +19,11 @@ _tox()
             return
             ;;
         -${noargopts}c)
-            _filedir ini
+            _comp_compgen_filedir ini
             return
             ;;
         --installpkg | --result-json | --workdir)
-            _filedir
+            _comp_compgen_filedir
             return
             ;;
         -${noargopts}e)
@@ -42,10 +42,11 @@ _tox()
     esac
 
     if [[ $cur == -* ]]; then
-        COMPREPLY=($(compgen -W '$(_parse_help "$1") --' -- "$cur"))
+        _comp_compgen_help
+        _comp_compgen -a -- -W '--'
         return
     fi
 } &&
-    complete -F _tox tox
+    complete -F _comp_cmd_tox tox
 
 # ex: filetype=sh

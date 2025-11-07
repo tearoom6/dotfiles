@@ -1,29 +1,27 @@
 # makepkg completion                                       -*- shell-script -*-
 
 # Slackware Linux variant
-_makepkg_slackware()
+_comp_cmd_makepkg__slackware()
 {
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
 
     case "$prev" in
         -l | --linkadd | -c | --chown)
-            COMPREPLY=($(compgen -W 'y n' -- "$cur"))
+            _comp_compgen -- -W 'y n'
             return
             ;;
     esac
 
     if [[ $cur == -* ]]; then
-        COMPREPLY=($(compgen -W \
-            '$("$1" | command sed -e "s/^options://" | _parse_help -)' \
-            -- "$cur"))
+        _comp_compgen_help - <<<"$("$1" | command sed -e "s/^options://")"
         return
     fi
 
-    _filedir
+    _comp_compgen_filedir
 }
 
-_makepkg_bootstrap()
+_comp_cmd_makepkg__bootstrap()
 {
     local fname help
 
@@ -32,17 +30,17 @@ _makepkg_bootstrap()
     help=$("$1" --help 2>&1)
     case ${help,,} in
         *slackware*)
-            fname=_makepkg_slackware
+            fname=_comp_cmd_makepkg__slackware
             ;;
         *)
-            fname=_minimal
+            fname=_comp_complete_minimal
             ;;
     esac
 
-    unset -f _makepkg_bootstrap
+    unset -f "$FUNCNAME"
     complete -F $fname makepkg
     $fname "$@"
 } &&
-    complete -F _makepkg_bootstrap makepkg
+    complete -F _comp_cmd_makepkg__bootstrap makepkg
 
 # ex: filetype=sh

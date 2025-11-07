@@ -1,6 +1,6 @@
 # vipw(8) and vigr completion                              -*- shell-script -*-
 
-_vipw()
+_comp_cmd_vipw()
 {
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
@@ -12,15 +12,13 @@ _vipw()
             return
             ;;
         --root | -${noargopts}R | -d)
-            _filedir -d
+            _comp_compgen_filedir -d
             return
             ;;
     esac
 
-    COMPREPLY=($(
-        compgen -W '$(_parse_help "$1" || _parse_usage "$1")' -- "$cur"
-    ))
+    _comp_compgen_help || _comp_compgen_usage
 } &&
-    complete -F _vipw vipw vigr
+    complete -F _comp_cmd_vipw vipw vigr
 
 # ex: filetype=sh

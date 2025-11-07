@@ -1,21 +1,21 @@
-# uscan completion                                      -*- shell-script -*-
+# uscan completion                                         -*- shell-script -*-
 
-_uscan()
+_comp_cmd_uscan()
 {
-    local cur prev words cword split comp_args
+    local cur prev words cword was_split comp_args
     _comp_initialize -s -- "$@" || return
 
     case $prev in
         --package)
-            COMPREPLY=($(_comp_xfunc apt-cache src_packages))
+            _comp_compgen -x apt-cache sources
             return
             ;;
         --watchfile)
-            _filedir
+            _comp_compgen_filedir
             return
             ;;
         --destdir)
-            _filedir -d
+            _comp_compgen_filedir -d
             return
             ;;
         --timeout | --upstream-version | --download-version | \
@@ -25,10 +25,10 @@ _uscan()
             ;;
     esac
 
-    $split && return
+    [[ $was_split ]] && return
 
-    COMPREPLY=($(compgen -W '$(_parse_help "$1")' -- "$cur"))
+    _comp_compgen_help
 } &&
-    complete -F _uscan uscan
+    complete -F _comp_cmd_uscan uscan
 
 # ex: filetype=sh

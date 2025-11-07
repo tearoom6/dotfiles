@@ -1,8 +1,8 @@
 # ss(8) completion                                         -*- shell-script -*-
 
-_ss()
+_comp_cmd_ss()
 {
-    local cur prev words cword split comp_args
+    local cur prev words cword was_split comp_args
     _comp_initialize -s -- "$@" || return
 
     local noargopts='!(-*|*[fADF]*)'
@@ -12,32 +12,32 @@ _ss()
             return
             ;;
         --family | -${noargopts}f)
-            COMPREPLY=($(compgen -W 'unix inet inet6 link netlink' \
-                -- "$cur"))
+            _comp_compgen -- -W 'unix inet inet6 link netlink'
             return
             ;;
         --query | -${noargopts}A)
-            _comp_delimited , -W "$("$1" --help |
-                command sed -e 's/|/ /g' -ne 's/.*QUERY := {\([^}]*\)}.*/\1/p')"
+            local queries=$("$1" --help |
+                command sed -e 's/|/ /g' -ne 's/.*QUERY := {\([^}]*\)}.*/\1/p')
+            _comp_delimited , -W '$queries'
             return
             ;;
         --diag | --filter | -${noargopts}[DF])
-            _filedir
+            _comp_compgen_filedir
             return
             ;;
     esac
 
-    $split && return
+    [[ $was_split ]] && return
 
     if [[ $cur == -* ]]; then
-        COMPREPLY=($(compgen -W '$(_parse_help "$1")' -- "$cur"))
+        _comp_compgen_help
         [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
     elif [[ $prev == state ]]; then
-        COMPREPLY=($(compgen -W 'all connected synchronized bucket big
-            established syn-sent syn-recv fin-wait-{1,2} time-wait closed
-            close-wait last-ack listening closing' -- "$cur"))
+        _comp_compgen -- -W 'all connected synchronized bucket big established
+            syn-sent syn-recv fin-wait-{1,2} time-wait closed close-wait
+            last-ack listening closing'
     fi
 } &&
-    complete -F _ss ss
+    complete -F _comp_cmd_ss ss
 
 # ex: filetype=sh

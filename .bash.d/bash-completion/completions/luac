@@ -10,17 +10,17 @@ _comp_cmd_luac()
             return
             ;;
         -o)
-            _filedir
+            _comp_compgen_filedir
             return
             ;;
     esac
 
     if [[ $cur == -* ]]; then
-        COMPREPLY=($(compgen -W "$(_parse_help "$1")" -- "$cur"))
+        _comp_compgen_help
         return
     fi
 
-    _filedir lua
+    _comp_compgen_filedir lua
 } &&
     complete -F _comp_cmd_luac luac{,5{,.}{0..4}}
 

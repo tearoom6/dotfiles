@@ -1,21 +1,18 @@
 # timeout(1) completion                                    -*- shell-script -*-
 
-_timeout()
+_comp_cmd_timeout()
 {
-    local cur prev words cword split comp_args i found=""
+    local cur prev words cword was_split comp_args i
     _comp_initialize -s -- "$@" || return
 
     local noargopts='!(-*|*[ks]*)'
-    for ((i = 1; i <= COMP_CWORD; i++)); do
-        if [[ ${COMP_WORDS[i]} != -* && ${COMP_WORDS[i - 1]} != = ]]; then
-            if [[ $found ]]; then
-                _comp_command_offset $i
-                return
-            fi
-            found=set
+    for ((i = 1; i < cword; i++)); do
+        if [[ ${words[i]} != -* ]]; then
+            _comp_command_offset "$((i + 1))"
+            return
         fi
         # shellcheck disable=SC2254
-        [[ ${COMP_WORDS[i]} == -@(-kill-after|-signal|${noargopts}[ks]) ]] && ((i++))
+        [[ ${words[i]} == -@(-kill-after|-signal|${noargopts}[ks]) ]] && ((i++))
     done
 
     # shellcheck disable=SC2254
@@ -24,20 +21,18 @@ _timeout()
             return
             ;;
         --signal | -${noargopts}s)
-            _signals
+            _comp_compgen_signals
             return
             ;;
     esac
 
-    $split && return
+    [[ $was_split ]] && return
 
     if [[ $cur == -* ]]; then
-        COMPREPLY=($(
-            compgen -W '$(_parse_help "$1" || _parse_usage "$1")' -- "$cur"
-        ))
+        _comp_compgen_help || _comp_compgen_usage
         [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
     fi
 } &&
-    complete -F _timeout timeout
+    complete -F _comp_cmd_timeout timeout
 
 # ex: filetype=sh

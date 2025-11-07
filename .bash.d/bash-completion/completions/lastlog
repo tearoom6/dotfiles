@@ -2,7 +2,7 @@
 
 _comp_cmd_lastlog()
 {
-    local cur prev words cword split comp_args
+    local cur prev words cword was_split comp_args
     _comp_initialize -s -- "$@" || return
 
     local noargopts='!(-*|*[btu]*)'
@@ -12,14 +12,14 @@ _comp_cmd_lastlog()
             return
             ;;
         --user | -${noargopts}u)
-            COMPREPLY=($(compgen -u -- "$cur"))
+            _comp_compgen -- -u
             return
             ;;
     esac
 
-    $split && return
+    [[ $was_split ]] && return
 
-    COMPREPLY=($(compgen -W '$(_parse_help "$1")' -- "$cur"))
+    _comp_compgen_help
     [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
 } &&
     complete -F _comp_cmd_lastlog lastlog

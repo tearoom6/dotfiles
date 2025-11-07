@@ -2,12 +2,12 @@
 
 _comp_cmd_ldapsearch__ldap_uris()
 {
-    COMPREPLY=($(compgen -W 'ldap:// ldaps://' -- "$cur"))
+    _comp_compgen -- -W 'ldap:// ldaps://'
 }
 
 _comp_cmd_ldapsearch__ldap_protocols()
 {
-    COMPREPLY=($(compgen -W '2 3' -- "$cur"))
+    _comp_compgen -- -W '2 3'
 }
 
 _comp_cmd_ldapsearch()
@@ -17,7 +17,7 @@ _comp_cmd_ldapsearch()
 
     case $prev in
         -*h)
-            _known_hosts_real -- "$cur"
+            _comp_compgen_known_hosts -- "$cur"
             return
             ;;
         -*H)
@@ -25,19 +25,19 @@ _comp_cmd_ldapsearch()
             return
             ;;
         -*T)
-            _filedir -d
+            _comp_compgen_filedir -d
             return
             ;;
         -*[fy])
-            _filedir
+            _comp_compgen_filedir
             return
             ;;
         -*s)
-            COMPREPLY=($(compgen -W 'base one sub children' -- "$cur"))
+            _comp_compgen -- -W 'base one sub children'
             return
             ;;
         -*a)
-            COMPREPLY=($(compgen -W 'never always search find' -- "$cur"))
+            _comp_compgen -- -W 'never always search find'
             return
             ;;
         -*P)
@@ -47,7 +47,8 @@ _comp_cmd_ldapsearch()
     esac
 
     if [[ $cur == -* ]]; then
-        COMPREPLY=($(compgen -W '$(_parse_help "$1") -MM -ZZ' -- "$cur"))
+        _comp_compgen_help
+        _comp_compgen -a -- -W '-MM -ZZ'
     fi
 } &&
     complete -F _comp_cmd_ldapsearch ldapsearch
@@ -59,7 +60,7 @@ _comp_cmd_ldapadd()
 
     case $prev in
         -*h)
-            _known_hosts_real -- "$cur"
+            _comp_compgen_known_hosts -- "$cur"
             return
             ;;
         -*H)
@@ -67,7 +68,7 @@ _comp_cmd_ldapadd()
             return
             ;;
         -*[Sfy])
-            _filedir
+            _comp_compgen_filedir
             return
             ;;
         -*P)
@@ -77,7 +78,8 @@ _comp_cmd_ldapadd()
     esac
 
     if [[ $cur == -* ]]; then
-        COMPREPLY=($(compgen -W '$(_parse_help "$1") -MM -ZZ' -- "$cur"))
+        _comp_compgen_help
+        _comp_compgen -a -- -W '-MM -ZZ'
     fi
 } &&
     complete -F _comp_cmd_ldapadd ldapadd ldapmodify
@@ -89,7 +91,7 @@ _comp_cmd_ldapdelete()
 
     case $prev in
         -*h)
-            _known_hosts_real -- "$cur"
+            _comp_compgen_known_hosts -- "$cur"
             return
             ;;
         -*H)
@@ -97,7 +99,7 @@ _comp_cmd_ldapdelete()
             return
             ;;
         -*[fy])
-            _filedir
+            _comp_compgen_filedir
             return
             ;;
         -*P)
@@ -107,7 +109,8 @@ _comp_cmd_ldapdelete()
     esac
 
     if [[ $cur == -* ]]; then
-        COMPREPLY=($(compgen -W '$(_parse_help "$1") -MM -ZZ' -- "$cur"))
+        _comp_compgen_help
+        _comp_compgen -a -- -W '-MM -ZZ'
     fi
 } &&
     complete -F _comp_cmd_ldapdelete ldapdelete
@@ -119,7 +122,7 @@ _comp_cmd_ldapcompare()
 
     case $prev in
         -*h)
-            _known_hosts_real -- "$cur"
+            _comp_compgen_known_hosts -- "$cur"
             return
             ;;
         -*H)
@@ -127,7 +130,7 @@ _comp_cmd_ldapcompare()
             return
             ;;
         -*y)
-            _filedir
+            _comp_compgen_filedir
             return
             ;;
         -*P)
@@ -137,7 +140,8 @@ _comp_cmd_ldapcompare()
     esac
 
     if [[ $cur == -* ]]; then
-        COMPREPLY=($(compgen -W '$(_parse_help "$1") -MM -ZZ' -- "$cur"))
+        _comp_compgen_help
+        _comp_compgen -a -- -W '-MM -ZZ'
     fi
 } &&
     complete -F _comp_cmd_ldapcompare ldapcompare
@@ -149,7 +153,7 @@ _comp_cmd_ldapmodrdn()
 
     case $prev in
         -*h)
-            _known_hosts_real -- "$cur"
+            _comp_compgen_known_hosts -- "$cur"
             return
             ;;
         -*H)
@@ -157,7 +161,7 @@ _comp_cmd_ldapmodrdn()
             return
             ;;
         -*[fy])
-            _filedir
+            _comp_compgen_filedir
             return
             ;;
         -*P)
@@ -167,7 +171,8 @@ _comp_cmd_ldapmodrdn()
     esac
 
     if [[ $cur == -* ]]; then
-        COMPREPLY=($(compgen -W '$(_parse_help "$1") -ZZ -MM' -- "$cur"))
+        _comp_compgen_help
+        _comp_compgen -a -- -W '-ZZ -MM'
     fi
 } &&
     complete -F _comp_cmd_ldapmodrdn ldapmodrdn
@@ -179,7 +184,7 @@ _comp_cmd_ldapwhoami()
 
     case $prev in
         -*h)
-            _known_hosts_real -- "$cur"
+            _comp_compgen_known_hosts -- "$cur"
             return
             ;;
         -*H)
@@ -187,7 +192,7 @@ _comp_cmd_ldapwhoami()
             return
             ;;
         -*[fy])
-            _filedir
+            _comp_compgen_filedir
             return
             ;;
         -*P)
@@ -197,7 +202,8 @@ _comp_cmd_ldapwhoami()
     esac
 
     if [[ $cur == -* ]]; then
-        COMPREPLY=($(compgen -W '$(_parse_help "$1") -MM -ZZ' -- "$cur"))
+        _comp_compgen_help
+        _comp_compgen -a -- -W '-MM -ZZ'
     fi
 } &&
     complete -F _comp_cmd_ldapwhoami ldapwhoami
@@ -209,7 +215,7 @@ _comp_cmd_ldappasswd()
 
     case $prev in
         -*h)
-            _known_hosts_real -- "$cur"
+            _comp_compgen_known_hosts -- "$cur"
             return
             ;;
         -*H)
@@ -217,13 +223,14 @@ _comp_cmd_ldappasswd()
             return
             ;;
         -*[tTy])
-            _filedir
+            _comp_compgen_filedir
             return
             ;;
     esac
 
     if [[ $cur == -* ]]; then
-        COMPREPLY=($(compgen -W '$(_parse_help "$1") -MM -ZZ' -- "$cur"))
+        _comp_compgen_help
+        _comp_compgen -a -- -W '-MM -ZZ'
     fi
 } &&
     complete -F _comp_cmd_ldappasswd ldappasswd

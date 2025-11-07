@@ -2,32 +2,31 @@
 
 [[ $OSTYPE == *freebsd* ]] || return 1
 
-_kldload()
+_comp_cmd_kldload()
 {
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
 
     if _comp_looks_like_path "$cur"; then
-        _filedir ko
+        _comp_compgen_filedir ko
         return
     fi
 
-    local moddirs modules i IFS=";"
-    moddirs=($(kldconfig -r 2>/dev/null))
-    _comp_unlocal IFS
-
-    compopt -o filenames
-    for i in "${moddirs[@]}"; do
-        modules=($(compgen -f "$i/$cur"))
-        modules=(${modules[@]#$i/})
-        COMPREPLY+=("${modules[@]}")
-    done
-    COMPREPLY=(${COMPREPLY[@]%.ko})
+    local moddirs modules i
+    if _comp_split -F ";" moddirs "$(kldconfig -r 2>/dev/null)"; then
+        compopt -o filenames
+        for i in "${moddirs[@]}"; do
+            _comp_compgen -v modules -c "$i/$cur" -- -f &&
+                COMPREPLY+=("${modules[@]#$i/}")
+        done
+        ((${#COMPREPLY[@]})) &&
+            COMPREPLY=("${COMPREPLY[@]%.ko}")
+    fi
 
     # also add dirs in current dir
-    _filedir -d
+    _comp_compgen -a filedir -d
 
 } &&
-    complete -F _kldload kldload
+    complete -F _comp_cmd_kldload kldload
 
 # ex: filetype=sh

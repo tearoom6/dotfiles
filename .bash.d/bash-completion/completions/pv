@@ -1,6 +1,6 @@
 # pv(1) completion                                         -*- shell-script -*-
 
-_pv()
+_comp_cmd_pv()
 {
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
@@ -14,21 +14,21 @@ _pv()
             return
             ;;
         --remote | -${noargopts}R)
-            _pids
+            _comp_compgen_pids
             return
             ;;
         --pidfile | --watchfd | -${noargopts}[Pd])
-            _filedir pid
+            _comp_compgen_filedir pid
             return
             ;;
     esac
 
     if [[ $cur == -* ]]; then
-        COMPREPLY=($(compgen -W '$(_parse_help "$1")' -- "$cur"))
+        _comp_compgen_help
     else
-        _filedir
+        _comp_compgen_filedir
     fi
 } &&
-    complete -F _pv pv
+    complete -F _comp_cmd_pv pv
 
 # ex: filetype=sh

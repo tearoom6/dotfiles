@@ -1,6 +1,6 @@
 # jq(1) completion                                         -*- shell-script -*-
 
-_jq()
+_comp_cmd_jq()
 {
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
@@ -12,15 +12,15 @@ _jq()
             return
             ;;
         --indent)
-            COMPREPLY=($(compgen -W '{1..8}' -- "$cur"))
+            _comp_compgen -- -W '{1..8}'
             return
             ;;
         --from-file | --run-tests | -${noargopts}f)
-            _filedir
+            _comp_compgen_filedir
             return
             ;;
         -${noargopts}L)
-            _filedir -d
+            _comp_compgen_filedir -d
             return
             ;;
     esac
@@ -31,7 +31,7 @@ _jq()
                 return
                 ;;
             --slurpfile | --argfile)
-                _filedir 'json?(l)'
+                _comp_compgen_filedir 'json?(l)'
                 return
                 ;;
         esac
@@ -44,17 +44,16 @@ _jq()
 
         if [[ $help_output == *--help* ]]; then
             # If the output of --help seems complete, use it
-            COMPREPLY=($(compgen -W \
-                '$(printf "%s" "$help_output" | _parse_help -)' -- "$cur"))
+            _comp_compgen_help - <<<"$help_output"
         else
             # Otherwise, use a hard-coded list of known flags, some of which do
             # not appear in the output of --help as of jq 1.6.
-            COMPREPLY=($(compgen -W '--version --seq --stream --slurp
-                --raw-input --null-input --compact-output --tab --indent
-                --color-output -monochrome-output --ascii-output --unbuffered
-                --sort-keys --raw-output --join-output --from-file --exit-status
-                --arg --argjson --slurpfile --rawfile --argfile --args
-                --jsonargs --run-tests --help' -- "$cur"))
+            _comp_compgen -- -W '--version --seq --stream --slurp --raw-input
+                --null-input --compact-output --tab --indent --color-output
+                -monochrome-output --ascii-output --unbuffered --sort-keys
+                --raw-output --join-output --from-file --exit-status --arg
+                --argjson --slurpfile --rawfile --argfile --args --jsonargs
+                --run-tests --help'
         fi
         return
     fi
@@ -64,17 +63,17 @@ _jq()
         [[ $word != --?(json)args ]] || return
     done
 
-    local args
+    local REPLY
     # TODO: DTRT with args taking 2 options
     # -f|--from-file are not counted here because they supply the filter
-    _count_args "" "@(--arg|--arg?(json|file)|--slurpfile|--indent|--run-tests|-${noargopts}L)"
+    _comp_count_args -a "@(--arg|--arg?(json|file)|--slurpfile|--indent|--run-tests|-${noargopts}L)"
 
     # 1st arg is filter
-    ((args == 1)) && return
+    ((REPLY == 1)) && return
     # 2... are input files
-    _filedir 'json?(l)'
+    _comp_compgen_filedir 'json?(l)'
 
 } &&
-    complete -F _jq jq
+    complete -F _comp_cmd_jq jq
 
 # ex: filetype=sh

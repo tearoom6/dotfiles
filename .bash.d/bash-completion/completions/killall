@@ -4,7 +4,7 @@
 
 _comp_cmd_killall()
 {
-    local cur prev words cword split comp_args
+    local cur prev words cword was_split comp_args
     _comp_initialize -s -- "$@" || return
 
     local noargopts='!(-*|*[Zoysu]*)'
@@ -14,24 +14,24 @@ _comp_cmd_killall()
             return
             ;;
         --signal | -${noargopts}s)
-            _signals
+            _comp_compgen_signals
             return
             ;;
         --user | -${noargopts}u)
-            _allowed_users
+            _comp_compgen_allowed_users
             return
             ;;
     esac
 
-    $split && return
+    [[ $was_split ]] && return
 
     if [[ $cur == -* ]]; then
-        COMPREPLY=($(compgen -W '$(_parse_help "$1")' -- "$cur"))
-        ((cword == 1)) && _signals -
+        _comp_compgen_help
+        ((cword == 1)) && _comp_compgen -a signals -
         return
     fi
 
-    _pnames
+    _comp_compgen_pnames
 } &&
     complete -F _comp_cmd_killall killall
 

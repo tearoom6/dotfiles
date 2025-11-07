@@ -1,8 +1,8 @@
 # scrub(1) completion                                      -*- shell-script -*-
 
-_scrub()
+_comp_cmd_scrub()
 {
-    local cur prev words cword split comp_args
+    local cur prev words cword was_split comp_args
     _comp_initialize -s -- "$@" || return
 
     local noargopts='!(-*|*[bsDpX]*)'
@@ -13,27 +13,26 @@ _scrub()
             return
             ;;
         --pattern | -${noargopts}p)
-            COMPREPLY=($(compgen -W '$("$1" --help 2>&1 |
-                awk "/^Available/{flag=1;next}/^ /&&flag{print \$1}")' \
-                -- "$cur"))
+            _comp_compgen_split -- "$("$1" --help 2>&1 |
+                _comp_awk '/^Available/{flag=1;next}/^ /&&flag{print $1}')"
             return
             ;;
         --freespace | -${noargopts}X)
-            _filedir -d
+            _comp_compgen_filedir -d
             return
             ;;
     esac
 
-    $split && return
+    [[ $was_split ]] && return
 
     if [[ $cur == -* ]]; then
-        COMPREPLY=($(compgen -W '$(_parse_help "$1")' -- "$cur"))
+        _comp_compgen_help
         [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
         return
     fi
 
-    _filedir
+    _comp_compgen_filedir
 } &&
-    complete -F _scrub scrub
+    complete -F _comp_cmd_scrub scrub
 
 # ex: filetype=sh

@@ -10,31 +10,29 @@ fi
 
 _comp_cmd_su()
 { # linux-specific completion
-    local cur prev words cword split comp_args
+    local cur prev words cword was_split comp_args
     _comp_initialize -s -- "$@" || return
 
     case "$prev" in
         -s | --shell)
-            _shells
+            _comp_compgen_shells
             return
             ;;
         -c | --command | --session-command)
-            local IFS=$'\n'
-            compopt -o filenames
-            COMPREPLY=($(compgen -d -c -- "$cur"))
+            _comp_compgen_commands
             return
             ;;
     esac
 
-    $split && return
+    [[ $was_split ]] && return
 
     if [[ $cur == -* ]]; then
-        COMPREPLY=($(compgen -W '$(_parse_help "$1")' -- "$cur"))
+        _comp_compgen_help
         [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
         return
     fi
 
-    COMPREPLY=($(compgen -u -- "$cur"))
+    _comp_compgen -- -u
 } &&
     complete -F _comp_cmd_su su
 

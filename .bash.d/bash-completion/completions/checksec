@@ -1,8 +1,8 @@
 # bash completion for checksec                             -*- shell-script -*-
 
-_checksec()
+_comp_cmd_checksec()
 {
-    local cur prev words cword split comp_args
+    local cur prev words cword was_split comp_args
     _comp_initialize -s -- "$@" || return
 
     case $prev in
@@ -10,45 +10,39 @@ _checksec()
             return
             ;;
         --file | --fortify-file)
-            _filedir
+            _comp_compgen_filedir
             return
             ;;
         --dir)
-            _filedir -d
+            _comp_compgen_filedir -d
             return
             ;;
         --proc)
-            _pnames
+            _comp_compgen_pnames
             return
             ;;
         --proc-libs | --fortify-proc)
-            _pids
+            _comp_compgen_pids
             return
             ;;
         --format)
-            COMPREPLY=($(compgen -W '$("$1" --help 2>/dev/null |
-                command sed \
-                     -e "s/[{,}]/ /g" \
-                    -ne "s/^[[:space:]]*--format=//p"
-                )' -- "$cur"))
+            _comp_compgen_split -- "$("$1" --help 2>/dev/null |
+                command sed -ne 's/[{,}]/ /g;s/^[[:space:]]*--format=//p')"
             ;;
         --output)
-            COMPREPLY=($(compgen -W '$("$1" --help 2>/dev/null |
-                command sed \
-                     -e "s/[{,}]/ /g" \
-                    -ne "s/^[[:space:]]*--output=//p"
-                )' -- "$cur"))
+            _comp_compgen_split -- "$("$1" --help 2>/dev/null |
+                command sed -ne 's/[{,}]/ /g;s/^[[:space:]]*--output=//p')"
             ;;
     esac
 
-    $split && return
+    [[ $was_split ]] && return
 
     if [[ $cur == -* ]]; then
-        COMPREPLY=($(compgen -W '$(_parse_help "$1")' -- "$cur"))
+        _comp_compgen_help
         [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
         return
     fi
 } &&
-    complete -F _checksec checksec
+    complete -F _comp_cmd_checksec checksec
 
 # ex: filetype=sh

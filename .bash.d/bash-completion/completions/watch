@@ -2,9 +2,9 @@
 
 [[ $OSTYPE == *@(linux|darwin)* ]] || return 1
 
-_watch()
+_comp_cmd_watch()
 {
-    local cur prev words cword split comp_args
+    local cur prev words cword was_split comp_args
     _comp_initialize -s -- "$@" || return
 
     local offset=0 i
@@ -36,7 +36,7 @@ _watch()
     case $prev in
         --differences | -${noargopts}d)
             [[ $cur != -* ]] &&
-                COMPREPLY=($(compgen -W 'cumulative' -- "$cur"))
+                _comp_compgen -- -W 'cumulative'
             return
             ;;
         --interval | -${noargopts}n)
@@ -44,14 +44,14 @@ _watch()
             ;;
     esac
 
-    $split && return
+    [[ $was_split ]] && return
 
     if [[ $cur == -* ]]; then
-        COMPREPLY=($(compgen -W '$(_parse_help "$1")' -- "$cur"))
+        _comp_compgen_help
         [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
         return
     fi
 } &&
-    complete -F _watch watch
+    complete -F _comp_cmd_watch watch
 
 # ex: filetype=sh

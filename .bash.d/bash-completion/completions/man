@@ -1,8 +1,8 @@
 # man(1) completion                                        -*- shell-script -*-
 
-_man()
+_comp_cmd_man()
 {
-    local cur prev words cword split comp_args
+    local cur prev words cword was_split comp_args
     _comp_initialize -s -n : -- "$@" || return
 
     local comprsuffix=".@([glx]z|bz2|lzma|Z|zst)"
@@ -13,15 +13,15 @@ _man()
     # shellcheck disable=SC2254
     case $prev in
         --config-file | -${noargopts}C)
-            _filedir conf
+            _comp_compgen_filedir conf
             return
             ;;
         --local-file | -${noargopts}l)
-            _filedir "$manext"
+            _comp_compgen_filedir "$manext"
             return
             ;;
         --manpath | -${noargopts}M)
-            _filedir -d
+            _comp_compgen_filedir -d
             return
             ;;
         --sections | -${noargopts}[Ss])
@@ -29,12 +29,11 @@ _man()
             return
             ;;
         --pager | -${noargopts}P)
-            compopt -o filenames
-            COMPREPLY=($(compgen -c -- "$cur"))
+            _comp_compgen_commands
             return
             ;;
         --preprocessor | -${noargopts}p)
-            COMPREPLY=($(compgen -W 'e p t g r v' -- "$cur"))
+            _comp_compgen -- -W 'e p t g r v'
             return
             ;;
         --locale | --systems | --extension | --prompt | --recode | --encoding | \
@@ -43,19 +42,17 @@ _man()
             ;;
     esac
 
-    $split && return
+    [[ $was_split ]] && return
 
     if [[ $cur == -* ]]; then
-        COMPREPLY=($(
-            compgen -W '$(_parse_help "$1" -h || _parse_usage "$1")' -- "$cur"
-        ))
+        _comp_compgen_help -- -h || _comp_compgen_usage
         [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
         return
     fi
 
     # file based completion if parameter looks like a path
     if _comp_looks_like_path "$cur"; then
-        _filedir "$manext"
+        _comp_compgen_filedir "$manext"
         return
     fi
 
@@ -79,19 +76,20 @@ _man()
 
     _comp_split -F : manpath "$manpath"
     if ((${#manpath[@]})); then
-        manpath=("${manpath[@]/%//*man$sect/$cur*}" "${manpath[@]/%//*cat$sect/$cur*}")
-        local IFS=
-        _comp_expand_glob COMPREPLY '${manpath[@]}'
-        _comp_unlocal IFS
+        local manfiles
+        _comp_compgen -Rv manfiles -- -S "/*man$sect/$cur*" -W '"${manpath[@]}"'
+        _comp_compgen -aRv manfiles -- -S "/*cat$sect/$cur*" -W '"${manpath[@]}"'
 
-        if ((${#COMPREPLY[@]} != 0)); then
+        local IFS=
+        if _comp_expand_glob COMPREPLY '${manfiles[@]}'; then
             # weed out directory path names and paths to man pages (empty
             # elements will be removed by the later `compgen -X ''`)
             COMPREPLY=("${COMPREPLY[@]##*/?(:)}")
             # strip suffix from man pages
             COMPREPLY=("${COMPREPLY[@]%$comprsuffix}")
-            _comp_split -l COMPREPLY "$(compgen -W '"${COMPREPLY[@]%.*}"' -X '' -- "${cur//\\\\/}")"
+            _comp_compgen -c "${cur//\\\\/}" -- -W '"${COMPREPLY[@]%.*}"' -X ''
         fi
+        _comp_unlocal IFS
     fi
 
     # shellcheck disable=SC2053
@@ -99,14 +97,14 @@ _man()
         # File based completion for the rest, prepending ./ if needed
         # (man 1.6f needs that for man pages in current dir)
         local i start=${#COMPREPLY[@]}
-        _filedir "$manext"
+        _comp_compgen -a filedir "$manext"
         for ((i = start; i < ${#COMPREPLY[@]}; i++)); do
             [[ ${COMPREPLY[i]} == */* ]] || COMPREPLY[i]=./${COMPREPLY[i]}
         done
     fi
 
-    __ltrim_colon_completions "$cur"
+    _comp_ltrim_colon_completions "$cur"
 } &&
-    complete -F _man man apropos whatis
+    complete -F _comp_cmd_man man apropos whatis
 
 # ex: filetype=sh

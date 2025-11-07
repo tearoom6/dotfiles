@@ -5,9 +5,8 @@
 
 _comp_cmd_adb__command_usage()
 {
-    COMPREPLY=($(compgen -W \
-        '$("$1" help 2>&1 | command grep "^ *\(adb \)\? *$2 " \
-            | command sed -e "s/[]|[]/\n/g" | _parse_help -)' -- "$cur"))
+    _comp_compgen_help - <<<"$("$1" help 2>&1 |
+        command sed -e "/^ *\(adb \)\{0,1\} *$2 /!d;s/[]|[]/\n/g")"
 }
 
 _comp_cmd_adb()
@@ -20,7 +19,7 @@ _comp_cmd_adb()
             return
             ;;
         -f)
-            _filedir
+            _comp_compgen_filedir
             return
             ;;
     esac
@@ -37,14 +36,14 @@ _comp_cmd_adb()
     if [[ ! $has_cmd ]]; then
         local tmp=()
         if [[ ! $cur || $cur == -* ]]; then
-            tmp+=($(compgen -W '$(_parse_help "$1" help)' -- "$cur"))
+            _comp_compgen -av tmp help -- help
         fi
         if [[ ! $cur || $cur != -* ]]; then
-            tmp+=($("$1" help 2>&1 | awk '$1 == "adb" { print $2 }'))
+            _comp_split -a tmp "$("$1" help 2>&1 | _comp_awk '$1 == "adb" { print $2 }')"
             tmp+=(devices connect disconnect sideload)
         fi
         ((${#tmp[@]})) &&
-            COMPREPLY=($(compgen -W '"${tmp[@]}"' -- "$cur"))
+            _comp_compgen -- -W '"${tmp[@]}"'
         return
     fi
 
@@ -54,15 +53,14 @@ _comp_cmd_adb()
 
     case $cmd in
         push | restore | sideload)
-            _filedir
+            _comp_compgen -a filedir
             ;;
         forward)
-            COMPREPLY=($(compgen -W \
-                '$("$1" help 2>&1 | command sed -ne "s/^ *adb  *forward  *-/-/p" | \
-                    _parse_help -)' -- "$cur"))
+            _comp_compgen_help - <<<"$("$1" help 2>&1 |
+                command sed -ne "s/^ *adb  *forward  *-/-/p")"
             ;;
         reboot)
-            COMPREPLY=($(compgen -W 'bootloader recovery' -- "$cur"))
+            _comp_compgen -- -W 'bootloader recovery'
             ;;
     esac
 } &&

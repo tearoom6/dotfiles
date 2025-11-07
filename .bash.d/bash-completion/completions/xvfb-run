@@ -1,19 +1,19 @@
 # bash completion for xvfb-run                             -*- shell-script -*-
 
-_xvfb_run()
+_comp_cmd_xvfb_run()
 {
-    local cur prev words cword split comp_args
+    local cur prev words cword was_split comp_args
     _comp_initialize -s -- "$@" || return
 
     local noargopts='!(-*|*[npsef]*)'
     local i
-    for ((i = 1; i <= COMP_CWORD; i++)); do
-        if [[ ${COMP_WORDS[i]} != -* ]]; then
+    for ((i = 1; i <= cword; i++)); do
+        if [[ ${words[i]} != -* ]]; then
             _comp_command_offset $i
             return
         fi
         # shellcheck disable=SC2254
-        [[ ${COMP_WORDS[i]} == -${noargopts}[npsef] ]] && ((i++))
+        [[ ${words[i]} == -${noargopts}[npsef] ]] && ((i++))
     done
 
     # shellcheck disable=SC2254
@@ -22,18 +22,18 @@ _xvfb_run()
             return
             ;;
         --error-file | --auth-file | -${noargopts}[ef])
-            _filedir
+            _comp_compgen_filedir
             return
             ;;
     esac
 
-    $split && return
+    [[ $was_split ]] && return
 
     if [[ $cur == -* ]]; then
-        COMPREPLY=($(compgen -W '$(_parse_help "$1")' -- "$cur"))
+        _comp_compgen_help
         [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
     fi
 } &&
-    complete -F _xvfb_run xvfb-run
+    complete -F _comp_cmd_xvfb_run xvfb-run
 
 # ex: filetype=sh
