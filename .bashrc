@@ -1,6 +1,9 @@
 # ~/.bashrc
 # bash Personal Preference File @tearoom6
 
+# Skip when not running interactively
+[[ $- != *i* ]] && return
+
 # Utility
 ## load functions
 if ! type is_utility_loaded >/dev/null 2>&1; then
