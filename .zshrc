@@ -1,6 +1,9 @@
 # ~/.zshrc
 # zsh Personal Preference File @tearoom6
 
+# Skip when not running interactively
+[[ -o interactive ]] || return
+
 # Custom Functions
 fpath=($HOME/.zsh.d/functions/ $fpath)
 autoload -Uz try_eval
