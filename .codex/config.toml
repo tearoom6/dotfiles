@@ -1,5 +1,5 @@
 # Model configurations
-model = "gpt-5-codex"
+model = "gpt-5.1-codex-max"
 model_reasoning_summary = "auto"   # Reasoning summaries (auto | concise | detailed | none)
 model_reasoning_effort = "medium"  # Responses API reasoning effort (minimal | low | medium | high)
 model_verbosity = "medium"         # Controls output length/detail on GPT‑5 family models (low | medium | high)
