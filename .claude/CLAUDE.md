@@ -36,7 +36,7 @@
 - Follow these Markdown formatting rules:
   - Insert a half-width space before and after English words
     (except when they appear at the beginning or end of a sentence).
-  - Use **half-width parentheses**, with a half-width space before and after them
+  - Use **half-width parentheses**, with a half-width space around them
     (except when they appear at the beginning or end of a sentence).
   - Insert **one blank line** before and after Markdown headings
     (except when the heading is at the top of the file, where no line above is needed).
