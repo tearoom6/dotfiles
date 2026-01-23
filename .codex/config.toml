@@ -52,3 +52,7 @@ include_only = []                  # If non-empty, a whitelist of patterns; only
 # Permit network access when sandbox mode is workspace-write.
 network_access = true
 
+[mcp_servers.chrome-devtools]
+command = "npx"
+args = ["chrome-devtools-mcp@latest"]
+
