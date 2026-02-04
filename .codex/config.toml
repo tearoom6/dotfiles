@@ -13,6 +13,9 @@ notify = [ "bash", "-lc", "afplay /System/Library/Sounds/Ping.aiff" ]
 # Allow the command being run inside the sandbox to make outbound network requests
 network_access = false
 
+# Codex serves results from a web search cache
+web_search = "cached"
+
 # OS sandbox policy (read-only | workspace-write | danger-full-access)
 sandbox_mode = "read-only"
 
@@ -57,7 +60,6 @@ network_access = true
 
 [features]
 shell_snapshot = true          # Snapshot shell environment to speed up repeated commands.
-web_search_request = true      # Allow the model to issue web searches.
 collaboration_modes = true     # Enable collaboration modes.
 
 [mcp_servers.chrome-devtools]
