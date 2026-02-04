@@ -28,6 +28,7 @@ approval_policy = "untrusted"
 
 # Suppress the warning that appears when under-development feature flags are enabled.
 suppress_unstable_features_warning = true
+personality = "pragmatic"
 
 [profiles.auto]
 sandbox_mode = "workspace-write"
