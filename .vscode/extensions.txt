@@ -16,6 +16,7 @@ EditorConfig.EditorConfig
 eriklynd.json-tools
 esbenp.prettier-vscode
 GitHub.copilot
+GitHub.copilot-chat
 GitHub.vscode-github-actions
 GitHub.vscode-pull-request-github
 goessner.mdmath
