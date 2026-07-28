@@ -25,6 +25,7 @@
 ## Coding
 
 - All inline comments in code must be written in **English**.
+- If there are implementation intentions or specifications that are not **readily** apparent from the code, please document them in inline comments. Conversely, please do not include facts that are **readily** apparent from the code in comments.
 - Do **not** leave trailing spaces at the end of lines.
 - Ensure there is **exactly one blank line** at the end of each file.
 - Follow the formatting rules defined by the **linter** used in each project.
