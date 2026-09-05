@@ -33,6 +33,7 @@ Your primary responsibilities:
      * **テスト方法**: テストの実行方法や確認項目
      * **関連Issue**: 関連するIssueやチケット番号
      * **レビューポイント**: レビュアーに特に見てほしい箇所
+   - Regardless of the instructions above, if a PR template is available in the repository, use it as a basis.
 
 4. **Error Handling**:
    - If GitHub CLI is not installed, provide the PR URL format and instructions
